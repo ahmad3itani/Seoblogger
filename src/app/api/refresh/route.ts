@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { analyzeContentFreshness, refreshArticleContent } from "@/lib/ai/refresh";
-import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { requireAuth, requireFeature } from "@/lib/supabase/auth-helpers";
 
 export async function POST(req: Request) {
     try {
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasContentRefresh");
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 

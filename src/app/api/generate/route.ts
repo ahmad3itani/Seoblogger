@@ -173,8 +173,17 @@ export async function POST(req: Request) {
 
                 // Generate images if requested
                 let image;
-                let inlineImages: Array<{url: string; altText: string}> = [];
+                let inlineImages: Array<{ url: string; altText: string }> = [];
+                let skipImages = false;
                 if (includeImages) {
+                    // Check image usage limits first
+                    const imageUsageCheck = await checkUsageLimit(authUser.id, "images", numInlineImages || 1);
+                    if (!imageUsageCheck.allowed) {
+                        console.log(`⚠️ Image limit reached for user ${authUser.id}: ${imageUsageCheck.error}`);
+                        skipImages = true;
+                    }
+                }
+                if (includeImages && !skipImages) {
                     // Extract H2 section titles from the article for context-aware image generation
                     const h2Matches = article.match(/<h2[^>]*>(.*?)<\/h2>/gi) || [];
                     const sectionTitles = h2Matches.map((h2: string) => h2.replace(/<[^>]+>/g, '').trim());
@@ -182,23 +191,23 @@ export async function POST(req: Request) {
 
                     // Always generate featured image (index 0 = hero style)
                     image = await generateFeaturedImage(selectedTitle, keyword, "featured", undefined, 0);
-                    
+
                     // Generate inline images with section context for variety
                     const numInline = (numInlineImages || 3) - 1;
                     if (numInline > 0) {
                         console.log(`🖼️ Generating ${numInline} unique inline images with section context...`);
-                        
+
                         // Calculate which sections to pair with images (evenly distributed)
                         const totalSections = sectionTitles.length;
                         const sectionInterval = totalSections > 0 ? Math.floor(totalSections / (numInline + 1)) : 1;
-                        
+
                         for (let i = 0; i < numInline; i++) {
                             // Pick a section title for context (distributed evenly)
                             const sectionIdx = Math.min((i + 1) * sectionInterval, totalSections - 1);
                             const sectionContext = sectionTitles[sectionIdx] || `${keyword} aspect ${i + 1}`;
-                            
+
                             console.log(`  Image ${i + 1}: context="${sectionContext}", style index=${i + 1}`);
-                            
+
                             const inlineImage = await generateFeaturedImage(
                                 selectedTitle,
                                 keyword,
@@ -215,19 +224,19 @@ export async function POST(req: Request) {
 
                 // Format for Blogger
                 let fullContent = article;
-                
+
                 // Embed inline images EVENLY distributed across article content
                 if (inlineImages.length > 0) {
                     console.log(`📸 Embedding ${inlineImages.length} inline images (evenly distributed)...`);
                     const sections = fullContent.split('</h2>');
                     const numSections = sections.length - 1; // first element is before first h2
                     console.log(`Found ${numSections} H2 sections in article`);
-                    
+
                     if (numSections > 1) {
                         // Calculate even distribution: skip first section, spread across remaining
                         const interval = Math.max(1, Math.floor(numSections / (inlineImages.length + 1)));
                         let imageIndex = 0;
-                        
+
                         for (let i = 0; i < numSections && imageIndex < inlineImages.length; i++) {
                             const sectionPos = i + 1; // +1 because sections[0] is before first h2
                             // Place image at evenly spaced intervals (skip first few sections)
@@ -239,7 +248,7 @@ export async function POST(req: Request) {
                                 imageIndex++;
                             }
                         }
-                        
+
                         // If some images weren't placed (few sections), append remaining
                         while (imageIndex < inlineImages.length) {
                             const remaining = inlineImages.length - imageIndex;
@@ -251,14 +260,14 @@ export async function POST(req: Request) {
                                 imageIndex++;
                             }
                         }
-                        
+
                         fullContent = sections.join('</h2>');
                         console.log(`✅ Successfully embedded ${inlineImages.length} inline images (evenly distributed)`);
                     } else {
                         console.log('⚠️ No H2 sections found, distributing across paragraphs...');
                         const paragraphs = fullContent.split('</p>');
                         const interval = Math.max(1, Math.floor(paragraphs.length / (inlineImages.length + 1)));
-                        
+
                         for (let i = 0; i < inlineImages.length; i++) {
                             const insertIndex = Math.min((i + 1) * interval, paragraphs.length - 1);
                             const img = inlineImages[i];
@@ -268,7 +277,7 @@ export async function POST(req: Request) {
                         fullContent = paragraphs.join('</p>');
                     }
                 }
-                
+
                 if (faqs.length > 0) {
                     fullContent += generateFaqHtml(faqs);
                 }
@@ -305,7 +314,7 @@ export async function POST(req: Request) {
                 // Determine article status based on publishAction
                 let articleStatus = "draft";
                 let scheduledFor = null;
-                
+
                 if (publishAction === "schedule" && scheduleDate) {
                     articleStatus = "scheduled";
                     scheduledFor = new Date(scheduleDate);

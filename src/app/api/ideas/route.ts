@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { requireAuth, requireFeature } from "@/lib/supabase/auth-helpers";
 import { openai, getModelForUser } from "@/lib/ai/client";
 import { prisma } from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 
 export async function POST(req: Request) {
     try {
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasTrendIdeas");
         if (authResult instanceof NextResponse) return authResult;
         const userId = authResult.user.id;
 
@@ -36,11 +36,11 @@ export async function POST(req: Request) {
         // Fetch real trending topics from Serper API if available
         let trendingTopics: string[] = [];
         const serperKey = process.env.SERPER_API_KEY;
-        
+
         if (serperKey) {
             try {
                 console.log(`🔍 Fetching trending topics for niche: ${niche}`);
-                
+
                 // Get related searches and trending queries
                 const serperResponse = await fetch("https://google.serper.dev/search", {
                     method: "POST",
@@ -58,11 +58,11 @@ export async function POST(req: Request) {
 
                 if (serperResponse.ok) {
                     const serperData = await serperResponse.json();
-                    
+
                     // Extract related searches and questions
                     const relatedSearches = serperData.relatedSearches?.map((r: any) => r.query) || [];
                     const questions = serperData.peopleAlsoAsk?.map((q: any) => q.question) || [];
-                    
+
                     trendingTopics = [...relatedSearches, ...questions].slice(0, 15);
                     console.log(`✅ Found ${trendingTopics.length} trending topics from Serper`);
                 }
@@ -124,10 +124,10 @@ Make each idea unique, specific, and actionable.`;
         });
 
         let content = response.choices[0]?.message?.content || '{"ideas":[]}';
-        
+
         // Strip markdown code blocks if present
         content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-        
+
         const parsed = JSON.parse(content);
 
         return NextResponse.json(parsed);

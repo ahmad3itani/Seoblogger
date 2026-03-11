@@ -143,6 +143,7 @@ export default function DashboardLayout({
 
     const planBadgeColor: Record<string, string> = {
         free: "bg-gray-100 text-gray-600 border-gray-200",
+        starter: "bg-blue-50 text-blue-600 border-blue-200",
         pro: "bg-orange-50 text-[#FF6600] border-orange-200",
         enterprise: "bg-amber-50 text-amber-600 border-amber-200",
     };
@@ -158,7 +159,7 @@ export default function DashboardLayout({
                 <div className="flex items-center justify-between h-14 px-4 bg-[#FF6600]">
                     <Link href="/" className="flex items-center gap-2">
                         <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21.976 24H2.026C.9 24 0 23.1 0 21.976V2.026C0 .9.9 0 2.025 0H22.05C23.1 0 24 .9 24 2.025v19.95C24 23.1 23.1 24 21.976 24zM12 3.975H9c-2.775 0-5.025 2.25-5.025 5.025v6c0 2.774 2.25 5.024 5.025 5.024h6c2.774 0 5.024-2.25 5.024-5.024v-3c0-.6-.45-1.05-1.05-1.05h-3.975c-.6 0-1.05-.45-1.05-1.05V6.975c0-.6-.45-1.05-1.05-1.05H12z"/>
+                            <path d="M21.976 24H2.026C.9 24 0 23.1 0 21.976V2.026C0 .9.9 0 2.025 0H22.05C23.1 0 24 .9 24 2.025v19.95C24 23.1 23.1 24 21.976 24zM12 3.975H9c-2.775 0-5.025 2.25-5.025 5.025v6c0 2.774 2.25 5.024 5.025 5.024h6c2.774 0 5.024-2.25 5.024-5.024v-3c0-.6-.45-1.05-1.05-1.05h-3.975c-.6 0-1.05-.45-1.05-1.05V6.975c0-.6-.45-1.05-1.05-1.05H12z" />
                         </svg>
                         <span className="text-base font-semibold text-white">Blogger</span>
                     </Link>

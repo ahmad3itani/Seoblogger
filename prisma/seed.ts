@@ -15,7 +15,7 @@ async function main() {
       description: 'Perfect for trying out BloggerSEO',
       price: 0,
       yearlyPrice: 0,
-      
+
       // Limits
       articlesPerMonth: 10,
       imagesPerMonth: 30,
@@ -23,9 +23,9 @@ async function main() {
       projectsLimit: 1,
       brandProfilesLimit: 1,
       campaignsLimit: 0,
-      
+
       wordsPerArticle: 2000,
-      
+
       // Features
       hasAutoPublish: false,
       hasScheduling: false,
@@ -42,9 +42,54 @@ async function main() {
       hasAdvancedAI: false,
       hasCompetitorAnalysis: false,
       hasCustomPrompts: false,
-      
+
       isActive: true,
       sortOrder: 1,
+    },
+  });
+
+  const starterPlan = await prisma.plan.upsert({
+    where: { name: 'starter' },
+    update: {},
+    create: {
+      name: 'starter',
+      displayName: 'Starter Plan',
+      description: 'Perfect for budget-conscious bloggers',
+      price: 12,
+      yearlyPrice: 120,
+
+      // Limits
+      articlesPerMonth: 30,
+      imagesPerMonth: 10,
+      blogsLimit: 2,
+      projectsLimit: 3,
+      brandProfilesLimit: 2,
+      campaignsLimit: 1,
+
+      wordsPerArticle: 3000,
+
+      // Features
+      hasAutoPublish: true,
+      hasScheduling: true,
+      hasAnalytics: false,
+      hasBulkGeneration: true,
+      hasTrendIdeas: true,
+      hasAutoClustering: false,
+      hasContentRefresh: false,
+      hasApiAccess: false,
+      hasPrioritySupport: false,
+      hasWhiteLabel: false,
+      hasTeamAccess: false,
+      teamMembersLimit: 1,
+      hasAdvancedAI: false,
+      hasCompetitorAnalysis: false,
+      hasCustomPrompts: false,
+
+      stripePriceId: process.env.STRIPE_PRICE_ID_STARTER || 'price_starter_monthly',
+      stripeYearlyPriceId: process.env.STRIPE_PRICE_ID_STARTER_YEARLY || 'price_starter_yearly',
+
+      isActive: true,
+      sortOrder: 2,
     },
   });
 
@@ -54,10 +99,10 @@ async function main() {
     create: {
       name: 'pro',
       displayName: 'Pro Plan',
-      description: 'For serious content creators and bloggers',
-      price: 29.99,
-      yearlyPrice: 299.99,
-      
+      description: 'Best value for full-time content creators',
+      price: 39,
+      yearlyPrice: 390,
+
       // Limits
       articlesPerMonth: 100,
       imagesPerMonth: 300,
@@ -65,9 +110,9 @@ async function main() {
       projectsLimit: 10,
       brandProfilesLimit: 5,
       campaignsLimit: 3,
-      
+
       wordsPerArticle: 5000,
-      
+
       // Features
       hasAutoPublish: true,
       hasScheduling: true,
@@ -84,12 +129,12 @@ async function main() {
       hasAdvancedAI: true,
       hasCompetitorAnalysis: true,
       hasCustomPrompts: true,
-      
-      stripePriceId: 'price_pro_monthly',
-      stripeYearlyPriceId: 'price_pro_yearly',
-      
+
+      stripePriceId: process.env.STRIPE_PRICE_ID_PRO || 'price_pro_monthly',
+      stripeYearlyPriceId: process.env.STRIPE_PRICE_ID_PRO_YEARLY || 'price_pro_yearly',
+
       isActive: true,
-      sortOrder: 2,
+      sortOrder: 3,
     },
   });
 
@@ -99,10 +144,10 @@ async function main() {
     create: {
       name: 'enterprise',
       displayName: 'Enterprise Plan',
-      description: 'For agencies and large teams',
-      price: 99.99,
-      yearlyPrice: 999.99,
-      
+      description: 'For agencies and teams with high volume needs',
+      price: 99,
+      yearlyPrice: 990,
+
       // Limits (unlimited or very high)
       articlesPerMonth: 1000,
       imagesPerMonth: 3000,
@@ -110,9 +155,9 @@ async function main() {
       projectsLimit: 100,
       brandProfilesLimit: 50,
       campaignsLimit: 50,
-      
+
       wordsPerArticle: 10000,
-      
+
       // Features (all enabled)
       hasAutoPublish: true,
       hasScheduling: true,
@@ -129,17 +174,18 @@ async function main() {
       hasAdvancedAI: true,
       hasCompetitorAnalysis: true,
       hasCustomPrompts: true,
-      
-      stripePriceId: 'price_enterprise_monthly',
-      stripeYearlyPriceId: 'price_enterprise_yearly',
-      
+
+      stripePriceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || 'price_enterprise_monthly',
+      stripeYearlyPriceId: process.env.STRIPE_PRICE_ID_ENTERPRISE_YEARLY || 'price_enterprise_yearly',
+
       isActive: true,
-      sortOrder: 3,
+      sortOrder: 4,
     },
   });
 
   console.log('✅ Created plans:', {
     free: freePlan.id,
+    starter: starterPlan.id,
     pro: proPlan.id,
     enterprise: enterprisePlan.id,
   });

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
-import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { requireAuth, requireFeature } from "@/lib/supabase/auth-helpers";
 import { openai, getModelForUser } from "@/lib/ai/client";
 
 export async function POST(req: Request) {
     try {
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasContentRefresh");
         if (authResult instanceof NextResponse) return authResult;
         const userId = authResult.user.id;
 

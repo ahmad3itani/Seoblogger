@@ -34,21 +34,21 @@ export const STRIPE_PLANS = {
   },
   starter: {
     name: "Starter",
-    priceId: process.env.STRIPE_PRICE_ID_STARTER || "price_1T9ezuDiOIRYzxL73oFfs016",
+    priceId: process.env.STRIPE_PRICE_ID_STARTER || null,
     price: 12,
     articles: 30,
     images: 10,
   },
   pro: {
     name: "Pro",
-    priceId: process.env.STRIPE_PRICE_ID_PRO || "price_1T9f0XDiOIRYzxL7KNCChhHx",
+    priceId: process.env.STRIPE_PRICE_ID_PRO || null,
     price: 39,
     articles: 100,
     images: 50,
   },
   enterprise: {
     name: "Enterprise",
-    priceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || "price_1T9f0vDiOIRYzxL79Pkg9GPi",
+    priceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || null,
     price: 99,
     articles: 300,
     images: 200,
@@ -89,9 +89,9 @@ export function needsRenewal(
   periodEnd: Date | null | undefined
 ): boolean {
   if (!status || !periodEnd) return false;
-  
+
   const now = new Date();
   const daysUntilEnd = Math.floor((periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   return (status === "active" || status === "trialing") && daysUntilEnd <= 7;
 }

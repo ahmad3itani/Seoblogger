@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { requireAuth, requireFeature } from "@/lib/supabase/auth-helpers";
 
 export async function GET(
     req: Request,
@@ -8,7 +8,7 @@ export async function GET(
 ) {
     try {
         const { id } = await context.params;
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasScheduling");
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 
@@ -33,7 +33,7 @@ export async function PUT(
 ) {
     try {
         const { id } = await context.params;
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasScheduling");
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 
@@ -65,7 +65,7 @@ export async function DELETE(
 ) {
     try {
         const { id } = await context.params;
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasScheduling");
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 

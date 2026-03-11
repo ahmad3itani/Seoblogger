@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { startOfDay, endOfDay, startOfMonth, endOfMonth, addMonths, subMonths } from "date-fns";
-import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { requireAuth, requireFeature } from "@/lib/supabase/auth-helpers";
 
 export async function GET(req: Request) {
     try {
-        const authResult = await requireAuth();
+        const authResult = await requireFeature("hasScheduling");
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 
         // Get query params for date range (optional)
         const url = new URL(req.url);
         const monthParam = url.searchParams.get('month');
-        
+
         // Default to current month +/- 1 month for better performance
         const referenceDate = monthParam ? new Date(monthParam) : new Date();
         const startDate = startOfMonth(subMonths(referenceDate, 1));
@@ -71,7 +71,7 @@ export async function GET(req: Request) {
         // Transform articles into calendar events
         const events = articles.map(article => {
             let eventDate;
-            
+
             if (article.status === "scheduled" && article.scheduledFor) {
                 eventDate = article.scheduledFor;
             } else {
@@ -85,8 +85,8 @@ export async function GET(req: Request) {
                 date: startOfDay(eventDate).toISOString(),
                 wordCount: article.wordCount,
                 blogName: article.blog?.name || "No Blog",
-                type: article.status === "scheduled" ? "scheduled" : 
-                      article.status === "published" ? "published" : "draft"
+                type: article.status === "scheduled" ? "scheduled" :
+                    article.status === "published" ? "published" : "draft"
             };
         });
 
