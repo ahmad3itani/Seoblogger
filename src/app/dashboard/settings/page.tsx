@@ -119,7 +119,8 @@ export default function SettingsPage() {
         }
     };
 
-    const handleConnectGoogle = async () => {
+    const handleReconnectGoogle = async () => {
+        // Force re-authentication to get fresh Blogger tokens
         await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
@@ -127,7 +128,7 @@ export default function SettingsPage() {
                 scopes: "https://www.googleapis.com/auth/blogger",
                 queryParams: {
                     access_type: "offline",
-                    prompt: "consent",
+                    prompt: "consent", // Force consent screen to get refresh token
                 },
             },
         });
@@ -172,7 +173,7 @@ export default function SettingsPage() {
                     <div>
                         <h2 className="font-semibold">Blogger Connection</h2>
                         <p className="text-xs text-muted-foreground">
-                            Connect your Google account to publish to Blogger
+                            Your Blogger access is connected automatically when you sign in with Google
                         </p>
                     </div>
                     <Badge
@@ -188,7 +189,7 @@ export default function SettingsPage() {
 
                 {!hasConnection ? (
                     <Button
-                        onClick={handleConnectGoogle}
+                        onClick={handleReconnectGoogle}
                         className="glow-button text-white border-0"
                         disabled={loading && !!user}
                     >
@@ -210,7 +211,7 @@ export default function SettingsPage() {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        {loading ? "Checking..." : "Connect Google Account"}
+                        {loading ? "Checking..." : "Reconnect Blogger Access"}
                     </Button>
                 ) : blogs.length === 0 ? (
                     <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm text-yellow-600 dark:text-yellow-400">
