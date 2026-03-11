@@ -120,8 +120,17 @@ export default function SettingsPage() {
     };
 
     const handleConnectGoogle = async () => {
-        // Redirect to our custom Google OAuth endpoint that properly handles Blogger permissions
-        window.location.href = "/api/auth/google";
+        await supabase.auth.signInWithOAuth({
+            provider: "google",
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback?redirect=/dashboard/settings`,
+                scopes: "https://www.googleapis.com/auth/blogger",
+                queryParams: {
+                    access_type: "offline",
+                    prompt: "consent",
+                },
+            },
+        });
     };
 
     const handleSetDefault = async (blogId: string) => {
