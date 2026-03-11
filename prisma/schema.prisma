@@ -164,6 +164,8 @@ model Blog {
   isDefault   Boolean  @default(false)
   articles    Article[]
   publishLogs PublishLog[]
+  cachedPosts CachedPost[]
+  siteAudits  SiteAudit[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
@@ -239,6 +241,30 @@ model PublishLog {
   article       Article  @relation(fields: [articleId], references: [id])
   response      String?
   createdAt     DateTime @default(now())
+}
+
+model CachedPost {
+  id          String   @id @default(cuid())
+  postId      String
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  title       String
+  url         String
+  contentHash String?  // To detect if content changed over time
+  publishedAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([blogId, postId])
+}
+
+model SiteAudit {
+  id          String   @id @default(cuid())
+  blogId      String
+  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  score       Int      @default(0)
+  issues      Json     @default("[]") // Array of issue objects
+  runAt       DateTime @default(now())
 }
 
 // ─── CAMPAIGNS & BRAND ────────────────────────────────────

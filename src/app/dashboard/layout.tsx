@@ -34,6 +34,7 @@ import {
     Lock,
     Crown,
     User,
+    Activity,
 } from "lucide-react";
 
 import {
@@ -58,6 +59,7 @@ const NAV_ITEMS = [
     { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "pro" },
     { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, feature: "hasScheduling", minPlan: "pro" },
     { href: "/dashboard/articles", label: "My Articles", icon: FileText, feature: null },
+    { href: "/dashboard/audit", label: "Site Auditor", icon: Activity, feature: null },
     { href: "/dashboard/refresh", label: "Content Refresh", icon: RefreshCw, feature: "hasContentRefresh", minPlan: "pro" },
     { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
     { href: "/dashboard/settings", label: "Settings", icon: Settings, feature: null },

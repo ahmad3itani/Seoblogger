@@ -147,16 +147,21 @@ export async function POST(req: Request) {
                 if (autoInterlink && activeBlogId && currentUser) {
                     try {
                         const accessToken = await getValidAccessToken(currentUser.id);
-                        const { listPosts } = await import("@/lib/blogger");
+                        // Use the local database cache for lightning-fast internal linking
                         const blogData = await prisma.blog.findUnique({ where: { id: activeBlogId } });
                         if (blogData) {
-                            const postsData = await listPosts(blogData.blogId, accessToken);
-                            if (postsData?.items && postsData.items.length > 0) {
-                                options.existingPostsList = postsData.items.slice(0, 30).map((p: any) => `- ${p.title}: ${p.url}`).join("\n");
+                            const cachedPosts = await prisma.cachedPost.findMany({
+                                where: { blogId: blogData.blogId },
+                                orderBy: { publishedAt: 'desc' },
+                                take: 30
+                            });
+
+                            if (cachedPosts.length > 0) {
+                                options.existingPostsList = cachedPosts.map(p => `- ${p.title}: ${p.url}`).join("\n");
                             }
                         }
                     } catch (err) {
-                        console.error("Failed to fetch posts for auto interlinking", err);
+                        console.error("Failed to fetch cached posts for auto interlinking", err);
                     }
                 }
 
