@@ -1,0 +1,291 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // directUrl = env("DIRECT_URL")  // Commented out due to IPv6 connection issues
+}
+
+// ─── USER & AUTH ───────────────────────────────────────────
+// User.id matches Supabase auth.users.id (UUID)
+model User {
+  id            String    @id @db.Uuid
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  
+  // Role-based access
+  role          String    @default("user") // user, admin
+  
+  // Subscription & Billing
+  planId         String?
+  plan           Plan?     @relation(fields: [planId], references: [id])
+  subscription   Subscription?
+  
+  // Stripe Integration
+  stripeCustomerId       String?   @unique
+  stripeSubscriptionId   String?   @unique
+  stripeSubscriptionStatus String? // active, canceled, past_due, etc.
+  stripePriceId          String?   // Current price ID
+  stripeCurrentPeriodEnd DateTime?
+  
+  // Usage Tracking
+  usage          Usage?
+  
+  // Google OAuth tokens for Blogger API
+  googleAccessToken  String?
+  googleRefreshToken String?
+  googleTokenExpiry  DateTime?
+
+  // Relations
+  blogs         Blog[]
+  projects      Project[]
+  brandProfiles BrandProfile[]
+  campaigns     Campaign[]
+  articles      Article[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+// ─── PLANS & BILLING ──────────────────────────────────────
+model Plan {
+  id            String   @id @default(cuid())
+  name          String   @unique // free, starter, pro, enterprise
+  displayName   String
+  stripePriceId String?  @unique // Stripe Price ID for this plan
+  description   String?
+  price         Float    @default(0)
+  yearlyPrice   Float?
+  
+  // Feature Limits
+  articlesPerMonth    Int   @default(10)
+  imagesPerMonth      Int   @default(30)
+  blogsLimit          Int   @default(1)
+  projectsLimit       Int   @default(1)
+  brandProfilesLimit  Int   @default(1)
+  campaignsLimit      Int   @default(0)
+  wordsPerArticle     Int   @default(2000)
+  
+  // Feature Flags
+  hasAutoPublish        Boolean @default(false)
+  hasScheduling         Boolean @default(false)
+  hasAnalytics          Boolean @default(false)
+  hasBulkGeneration     Boolean @default(false)
+  hasTrendIdeas         Boolean @default(false)
+  hasAutoClustering     Boolean @default(false)
+  hasContentRefresh     Boolean @default(false)
+  hasApiAccess          Boolean @default(false)
+  hasPrioritySupport    Boolean @default(false)
+  hasWhiteLabel         Boolean @default(false)
+  hasTeamAccess         Boolean @default(false)
+  teamMembersLimit      Int     @default(1)
+  hasAdvancedAI         Boolean @default(false)
+  hasCompetitorAnalysis Boolean @default(false)
+  hasCustomPrompts      Boolean @default(false)
+  
+  // Stripe (stripePriceId already defined above on line 58)
+  stripeYearlyPriceId String?
+  
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  
+  users         User[]
+  subscriptions Subscription[]
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Subscription {
+  id                String   @id @default(cuid())
+  userId            String   @unique @db.Uuid
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  planId            String
+  plan              Plan     @relation(fields: [planId], references: [id])
+  
+  status            String   @default("active") // active, canceled, past_due, trialing, expired
+  billingCycle      String   @default("monthly") // monthly, yearly
+  
+  currentPeriodStart DateTime @default(now())
+  currentPeriodEnd   DateTime
+  
+  // Stripe
+  stripeCustomerId      String?
+  stripeSubscriptionId  String? @unique
+  stripePaymentMethodId String?
+  
+  // Trial
+  trialStart    DateTime?
+  trialEnd      DateTime?
+  
+  // Cancellation
+  cancelAtPeriodEnd Boolean  @default(false)
+  canceledAt        DateTime?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Usage {
+  id        String   @id @default(cuid())
+  userId    String   @unique @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Current period
+  articlesGenerated   Int @default(0)
+  imagesGenerated     Int @default(0)
+  apiCallsCount       Int @default(0)
+  wordsGenerated      Int @default(0)
+  
+  // Lifetime
+  totalArticles       Int @default(0)
+  totalImages         Int @default(0)
+  totalWords          Int @default(0)
+  totalApiCalls       Int @default(0)
+  
+  lastResetAt         DateTime @default(now())
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+// ─── BLOG & CONTENT ───────────────────────────────────────
+model Blog {
+  id          String   @id @default(cuid())
+  blogId      String   @unique
+  name        String
+  url         String
+  description String?
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault   Boolean  @default(false)
+  articles    Article[]
+  publishLogs PublishLog[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  niche       String?
+  language    String   @default("en")
+  country     String   @default("US")
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  keywords    Keyword[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Keyword {
+  id          String   @id @default(cuid())
+  keyword     String
+  searchIntent String?
+  articleType  String?
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  articles    Article[]
+  createdAt   DateTime @default(now())
+}
+
+model Article {
+  id              String   @id @default(cuid())
+  title           String
+  slug            String?
+  content         String
+  outline         String?
+  metaDescription String?
+  excerpt         String?
+  labels          String?
+  tone            String   @default("informational")
+  articleType     String   @default("blog-post")
+  wordCount       Int      @default(0)
+  status          String   @default("draft")
+  scheduledFor    DateTime?
+  bloggerPostId   String?
+  keywordId       String?
+  keyword         Keyword? @relation(fields: [keywordId], references: [id])
+  blogId          String?
+  blog            Blog?    @relation(fields: [blogId], references: [id])
+  userId          String?  @db.Uuid
+  user            User?    @relation(fields: [userId], references: [id])
+  images          GeneratedImage[]
+  publishLogs     PublishLog[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model GeneratedImage {
+  id          String   @id @default(cuid())
+  url         String
+  altText     String?
+  type        String   @default("featured")
+  articleId   String?
+  article     Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+}
+
+model PublishLog {
+  id            String   @id @default(cuid())
+  action        String
+  bloggerPostId String?
+  blogId        String
+  blog          Blog     @relation(fields: [blogId], references: [id])
+  articleId     String
+  article       Article  @relation(fields: [articleId], references: [id])
+  response      String?
+  createdAt     DateTime @default(now())
+}
+
+// ─── CAMPAIGNS & BRAND ────────────────────────────────────
+model Campaign {
+  id            String   @id @default(cuid())
+  name          String
+  userId        String   @db.Uuid
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blogId        String
+  language      String   @default("en")
+  tone          String   @default("professional")
+  articleType   String   @default("informational")
+  wordCount     Int      @default(2000)
+  brandVoice    String?
+  includeImages Boolean  @default(true)
+  autoInterlink Boolean  @default(true)
+  frequencyDays Int      @default(1)
+  nextPublishAt DateTime @default(now())
+  keywords      String
+  status        String   @default("active")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model BrandProfile {
+  id             String   @id @default(cuid())
+  name           String
+  tone           String   @default("professional")
+  style          String?
+  niche          String?
+  language       String   @default("en")
+  targetAudience String?
+  instructions   String?
+  userId         String   @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  type        String
+  structure   String
+  description String?
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

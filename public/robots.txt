@@ -1,0 +1,18 @@
+# Robots.txt for BloggerSEO - Blogger Automation Tool
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: https://bloggerseo.ai/sitemap.xml
+
+# Crawl-delay for specific bots (optional)
+User-agent: Googlebot
+Crawl-delay: 0
+
+User-agent: Bingbot
+Crawl-delay: 0

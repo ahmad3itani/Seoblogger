@@ -1,0 +1,26 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8B5CF6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6366F1;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6600;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FF8833;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded background -->
+  <rect width="32" height="32" rx="6" fill="url(#grad1)"/>
+  
+  <!-- Blogger "B" with modern twist -->
+  <path d="M10 8C10 7.44772 10.4477 7 11 7H18C20.7614 7 23 9.23858 23 12V12C23 13.1046 22.1046 14 21 14H19C18.4477 14 18 14.4477 18 15V17C18 19.7614 15.7614 22 13 22H11C10.4477 22 10 21.5523 10 21V8Z" fill="white"/>
+  
+  <!-- Inner detail - pencil/edit icon -->
+  <path d="M19 10L21 12L15 18H13V16L19 10Z" fill="url(#grad2)" opacity="0.8"/>
+  
+  <!-- Sparkle effect -->
+  <circle cx="24" cy="8" r="1.5" fill="#FFD700"/>
+  <circle cx="8" cy="24" r="1" fill="#FFD700" opacity="0.7"/>
+</svg>
