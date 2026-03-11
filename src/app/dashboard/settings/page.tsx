@@ -119,19 +119,9 @@ export default function SettingsPage() {
         }
     };
 
-    const handleReconnectGoogle = async () => {
-        // Force re-authentication to get fresh Blogger tokens
-        await supabase.auth.signInWithOAuth({
-            provider: "google",
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback?redirect=/dashboard/settings`,
-                scopes: "https://www.googleapis.com/auth/blogger",
-                queryParams: {
-                    access_type: "offline",
-                    prompt: "consent", // Force consent screen to get refresh token
-                },
-            },
-        });
+    const handleConnectBlogger = async () => {
+        // Redirect to dedicated Blogger OAuth endpoint
+        window.location.href = "/api/auth/google";
     };
 
     const handleSetDefault = async (blogId: string) => {
@@ -173,7 +163,7 @@ export default function SettingsPage() {
                     <div>
                         <h2 className="font-semibold">Blogger Connection</h2>
                         <p className="text-xs text-muted-foreground">
-                            Your Blogger access is connected automatically when you sign in with Google
+                            Connect your Blogger account to publish articles directly to your blogs
                         </p>
                     </div>
                     <Badge
@@ -189,7 +179,7 @@ export default function SettingsPage() {
 
                 {!hasConnection ? (
                     <Button
-                        onClick={handleReconnectGoogle}
+                        onClick={handleConnectBlogger}
                         className="glow-button text-white border-0"
                         disabled={loading && !!user}
                     >
@@ -211,7 +201,7 @@ export default function SettingsPage() {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        {loading ? "Checking..." : "Reconnect Blogger Access"}
+                        {loading ? "Checking..." : "Connect Blogger"}
                     </Button>
                 ) : blogs.length === 0 ? (
                     <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm text-yellow-600 dark:text-yellow-400">

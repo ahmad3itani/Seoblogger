@@ -1,12 +1,14 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
-import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
   const error = searchParams.get("error");
+  const state = searchParams.get("state"); // User ID passed from the initial request
+
+  console.log("🔄 Blogger OAuth callback received");
 
   // Check if Google returned an error
   if (error) {
@@ -19,17 +21,14 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/dashboard/settings?error=no_code`);
   }
 
+  if (!state) {
+    console.error("❌ No user ID in state parameter");
+    return NextResponse.redirect(`${origin}/dashboard/settings?error=invalid_state`);
+  }
+
   try {
-    // Get the current authenticated user from Supabase
-    const supabase = await createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      console.error("❌ User not authenticated:", authError);
-      return NextResponse.redirect(`${origin}/auth/login?error=not_authenticated`);
-    }
-
-    console.log("🔄 Exchanging code for tokens for user:", user.email);
+    const userId = state;
+    console.log("🔄 Exchanging code for Blogger tokens for user:", userId);
 
     // Create OAuth client with dynamic redirect URI
     const oauth2Client = new google.auth.OAuth2(
@@ -46,15 +45,18 @@ export async function GET(request: Request) {
       throw new Error("No access token received");
     }
 
-    console.log("✅ Tokens received. Access token:", tokens.access_token.substring(0, 20) + "...");
+    console.log("✅ Blogger tokens received");
+    console.log("✅ Access token:", tokens.access_token.substring(0, 20) + "...");
     console.log("✅ Refresh token:", tokens.refresh_token ? "Present" : "Missing");
 
-    // Calculate token expiry (default 1 hour)
-    const expiryDate = new Date(Date.now() + (tokens.expiry_date || 3600000));
+    // Calculate token expiry
+    const expiryDate = tokens.expiry_date 
+      ? new Date(tokens.expiry_date)
+      : new Date(Date.now() + 3600000); // Default 1 hour
 
     // Save tokens to database
     await prisma.user.update({
-      where: { id: user.id },
+      where: { id: userId },
       data: {
         googleAccessToken: tokens.access_token,
         googleRefreshToken: tokens.refresh_token || undefined,
@@ -62,13 +64,13 @@ export async function GET(request: Request) {
       },
     });
 
-    console.log("✅ Google OAuth tokens saved successfully for user:", user.email);
+    console.log("✅ Blogger tokens saved successfully to database");
 
     // Redirect back to settings with success
-    return NextResponse.redirect(`${origin}/dashboard/settings?success=connected`);
+    return NextResponse.redirect(`${origin}/dashboard/settings?success=blogger_connected`);
   } catch (error: any) {
-    console.error("❌ Google OAuth callback error:", error);
+    console.error("❌ Blogger OAuth callback error:", error);
     console.error("Error details:", error.message, error.stack);
-    return NextResponse.redirect(`${origin}/dashboard/settings?error=oauth_failed&details=${encodeURIComponent(error.message || 'unknown')}`);
+    return NextResponse.redirect(`${origin}/dashboard/settings?error=blogger_failed&details=${encodeURIComponent(error.message || 'unknown')}`);
   }
 }
