@@ -57,6 +57,17 @@ export default function SettingsPage() {
         }
     }, [user]);
 
+    useEffect(() => {
+        // Check for success parameter from OAuth callback
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('success') === 'blogger_connected') {
+            // Refresh blogs list after successful connection
+            fetchBlogs();
+            // Clean up URL
+            window.history.replaceState({}, '', '/dashboard/settings');
+        }
+    }, []);
+
     const fetchBrandProfile = async () => {
         try {
             const res = await fetch("/api/brand-voices");
