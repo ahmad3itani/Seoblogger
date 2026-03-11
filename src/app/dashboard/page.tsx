@@ -21,6 +21,8 @@ import {
 } from "lucide-react";
 
 interface DashboardStats {
+    plan: string;
+    articleLimit: number;
     totalArticles: number;
     publishedArticles: number;
     draftArticles: number;
@@ -106,7 +108,7 @@ export default function DashboardPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
             </div>
         );
     }
@@ -117,7 +119,7 @@ export default function DashboardPage() {
             value: stats?.totalArticles.toString() || "0",
             change: stats?.totalArticles ? `${stats.articlesThisMonth} this month` : "Start creating!",
             icon: FileText,
-            color: "from-indigo-500 to-violet-500",
+            color: "from-[#FF6600] to-amber-500",
             trend: stats?.growthPercentage || 0,
         },
         {
@@ -125,21 +127,21 @@ export default function DashboardPage() {
             value: stats?.publishedArticles.toString() || "0",
             change: stats?.publishedArticles ? `${stats.totalPublishLogs} total publishes` : "Connect Blogger",
             icon: CheckCircle2,
-            color: "from-violet-500 to-purple-500",
+            color: "from-emerald-500 to-green-500",
         },
         {
             label: "Drafts",
             value: stats?.draftArticles.toString() || "0",
             change: stats?.draftArticles ? "Ready to publish" : "Write your first post",
             icon: Clock,
-            color: "from-purple-500 to-pink-500",
+            color: "from-amber-500 to-yellow-500",
         },
         {
             label: "Connected Blogs",
             value: stats?.connectedBlogs.toString() || "0",
             change: stats?.connectedBlogs ? `${stats.activeCampaigns} active campaigns` : "Set up your blog",
             icon: Globe,
-            color: "from-blue-500 to-indigo-500",
+            color: "from-blue-500 to-cyan-500",
         },
     ];
 
@@ -198,6 +200,51 @@ export default function DashboardPage() {
                 ))}
             </div>
 
+            {/* Onboarding & Usage */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Usage Meter */}
+                {stats && (
+                    <div className="glass-card rounded-xl p-6">
+                        <div className="flex items-center justify-between mb-2">
+                            <h3 className="font-semibold">Article Usage</h3>
+                            <Badge variant="outline" className="capitalize bg-orange-500/10 text-[#FF6600] border-[#FF6600]/20">{stats.plan} Plan</Badge>
+                        </div>
+                        <div className="w-full bg-muted rounded-full h-2.5 mb-2 mt-4 overflow-hidden">
+                            <div
+                                className="bg-[#FF6600] h-2.5 rounded-full transition-all duration-500"
+                                style={{ width: `${Math.min(100, (stats.articlesThisMonth / stats.articleLimit) * 100)}%` }}
+                            />
+                        </div>
+                        <p className="text-sm text-muted-foreground flex justify-between">
+                            <span>{stats.articlesThisMonth} used this month</span>
+                            <span>{stats.articleLimit} limit</span>
+                        </p>
+                    </div>
+                )}
+
+                {/* Connect Blogger Banner */}
+                {stats && stats.connectedBlogs === 0 && (
+                    <div className="glass-card rounded-xl p-6 border-[#FF6600]/30 bg-orange-500/5">
+                        <div className="flex items-start gap-4">
+                            <div className="w-10 h-10 rounded-full bg-[#FF6600]/20 flex items-center justify-center shrink-0">
+                                <Globe className="w-5 h-5 text-[#FF6600]" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold mb-1 text-foreground">Connect Your Blog</h3>
+                                <p className="text-sm text-muted-foreground mb-3">
+                                    You need to connect a Blogger account to start publishing articles automatically.
+                                </p>
+                                <Link href="/dashboard/settings">
+                                    <Button size="sm" className="bg-[#FF6600] hover:bg-orange-600 text-white border-0">
+                                        Connect Blogger
+                                    </Button>
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
             {/* Quick Actions */}
             <div>
                 <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
@@ -206,14 +253,14 @@ export default function DashboardPage() {
                         <Link key={action.title} href={action.href}>
                             <div
                                 className={`rounded-xl p-6 hover:scale-[1.02] transition-all duration-300 cursor-pointer group ${action.primary
-                                        ? "glow-button text-white"
-                                        : "glass-card"
+                                    ? "glow-button text-white"
+                                    : "glass-card"
                                     }`}
                             >
                                 <action.icon
                                     className={`w-8 h-8 mb-3 ${action.primary
-                                            ? "text-white"
-                                            : "text-violet-400"
+                                        ? "text-white"
+                                        : "text-[#FF6600]"
                                         }`}
                                 />
                                 <h3
@@ -224,18 +271,18 @@ export default function DashboardPage() {
                                 </h3>
                                 <p
                                     className={`text-sm ${action.primary
-                                            ? "text-white/70"
-                                            : "text-muted-foreground"
+                                        ? "text-white/70"
+                                        : "text-muted-foreground"
                                         }`}
                                 >
                                     {action.description}
                                 </p>
                                 <div className="flex items-center gap-1 mt-3 text-sm font-medium">
-                                    <span className={action.primary ? "text-white/90" : "text-violet-400"}>
+                                    <span className={action.primary ? "text-white/90" : "text-[#FF6600]"}>
                                         Get Started
                                     </span>
                                     <ArrowRight
-                                        className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${action.primary ? "text-white/90" : "text-violet-400"
+                                        className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${action.primary ? "text-white/90" : "text-[#FF6600]"
                                             }`}
                                     />
                                 </div>
@@ -251,14 +298,14 @@ export default function DashboardPage() {
                     <h2 className="text-lg font-semibold mb-4">Recent Articles</h2>
                     <div className="glass-card rounded-xl divide-y divide-border/50">
                         {stats.recentArticles.map((article) => (
-                            <Link 
-                                key={article.id} 
+                            <Link
+                                key={article.id}
                                 href={`/dashboard/articles?id=${article.id}`}
                                 className="block p-4 hover:bg-muted/20 transition-colors cursor-pointer"
                             >
                                 <div className="flex items-start justify-between gap-4">
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="font-medium truncate hover:text-violet-400 transition-colors">{article.title}</h3>
+                                        <h3 className="font-medium truncate hover:text-[#FF6600] transition-colors">{article.title}</h3>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="text-xs text-muted-foreground">
                                                 {article.blog?.name || "Unknown Blog"}
@@ -292,7 +339,7 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-semibold mb-4">Content Statistics</h3>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         <div>
-                            <div className="text-2xl font-bold text-violet-400">
+                            <div className="text-2xl font-bold text-[#FF6600]">
                                 {stats.totalWordCount.toLocaleString()}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -300,7 +347,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-violet-400">
+                            <div className="text-2xl font-bold text-[#FF6600]">
                                 {stats.avgWordCount.toLocaleString()}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -308,7 +355,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-violet-400">
+                            <div className="text-2xl font-bold text-[#FF6600]">
                                 {stats.articlesThisMonth}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -316,7 +363,7 @@ export default function DashboardPage() {
                             </div>
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-violet-400">
+                            <div className="text-2xl font-bold text-[#FF6600]">
                                 {stats.activeCampaigns}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
@@ -336,8 +383,8 @@ export default function DashboardPage() {
                             key={feature.title}
                             className="glass-card rounded-xl p-5 text-center hover:scale-[1.03] transition-all duration-300"
                         >
-                            <div className="w-10 h-10 rounded-full bg-violet-500/10 flex items-center justify-center mx-auto mb-3">
-                                <feature.icon className="w-5 h-5 text-violet-400" />
+                            <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-3">
+                                <feature.icon className="w-5 h-5 text-[#FF6600]" />
                             </div>
                             <h4 className="text-sm font-medium mb-1">{feature.title}</h4>
                             <p className="text-xs text-muted-foreground">
@@ -367,7 +414,7 @@ export default function DashboardPage() {
                                         "Review, add labels, and publish!",
                                     ].map((step, i) => (
                                         <li key={i} className="flex items-center gap-2 text-sm">
-                                            <span className="w-5 h-5 rounded-full bg-violet-500/20 text-violet-400 flex items-center justify-center text-xs font-bold shrink-0">
+                                            <span className="w-5 h-5 rounded-full bg-orange-500/20 text-[#FF6600] flex items-center justify-center text-xs font-bold shrink-0">
                                                 {i + 1}
                                             </span>
                                             {step}

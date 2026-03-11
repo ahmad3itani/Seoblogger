@@ -99,10 +99,10 @@ export default function CalendarPage() {
                                     <div
                                         key={day.toString()}
                                         className={`min-h-[100px] p-2 rounded-lg border ${isCurrentMonth ? "bg-card border-border/50" : "bg-muted/10 border-transparent text-muted-foreground opacity-40"
-                                            } ${isCurrentDay ? "ring-2 ring-violet-500 bg-violet-500/5" : ""}`}
+                                            } ${isCurrentDay ? "ring-2 ring-[#FF6600] bg-[#FF6600]/5" : ""}`}
                                     >
                                         <div className="flex justify-between items-start mb-2">
-                                            <span className={`text-xs font-semibold ${isCurrentDay ? "text-violet-500" : ""}`}>
+                                            <span className={`text-xs font-semibold ${isCurrentDay ? "text-[#FF6600]" : ""}`}>
                                                 {format(day, dateFormat)}
                                             </span>
                                             {dayEvents.length > 0 && (

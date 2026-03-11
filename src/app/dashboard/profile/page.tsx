@@ -62,7 +62,7 @@ export default function ProfilePage() {
 
   const planColor = {
     free: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-    pro: "bg-violet-500/10 text-violet-400 border-violet-500/20",
+    pro: "bg-orange-500/10 text-[#FF6600] border-[#FF6600]/20",
     enterprise: "bg-amber-500/10 text-amber-400 border-amber-500/20",
   };
 
@@ -81,7 +81,7 @@ export default function ProfilePage() {
       <div className="glass-card rounded-2xl p-6">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center text-white text-xl font-bold">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-[#FF6600] flex items-center justify-center text-white text-xl font-bold">
               {(profile?.name || profile?.email || "U").charAt(0).toUpperCase()}
             </div>
             <div>
@@ -90,7 +90,7 @@ export default function ProfilePage() {
                   <input
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="h-8 px-3 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50"
+                    className="h-8 px-3 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6600]/50"
                     placeholder="Your name"
                   />
                   <Button size="sm" onClick={handleSave} disabled={saving} className="h-8 gap-1">
@@ -123,7 +123,7 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center gap-3 p-3 rounded-lg bg-background/50 border border-border/30">
-            <Shield className="w-5 h-5 text-violet-400" />
+            <Shield className="w-5 h-5 text-[#FF6600]" />
             <div>
               <p className="text-xs text-muted-foreground">Role</p>
               <p className="text-sm font-medium capitalize">{profile?.role || "user"}</p>
@@ -151,7 +151,7 @@ export default function ProfilePage() {
       {/* Usage Stats */}
       <div className="glass-card rounded-2xl p-6">
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <BarChart3 className="w-5 h-5 text-violet-400" />
+          <BarChart3 className="w-5 h-5 text-[#FF6600]" />
           Usage This Month
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -172,11 +172,11 @@ export default function ProfilePage() {
 
       {/* Plan Upgrade CTA */}
       {currentPlan === "free" && (
-        <div className="glass-card rounded-2xl p-6 border border-violet-500/20 bg-gradient-to-br from-violet-500/5 to-indigo-500/5">
+        <div className="glass-card rounded-2xl p-6 border border-[#FF6600]/20 bg-gradient-to-br from-[#FF6600]/5 to-indigo-500/5">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Zap className="w-5 h-5 text-violet-400" />
+                <Zap className="w-5 h-5 text-[#FF6600]" />
                 Upgrade to Pro
               </h3>
               <p className="text-sm text-muted-foreground mt-1">
@@ -224,7 +224,7 @@ function UsageBar({
       <div className="w-full h-2 rounded-full bg-border/30 overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
-            isNearLimit ? "bg-red-500" : "bg-violet-500"
+            isNearLimit ? "bg-red-500" : "bg-[#FF6600]"
           }`}
           style={{ width: `${percent}%` }}
         />

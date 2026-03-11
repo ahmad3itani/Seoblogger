@@ -147,7 +147,7 @@ export default function BrandVoicePage() {
                         Define distinct writing styles, tones, and instructions for your AI content.
                     </p>
                 </div>
-                <Button onClick={handleOpenCreate} className="bg-violet-600 hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
+                <Button onClick={handleOpenCreate} className="bg-[#FF6600] hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
                     <Plus className="w-4 h-4 mr-2" />
                     New Brand Voice
                 </Button>
@@ -159,24 +159,24 @@ export default function BrandVoicePage() {
                 </div>
             ) : profiles.length === 0 ? (
                 <div className="glass-card rounded-xl p-12 text-center border-dashed">
-                    <div className="mx-auto w-12 h-12 bg-violet-500/10 rounded-full flex items-center justify-center mb-4">
-                        <Sparkles className="w-6 h-6 text-violet-400" />
+                    <div className="mx-auto w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center mb-4">
+                        <Sparkles className="w-6 h-6 text-[#FF6600]" />
                     </div>
                     <h3 className="text-lg font-semibold mb-2">No brand voices yet</h3>
                     <p className="text-muted-foreground max-w-sm mx-auto mb-6">
                         Create a brand voice to ensure your AI-generated articles perfectly match your blog's unique style and guidelines.
                     </p>
-                    <Button onClick={handleOpenCreate} variant="outline" className="border-violet-500/30 text-violet-300">
+                    <Button onClick={handleOpenCreate} variant="outline" className="border-[#FF6600]/30 text-violet-300">
                         Create your first Brand Voice
                     </Button>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {profiles.map((profile) => (
-                        <Card key={profile.id} className={`glass-card relative overflow-hidden transition-all duration-300 hover:border-violet-500/50 ${profile.isDefault ? 'border-violet-500/50 ring-1 ring-violet-500/20 shadow-lg shadow-violet-500/10' : ''}`}>
+                        <Card key={profile.id} className={`glass-card relative overflow-hidden transition-all duration-300 hover:border-[#FF6600]/50 ${profile.isDefault ? 'border-[#FF6600]/50 ring-1 ring-[#FF6600]/20 shadow-lg shadow-violet-500/10' : ''}`}>
                             {profile.isDefault && (
                                 <div className="absolute top-0 right-0">
-                                    <div className="bg-violet-600 text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center shadow-md">
+                                    <div className="bg-[#FF6600] text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center shadow-md">
                                         <CheckCircle2 className="w-3 h-3 mr-1" /> DEFAULT
                                     </div>
                                 </div>
@@ -311,7 +311,7 @@ export default function BrandVoicePage() {
                         <div className="grid gap-2">
                             <Label htmlFor="instructions" className="flex items-center gap-2">
                                 Custom Prompt Instructions
-                                <Sparkles className="w-3.5 h-3.5 text-violet-400" />
+                                <Sparkles className="w-3.5 h-3.5 text-[#FF6600]" />
                             </Label>
                             <p className="text-[10px] text-muted-foreground">
                                 These exact instructions will be injected into the system prompt for AI generation. Use this to enforce specific formatting, banned words, or exact stylistic guidelines.
@@ -348,7 +348,7 @@ export default function BrandVoicePage() {
                         <Button
                             onClick={handleSave}
                             disabled={!formData.name || isSaving}
-                            className="bg-violet-600 hover:bg-violet-700 text-white"
+                            className="bg-[#FF6600] hover:bg-violet-700 text-white"
                         >
                             {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             {editingId ? "Save Changes" : "Create Profile"}

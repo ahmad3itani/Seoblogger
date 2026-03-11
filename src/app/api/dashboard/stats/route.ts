@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getPlanLimits } from "@/lib/supabase/plan-gates";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 export async function GET(req: Request) {
@@ -10,8 +11,9 @@ export async function GET(req: Request) {
 
         console.log(`📊 Fetching dashboard stats for user: ${userId}`);
 
-        // Fetch all statistics in parallel
+        // Fetch all statistics in parallel + user plan
         const [
+            userProps,
             totalArticles,
             publishedArticles,
             draftArticles,
@@ -19,6 +21,11 @@ export async function GET(req: Request) {
             totalWordCount,
             recentArticles,
         ] = await Promise.all([
+            // Get user plan
+            prisma.user.findUnique({
+                where: { id: userId },
+                select: { plan: true },
+            }),
             // Total articles (query by userId directly to include articles without blogId)
             prisma.article.count({
                 where: {
@@ -81,7 +88,7 @@ export async function GET(req: Request) {
         // Try to fetch campaign and publish log stats (may fail if tables don't exist)
         let activeCampaigns = 0;
         let totalPublishLogs = 0;
-        
+
         try {
             activeCampaigns = await prisma.campaign.count({
                 where: {
@@ -106,7 +113,7 @@ export async function GET(req: Request) {
         }
 
         // Calculate average word count
-        const avgWordCount = totalArticles > 0 
+        const avgWordCount = totalArticles > 0
             ? Math.round((totalWordCount._sum.wordCount || 0) / totalArticles)
             : 0;
 
@@ -145,7 +152,12 @@ export async function GET(req: Request) {
             ? Math.round(((articlesThisMonth - articlesLastMonth) / articlesLastMonth) * 100)
             : articlesThisMonth > 0 ? 100 : 0;
 
+        const planName = userProps?.plan?.name || "free";
+        const planLimits = getPlanLimits(planName);
+
         const statsData = {
+            plan: planName,
+            articleLimit: planLimits.articles,
             totalArticles,
             publishedArticles,
             draftArticles,

@@ -73,7 +73,7 @@ export default function KeywordsPage() {
                                     Keywords you've researched in this session
                                 </CardDescription>
                             </div>
-                            <Badge variant="secondary" className="bg-violet-500/10 text-violet-300">
+                            <Badge variant="secondary" className="bg-orange-500/10 text-violet-300">
                                 {savedKeywords.length} saved
                             </Badge>
                         </div>
@@ -87,7 +87,7 @@ export default function KeywordsPage() {
                                 >
                                     <span className="text-sm font-medium">{keyword}</span>
                                     <Link href={`/dashboard/new?keyword=${encodeURIComponent(keyword)}`}>
-                                        <Button size="sm" className="bg-violet-600 hover:bg-violet-700">
+                                        <Button size="sm" className="bg-[#FF6600] hover:bg-violet-700">
                                             <Plus className="w-3.5 h-3.5 mr-1.5" />
                                             Create Article
                                         </Button>

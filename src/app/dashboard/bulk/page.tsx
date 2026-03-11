@@ -202,10 +202,10 @@ export default function BulkGeneratePage() {
                             <div>
                                 <Label className="flex items-center gap-1.5 mb-1.5">
                                     Brand Voice
-                                    <Megaphone className="w-3.5 h-3.5 text-violet-400" />
+                                    <Megaphone className="w-3.5 h-3.5 text-[#FF6600]" />
                                 </Label>
                                 <Select value={selectedProfileId} onValueChange={(v) => v && handleProfileSelect(v)}>
-                                    <SelectTrigger className="bg-violet-500/5 border-violet-500/20 text-violet-100">
+                                    <SelectTrigger className="bg-[#FF6600]/5 border-[#FF6600]/20 text-violet-100">
                                         <SelectValue placeholder="Select a voice..." />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -281,7 +281,7 @@ export default function BulkGeneratePage() {
                             <div className="flex flex-col gap-2 relative">
                                 <button
                                     onClick={() => setIncludeImages(!includeImages)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeImages ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-muted/20 text-muted-foreground border border-border/50"
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeImages ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${includeImages ? "opacity-100" : "opacity-0"}`} />
@@ -290,7 +290,7 @@ export default function BulkGeneratePage() {
 
                                 <button
                                     onClick={() => setAutoInterlink(!autoInterlink)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${autoInterlink ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-muted/20 text-muted-foreground border border-border/50"
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${autoInterlink ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${autoInterlink ? "opacity-100" : "opacity-0"}`} />
@@ -299,7 +299,7 @@ export default function BulkGeneratePage() {
 
                                 <button
                                     onClick={() => setIncludeFaq(!includeFaq)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeFaq ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-muted/20 text-muted-foreground border border-border/50"
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeFaq ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${includeFaq ? "opacity-100" : "opacity-0"}`} />
@@ -308,7 +308,7 @@ export default function BulkGeneratePage() {
 
                                 <button
                                     onClick={() => setIncludeToc(!includeToc)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeToc ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-muted/20 text-muted-foreground border border-border/50"
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeToc ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${includeToc ? "opacity-100" : "opacity-0"}`} />
@@ -317,7 +317,7 @@ export default function BulkGeneratePage() {
 
                                 <button
                                     onClick={() => setIncludeSchema(!includeSchema)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeSchema ? "bg-violet-500/20 text-violet-300 border border-violet-500/30" : "bg-muted/20 text-muted-foreground border border-border/50"
+                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeSchema ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${includeSchema ? "opacity-100" : "opacity-0"}`} />
@@ -457,7 +457,7 @@ export default function BulkGeneratePage() {
                                 <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-muted/20 border border-border/50 hover:bg-muted/30 transition-colors">
                                     <div className="flex items-center gap-4 flex-1">
                                         {job.status === "pending" && <Circle className="w-5 h-5 text-muted-foreground" />}
-                                        {job.status === "processing" && <Loader2 className="w-5 h-5 text-violet-400 animate-spin" />}
+                                        {job.status === "processing" && <Loader2 className="w-5 h-5 text-[#FF6600] animate-spin" />}
                                         {job.status === "done" && <CheckCircle2 className="w-5 h-5 text-green-500" />}
                                         {job.status === "error" && <div className="w-5 h-5 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center font-bold text-xs">!</div>}
 

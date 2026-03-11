@@ -34,14 +34,14 @@ const FEATURES = [
     title: "1-Click Article Generation",
     description:
       "Enter a keyword and get a complete, SEO-optimized article with title, headings, FAQs, and meta descriptions.",
-    color: "from-indigo-500 to-violet-500",
+    color: "from-indigo-500 to-[#FF6600]",
   },
   {
     icon: Image,
     title: "AI Image Studio",
     description:
       "Generate stunning featured images and section visuals with AI. Includes alt text generation for SEO.",
-    color: "from-violet-500 to-purple-500",
+    color: "from-[#FF6600] to-purple-500",
   },
   {
     icon: PenTool,
@@ -276,7 +276,7 @@ export default function LandingPage() {
           <div className="animate-slide-up opacity-0 stagger-1">
             <Badge
               variant="secondary"
-              className="mb-6 px-4 py-1.5 text-sm glass-card border-violet-500/20"
+              className="mb-6 px-4 py-1.5 text-sm glass-card border-[#FF6600]/20"
             >
               <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2 animate-pulse-dot" />
               Now in Beta — Free to Try
@@ -354,18 +354,18 @@ export default function LandingPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-4">
-                    <div className="h-3 w-24 rounded bg-violet-500/30" />
+                    <div className="h-3 w-24 rounded bg-[#FF6600]/30" />
                     <div className="h-10 rounded-md bg-muted/30 border border-border/50 flex items-center px-3">
                       <span className="text-sm text-muted-foreground">
                         best coffee machines 2025
                       </span>
                     </div>
-                    <div className="h-3 w-20 rounded bg-violet-500/30 mt-4" />
+                    <div className="h-3 w-20 rounded bg-[#FF6600]/30 mt-4" />
                     <div className="flex gap-2 flex-wrap">
                       {["English", "Professional", "2000 words"].map((tag) => (
                         <span
                           key={tag}
-                          className="text-xs px-2 py-1 rounded-md bg-violet-500/10 text-violet-300 border border-violet-500/20"
+                          className="text-xs px-2 py-1 rounded-md bg-orange-500/10 text-violet-300 border border-[#FF6600]/20"
                         >
                           {tag}
                         </span>
@@ -378,7 +378,7 @@ export default function LandingPage() {
                     </div>
                   </div>
                   <div className="space-y-3">
-                    <div className="h-3 w-32 rounded bg-violet-500/30" />
+                    <div className="h-3 w-32 rounded bg-[#FF6600]/30" />
                     {[
                       "✅ 10 Best Coffee Machines for Home...",
                       "✅ Top Coffee Machines Reviewed...",
@@ -409,7 +409,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 px-4 py-1 glass-card border-violet-500/20"
+              className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20"
             >
               Features
             </Badge>
@@ -451,7 +451,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 px-4 py-1 glass-card border-violet-500/20"
+              className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20"
             >
               How It Works
             </Badge>
@@ -465,10 +465,10 @@ export default function LandingPage() {
             {STEPS.map((step, i) => (
               <div key={step.step} className="relative">
                 <div className="glass-card rounded-xl p-6 text-center hover:scale-[1.03] transition-all duration-300">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-violet-500 flex items-center justify-center mx-auto mb-4">
+                  <div className="w-14 h-14 rounded-full bg-gradient-to-br from-indigo-500 to-[#FF6600] flex items-center justify-center mx-auto mb-4">
                     <step.icon className="w-7 h-7 text-white" />
                   </div>
-                  <div className="text-xs font-semibold text-violet-400 mb-2">
+                  <div className="text-xs font-semibold text-[#FF6600] mb-2">
                     STEP {step.step}
                   </div>
                   <h3 className="font-semibold mb-2">{step.title}</h3>
@@ -478,7 +478,7 @@ export default function LandingPage() {
                 </div>
                 {i < STEPS.length - 1 && (
                   <div className="hidden lg:block absolute top-1/2 -right-3 transform -translate-y-1/2">
-                    <ChevronRight className="w-6 h-6 text-violet-500/40" />
+                    <ChevronRight className="w-6 h-6 text-[#FF6600]/40" />
                   </div>
                 )}
               </div>
@@ -493,7 +493,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 px-4 py-1 glass-card border-violet-500/20"
+              className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20"
             >
               Templates
             </Badge>
@@ -528,7 +528,7 @@ export default function LandingPage() {
           <div className="text-center mb-16">
             <Badge
               variant="secondary"
-              className="mb-4 px-4 py-1 glass-card border-violet-500/20"
+              className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20"
             >
               Pricing
             </Badge>
@@ -571,7 +571,7 @@ export default function LandingPage() {
             {/* Starter */}
             <div className="gradient-border rounded-xl">
               <div className="bg-card rounded-xl p-6 relative overflow-hidden">
-                <div className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-indigo-500 to-violet-500 text-white rounded-bl-lg">
+                <div className="absolute top-0 right-0 px-3 py-1 text-xs font-semibold bg-gradient-to-r from-indigo-500 to-[#FF6600] text-white rounded-bl-lg">
                   POPULAR
                 </div>
                 <h3 className="text-lg font-semibold mb-1">Starter</h3>
@@ -588,7 +588,7 @@ export default function LandingPage() {
                     "Auto-publish",
                   ].map((f) => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0" />
+                      <CheckCircle2 className="w-4 h-4 text-[#FF6600] shrink-0" />
                       {f}
                     </li>
                   ))}
@@ -671,7 +671,7 @@ export default function LandingPage() {
         <div className="max-w-3xl mx-auto text-center">
           <div className="gradient-border rounded-2xl p-1">
             <div className="bg-card rounded-2xl p-12">
-              <Sparkles className="w-12 h-12 text-violet-400 mx-auto mb-6" />
+              <Sparkles className="w-12 h-12 text-[#FF6600] mx-auto mb-6" />
               <h2 className="text-3xl font-bold mb-4">
                 Ready to Automate Your{" "}
                 <span className="gradient-text">Blogger Content?</span>

@@ -222,32 +222,32 @@ export default function SettingsPage() {
                 ) : (
                     <div className="space-y-3">
                         {blogs.map((blog) => (
-                            <div key={blog.id} className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg border border-border/50">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${blog.isDefault ? "bg-green-500/20" : "bg-muted"}`}>
+                            <div key={blog.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${blog.isDefault ? "bg-[#FF6600]/5 border-[#FF6600]/30 shadow-sm" : "bg-card border-border/50 hover:border-[#FF6600]/20"}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${blog.isDefault ? "bg-[#FF6600] text-white shadow-md shadow-[#FF6600]/20" : "bg-muted text-muted-foreground"}`}>
                                     {blog.isDefault ? (
-                                        <Check className="w-4 h-4 text-green-400" />
+                                        <Check className="w-5 h-5" />
                                     ) : (
-                                        <Globe className="w-4 h-4 text-muted-foreground" />
+                                        <Globe className="w-5 h-5" />
                                     )}
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium truncate">{blog.name}</p>
-                                    <p className="text-xs text-muted-foreground truncate">
-                                        {blog.url}
+                                    <p className="text-sm font-semibold truncate text-foreground flex items-center gap-2">
+                                        {blog.name}
+                                        {blog.isDefault && (
+                                            <Badge variant="secondary" className="px-2 py-0 h-5 text-[10px] bg-[#FF6600] text-white border-0">
+                                                Default
+                                            </Badge>
+                                        )}
                                     </p>
+                                    <a href={blog.url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground truncate hover:text-[#FF6600] hover:underline transition-colors mt-0.5 block">
+                                        {blog.url}
+                                    </a>
                                 </div>
-                                {blog.isDefault ? (
-                                    <Badge
-                                        variant="secondary"
-                                        className="text-[10px] bg-violet-500/10 text-violet-300"
-                                    >
-                                        Default
-                                    </Badge>
-                                ) : (
+                                {!blog.isDefault && (
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 text-xs hover:bg-violet-500/10 hover:text-violet-400"
+                                        className="h-8 text-xs hover:bg-orange-500/10 hover:text-[#FF6600]"
                                         onClick={() => handleSetDefault(blog.id)}
                                     >
                                         Set Default
@@ -264,7 +264,7 @@ export default function SettingsPage() {
             {/* Brand Voice */}
             <section className="glass-card rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-purple-500 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#FF6600] to-purple-500 flex items-center justify-center">
                         <MessageSquare className="w-5 h-5 text-white" />
                     </div>
                     <div>

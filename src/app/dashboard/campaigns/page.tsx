@@ -125,13 +125,13 @@ export default function CampaignsPage() {
                         Set up a drip schedule to let the AI write and publish content hands-free.
                     </p>
                 </div>
-                <Button onClick={() => setShowForm(!showForm)} className="bg-violet-600 hover:bg-violet-700 text-white">
+                <Button onClick={() => setShowForm(!showForm)} className="bg-[#FF6600] hover:bg-violet-700 text-white">
                     {showForm ? "Cancel" : <><Plus className="w-4 h-4 mr-2" /> New Campaign</>}
                 </Button>
             </div>
 
             {showForm && (
-                <Card className="glass-card border-violet-500/30 shadow-lg shadow-violet-500/10">
+                <Card className="glass-card border-[#FF6600]/30 shadow-lg shadow-violet-500/10">
                     <CardHeader>
                         <CardTitle>Create Campaign</CardTitle>
                         <CardDescription>Configure your automation pipeline.</CardDescription>
@@ -177,7 +177,7 @@ export default function CampaignsPage() {
                                 />
                             </div>
                         </div>
-                        <Button onClick={handleCreate} disabled={!name || !blogId || !keywords || isCreating} className="w-full bg-violet-600 hover:bg-violet-700">
+                        <Button onClick={handleCreate} disabled={!name || !blogId || !keywords || isCreating} className="w-full bg-[#FF6600] hover:bg-violet-700">
                             {isCreating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CalendarClock className="w-4 h-4 mr-2" />}
                             Schedule Campaign
                         </Button>

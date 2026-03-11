@@ -138,28 +138,30 @@ export default function PricingPage() {
           </p>
 
           {/* Billing Toggle */}
-          <div className="flex items-center justify-center gap-3 mt-8">
-            <span className={`text-sm ${billing === "monthly" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-              Monthly
-            </span>
-            <button
-              onClick={() => setBilling(billing === "monthly" ? "yearly" : "monthly")}
-              className={`relative w-12 h-6 rounded-full transition-colors ${
-                billing === "yearly" ? "bg-violet-500" : "bg-border"
-              }`}
-            >
-              <div
-                className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
-                  billing === "yearly" ? "translate-x-6" : ""
-                }`}
-              />
-            </button>
-            <span className={`text-sm ${billing === "yearly" ? "text-foreground font-medium" : "text-muted-foreground"}`}>
-              Yearly
-              <Badge className="ml-2 bg-emerald-500/10 text-emerald-400 border-emerald-500/20 text-[10px]">
-                Save 20%
-              </Badge>
-            </span>
+          <div className="flex items-center justify-center mt-8">
+            <div className="bg-gray-100 rounded-full p-1 flex items-center gap-1">
+              <button
+                onClick={() => setBilling("monthly")}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${billing === "monthly"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                  }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBilling("yearly")}
+                className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${billing === "yearly"
+                    ? "bg-white text-gray-900 shadow-sm"
+                    : "text-gray-500 hover:text-gray-700"
+                  }`}
+              >
+                Yearly
+                <Badge className="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 text-[10px]">
+                  Save 20%
+                </Badge>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -168,22 +170,21 @@ export default function PricingPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`glass-card rounded-2xl p-6 relative flex flex-col ${
-                plan.popular ? "border-violet-500/50 ring-1 ring-violet-500/20" : ""
-              }`}
+              className={`glass-card rounded-2xl p-6 relative flex flex-col ${plan.popular ? "border-[#FF6600]/50 ring-1 ring-[#FF6600]/20" : ""
+                }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-violet-500 text-white border-0 px-3">Most Popular</Badge>
+                  <Badge className="bg-[#FF6600] text-white border-0 px-3">Most Popular</Badge>
                 </div>
               )}
 
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <plan.icon className={`w-5 h-5 ${
-                    plan.color === "violet" ? "text-violet-400" :
-                    plan.color === "amber" ? "text-amber-400" : "text-zinc-400"
-                  }`} />
+                  <plan.icon className={`w-5 h-5 ${plan.color === "violet" ? "text-[#FF6600]" :
+                      plan.color === "amber" ? "text-amber-400" :
+                        plan.color === "blue" ? "text-blue-400" : "text-zinc-400"
+                    }`} />
                   <h3 className="text-lg font-semibold">{plan.displayName}</h3>
                 </div>
                 <p className="text-sm text-muted-foreground">{plan.description}</p>
@@ -209,7 +210,7 @@ export default function PricingPage() {
                     {feature.included ? (
                       <Check className="w-4 h-4 text-emerald-400 mt-0.5 shrink-0" />
                     ) : (
-                      <X className="w-4 h-4 text-muted-foreground/30 mt-0.5 shrink-0" />
+                      <span className="w-4 h-4 mt-0.5 shrink-0 flex items-center justify-center text-muted-foreground/30">—</span>
                     )}
                     <span className={feature.included ? "" : "text-muted-foreground/50"}>
                       {feature.text}
@@ -220,11 +221,10 @@ export default function PricingPage() {
 
               <Link href={plan.price === 0 ? "/auth/register" : "/auth/register"}>
                 <Button
-                  className={`w-full ${
-                    plan.popular
+                  className={`w-full ${plan.popular
                       ? "glow-button text-white border-0"
                       : ""
-                  }`}
+                    }`}
                   variant={plan.popular ? "default" : "outline"}
                 >
                   {plan.price === 0 ? "Get Started Free" : "Start Free Trial"}

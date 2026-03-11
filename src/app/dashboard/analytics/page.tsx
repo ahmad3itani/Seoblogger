@@ -70,7 +70,7 @@ export default function AnalyticsPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-violet-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
             </div>
         );
     }
@@ -99,7 +99,7 @@ export default function AnalyticsPage() {
                     <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                             <CardDescription className="text-xs">Total Articles</CardDescription>
-                            <FileText className="w-4 h-4 text-violet-400" />
+                            <FileText className="w-4 h-4 text-[#FF6600]" />
                         </div>
                     </CardHeader>
                     <CardContent>
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
                                     className="flex items-center justify-between p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors"
                                 >
                                     <div className="flex items-center gap-4 flex-1 min-w-0">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-violet-500/10 text-violet-400 font-bold text-sm shrink-0">
+                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500/10 text-[#FF6600] font-bold text-sm shrink-0">
                                             {index + 1}
                                         </div>
                                         <div className="flex-1 min-w-0">
@@ -192,7 +192,7 @@ export default function AnalyticsPage() {
                                             </p>
                                         </div>
                                     </div>
-                                    <Badge variant="secondary" className="bg-violet-500/10 text-violet-300 shrink-0">
+                                    <Badge variant="secondary" className="bg-orange-500/10 text-violet-300 shrink-0">
                                         {article.wordCount >= 2000 ? 'Long-form' : 'Standard'}
                                     </Badge>
                                 </div>

@@ -178,7 +178,7 @@ export default function RefreshArticlePage() {
                             disabled={!selectedPost}
                         />
                         <Button
-                            className="w-full bg-violet-600 hover:bg-violet-700 text-white"
+                            className="w-full bg-[#FF6600] hover:bg-violet-700 text-white"
                             disabled={!selectedPost || !instructions.trim() || isRefreshing}
                             onClick={handleRefresh}
                         >
@@ -194,7 +194,7 @@ export default function RefreshArticlePage() {
             </div>
 
             {newContent && (
-                <Card className="glass-card border-violet-500/30">
+                <Card className="glass-card border-[#FF6600]/30">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
                             <CardTitle>3. Review & Update</CardTitle>
