@@ -28,14 +28,27 @@ import {
     RefreshCw,
 } from "lucide-react";
 
+interface AmazonProduct {
+    name: string;
+    priceRange: string;
+    rating: string;
+    bestFor: string;
+    affiliateUrl: string;
+}
+
 interface GeneratedArticle {
     title: string;
     content: string;
+    rawArticle?: string;
     wordCount: number;
     affiliateLinkCount: number;
     storeId: string;
     niche: string;
     articleType: string;
+    products?: AmazonProduct[];
+    meta?: { metaDescription: string; excerpt: string };
+    faqs?: Array<{ question: string; answer: string }>;
+    savedArticle?: { id: string } | null;
 }
 
 export default function AmazonAffiliatePage() {
@@ -217,7 +230,7 @@ export default function AmazonAffiliatePage() {
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="roundup">Product Roundup (Best X of 2025)</SelectItem>
+                                    <SelectItem value="roundup">Product Roundup (Best X of 2026)</SelectItem>
                                     <SelectItem value="single-review">Single Product Review</SelectItem>
                                     <SelectItem value="comparison">Product Comparison (vs)</SelectItem>
                                     <SelectItem value="buyers-guide">Buyer&apos;s Guide</SelectItem>
@@ -325,23 +338,27 @@ export default function AmazonAffiliatePage() {
 
                     {/* How It Works */}
                     <div className="glass-card rounded-2xl p-6">
-                        <h3 className="font-semibold mb-3 text-sm">How It Works</h3>
+                        <h3 className="font-semibold mb-3 text-sm">Same Pipeline as Article Generator</h3>
                         <div className="space-y-3 text-xs text-muted-foreground">
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">1</span>
-                                <span>Enter your niche and Amazon Store ID</span>
+                                <span>AI researches real Amazon products for your niche</span>
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">2</span>
-                                <span>AI generates a full review with real product recommendations</span>
+                                <span>Generates SEO title → outline → 2500+ word article</span>
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">3</span>
-                                <span>Every product link includes your affiliate tag automatically</span>
+                                <span>AI creates product images via Cloudflare Workers AI</span>
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">4</span>
-                                <span>Publish directly to your Blogger blog or copy the HTML</span>
+                                <span>Affiliate links, FAQs, TOC, schema, and disclosure added</span>
+                            </div>
+                            <div className="flex gap-2">
+                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">5</span>
+                                <span>Formatted for Blogger and saved as draft automatically</span>
                             </div>
                         </div>
                     </div>
@@ -362,13 +379,33 @@ export default function AmazonAffiliatePage() {
                     )}
 
                     {isGenerating && (
-                        <div className="glass-card rounded-2xl p-16 text-center h-full flex flex-col items-center justify-center">
+                        <div className="glass-card rounded-2xl p-12 h-full flex flex-col items-center justify-center">
                             <div className="w-20 h-20 bg-[#FF9900]/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
                                 <Sparkles className="w-10 h-10 text-[#FF9900]" />
                             </div>
                             <h2 className="text-2xl font-bold mb-3">Generating Article...</h2>
-                            <p className="text-muted-foreground">
-                                Researching products, writing reviews, and embedding affiliate links. This takes 30-60 seconds.
+                            <p className="text-muted-foreground mb-8 text-center max-w-md">
+                                Running the full article pipeline. This uses the same process as regular article generation with affiliate enhancements.
+                            </p>
+                            <div className="w-full max-w-sm space-y-3 text-sm">
+                                {[
+                                    "🔍 Researching real products on Amazon...",
+                                    "🔗 Building affiliate links with your Store ID...",
+                                    "📋 Generating SEO-optimized title...",
+                                    "📝 Creating comprehensive outline...",
+                                    "✍️ Writing full article with affiliate links...",
+                                    "❓ Generating FAQ section...",
+                                    "🔖 Creating meta description...",
+                                    "🖼️ Generating AI product images...",
+                                    "🎨 Formatting for Blogger...",
+                                ].map((step, i) => (
+                                    <div key={i} className="flex items-center gap-3 text-muted-foreground animate-in fade-in" style={{ animationDelay: `${i * 3}s`, animationFillMode: 'backwards' }}>
+                                        <span>{step}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-8">
+                                This typically takes 60-90 seconds for the full pipeline.
                             </p>
                         </div>
                     )}
@@ -443,6 +480,30 @@ export default function AmazonAffiliatePage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Products Found */}
+                            {generatedArticle.products && generatedArticle.products.length > 0 && (
+                                <div className="glass-card rounded-2xl p-4">
+                                    <h4 className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Products Researched</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                                        {generatedArticle.products.map((product, i) => (
+                                            <a
+                                                key={i}
+                                                href={product.affiliateUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="flex items-start gap-2 p-2 rounded-lg border border-border/50 hover:bg-muted/30 transition-colors text-xs"
+                                            >
+                                                <span className="w-5 h-5 rounded bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">{i + 1}</span>
+                                                <div className="min-w-0">
+                                                    <p className="font-medium truncate">{product.name}</p>
+                                                    <p className="text-muted-foreground">{product.priceRange} · {product.rating}</p>
+                                                </div>
+                                            </a>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Article Content */}
                             <div className="glass-card rounded-2xl overflow-hidden border">
