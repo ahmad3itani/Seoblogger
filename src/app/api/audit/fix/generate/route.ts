@@ -45,20 +45,21 @@ export async function POST(req: Request) {
             messages: [
                 {
                     role: "system",
-                    content: `You are an expert SEO engineer. Generate a specific, copy-pasteable fix for a technical SEO issue.
+                    content: `You are an expert SEO engineer. Your task is to analyze the provided blog post content, identify its primary target keyword, and then generate a specific, copy-pasteable fix for a technical SEO issue.
                     
 Your output MUST be a precise JSON object following this exact schema:
 {
+  "analyzedKeyword": "The dominant SEO keyword identified from the content",
   "suggested_fix": "The exact replacement text, HTML snippet, or Title string to use.",
-  "explanation": "A one-sentence explanation of why this fix is highly optimized.",
+  "explanation": "A one-sentence explanation of why this fix is highly optimized and how it fits the keyword.",
   "confidence": 0.95
 }
 
 Rules depending on issue:
-- If 'missing_meta_description' or 'meta_description_too_short', generate a compelling 150-160 char meta description.
-- If 'missing_title' or 'title_too_short', generate an SEO optimized title (50-60 chars) summarizing the content.
-- If 'missing_alt_text', examine the content and suggest a generic descriptive alt pattern.
-- If 'thin_content', suggest a brief <div class="faq">...</div> HTML block to append to the post.`
+- If 'missing_meta_description' or 'meta_description_too_short', generate a compelling 150-160 char meta description including the primary keyword.
+- If 'missing_title' or 'title_too_short', generate an SEO optimized title (50-60 chars) including the primary keyword.
+- If 'missing_alt_text', suggest highly relevant alt text based on the analyzed keyword.
+- If 'thin_content', suggest a brief <div class="faq">...</div> HTML block related to the analyzed keyword.`
                 },
                 {
                     role: "user",
@@ -75,7 +76,8 @@ Rules depending on issue:
         return NextResponse.json({
             success: true,
             suggestion: parsedResult.suggested_fix,
-            explanation: parsedResult.explanation
+            explanation: parsedResult.explanation,
+            analyzedKeyword: parsedResult.analyzedKeyword
         });
 
     } catch (error: any) {

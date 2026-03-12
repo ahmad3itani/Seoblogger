@@ -28,7 +28,7 @@ export default function AdvancedAuditPage() {
     // AI Fix Panel State
     const [selectedIssue, setSelectedIssue] = useState<any>(null);
     const [isGeneratingFix, setIsGeneratingFix] = useState(false);
-    const [aiFix, setAiFix] = useState<{ suggestion: string, explanation: string } | null>(null);
+    const [aiFix, setAiFix] = useState<{ suggestion: string, explanation: string, analyzedKeyword?: string } | null>(null);
     const [isApplyingFix, setIsApplyingFix] = useState(false);
 
     useEffect(() => {
@@ -141,7 +141,11 @@ export default function AdvancedAuditPage() {
             });
             const data = await res.json();
             if (data.success) {
-                setAiFix({ suggestion: data.suggestion, explanation: data.explanation });
+                setAiFix({ 
+                    suggestion: data.suggestion, 
+                    explanation: data.explanation,
+                    analyzedKeyword: data.analyzedKeyword
+                });
             }
         } catch (error) {
             console.error(error);
@@ -163,7 +167,7 @@ export default function AdvancedAuditPage() {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    issueId: selectedIssue.type,
+                    issueId: selectedIssue.issueId,
                     dbIssueId: selectedIssue.id,
                     suggestedFix: aiFix.suggestion,
                     pageUrl: pageUrl,
@@ -348,6 +352,15 @@ export default function AdvancedAuditPage() {
                                 </div>
                             ) : aiFix ? (
                                 <div className="space-y-4">
+                                    {aiFix.analyzedKeyword && (
+                                        <div className="bg-[#FF6600]/5 border border-[#FF6600]/20 p-4 rounded-xl flex items-center gap-3">
+                                            <Search className="w-5 h-5 text-[#FF6600]" />
+                                            <div>
+                                                <p className="text-[10px] text-muted-foreground uppercase font-bold">Analyzed Target Keyword</p>
+                                                <p className="text-sm font-bold text-[#FF6600]">"{aiFix.analyzedKeyword}"</p>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="bg-green-500/10 p-4 rounded-xl border border-green-500/20">
                                         <div className="flex items-center justify-between mb-2">
                                             <p className="text-xs text-green-600 uppercase font-semibold flex items-center gap-1">
