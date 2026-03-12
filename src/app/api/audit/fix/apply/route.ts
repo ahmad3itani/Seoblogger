@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         if (targetPostId === "mock-post-id" || !targetPostId) {
             // Find post in cache by URL
             const cached = await prisma.cachedPost.findFirst({
-                where: { url: pageUrl, blogId: blogId }
+                where: { url: pageUrl, blog: { blogId: blogId } }
             });
             if (cached) {
                 targetPostId = cached.postId;

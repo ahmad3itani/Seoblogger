@@ -135,8 +135,8 @@ export default function AdvancedAuditPage() {
                     issueId: issue.issueId,
                     description: issue.description,
                     pageUrl: page.url,
-                    bloggerPostId: "mock-post-id", // In reality, we extract this from the URL or scanned page
-                    blogId: "mock-blog-id"
+                    bloggerPostId: "mock-post-id", // Backend handles resolving this
+                    blogId: selectedBlog?.id || "mock-blog-id"
                 })
             });
             const data = await res.json();
