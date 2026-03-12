@@ -83,11 +83,11 @@ export async function POST(req: Request) {
         for (const post of allPosts) {
             if (!post.id || !post.title || !post.url) continue;
             await prisma.cachedPost.upsert({
-                where: { blogId_postId: { blogId: blog.blogId, postId: post.id } },
+                where: { blogId_postId: { blogId: blog.id, postId: post.id } },
                 update: { title: post.title, url: post.url },
                 create: {
                     postId: post.id,
-                    blogId: blog.blogId,
+                    blogId: blog.id,
                     title: post.title,
                     url: post.url,
                     publishedAt: post.published ? new Date(post.published) : new Date(),
