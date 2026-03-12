@@ -120,13 +120,15 @@ export default function AmazonAffiliatePage() {
         }
     };
 
+    const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+
     const handlePublish = async () => {
         if (!generatedArticle) return;
         setIsPublishing(true);
+        setError("");
 
         try {
-            // First save as article
-            const res = await fetch("/api/articles", {
+            const res = await fetch("/api/amazon/publish", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -135,15 +137,13 @@ export default function AmazonAffiliatePage() {
                     wordCount: generatedArticle.wordCount,
                     labels: `amazon,affiliate,${generatedArticle.niche}`,
                     tone: tone,
-                    articleType: "affiliate-review",
-                    status: "draft",
-                    autoPublish: true,
                 }),
             });
 
             const data = await res.json();
-            if (data.success || data.article) {
+            if (data.success) {
                 setPublishSuccess(true);
+                setPublishedUrl(data.article?.bloggerUrl || null);
             } else {
                 setError(data.error || "Failed to publish");
             }
@@ -424,6 +424,13 @@ export default function AmazonAffiliatePage() {
                                                 <><Send className="w-3 h-3 mr-1" /> Publish to Blog</>
                                             )}
                                         </Button>
+                                        {publishSuccess && publishedUrl && (
+                                            <a href={publishedUrl} target="_blank" rel="noopener noreferrer">
+                                                <Button variant="outline" size="sm" className="h-8">
+                                                    <ExternalLink className="w-3 h-3 mr-1" /> View on Blogger
+                                                </Button>
+                                            </a>
+                                        )}
                                         <Button
                                             variant="ghost"
                                             size="sm"

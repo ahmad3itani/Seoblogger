@@ -24,6 +24,17 @@ function getIssuePrompt(issueId: string): string {
         missing_alt_text: `Analyze the images in the content and generate descriptive, keyword-relevant alt text for each image that is missing one. Return a JSON array of {imgIndex: number, altText: string} pairs.`,
         orphan_page: `Generate 2-3 contextually relevant internal link suggestions as HTML anchor tags. Use the blog's other post titles/URLs if available.`,
         low_internal_links: `Generate 1-2 additional internal link suggestions as HTML anchor tags that naturally fit within the existing content.`,
+        multiple_h1: `This page has multiple H1 tags. Suggest which single H1 to keep and which to convert to H2. Return the recommended single H1 text.`,
+        missing_canonical: `Suggest the correct canonical URL for this page. Return just the full URL that should be set as the canonical.`,
+        missing_open_graph: `Generate Open Graph meta tags (og:title, og:description, og:type) for this page based on its content. Return as HTML meta tags.`,
+        missing_schema: `Generate a JSON-LD structured data snippet (Article schema) for this blog post, including headline, description, datePublished, and author. Return the complete <script type="application/ld+json"> block.`,
+        noindex_detected: `This page has a noindex tag preventing it from appearing in search results. Confirm whether this is intentional. If not, recommend removing the noindex directive.`,
+        missing_viewport: `The page is missing a viewport meta tag. Suggest the standard responsive viewport tag to add.`,
+        missing_lang: `The HTML element is missing a lang attribute. Based on the content language, suggest the correct lang value (e.g., "en", "es", "fr").`,
+        low_text_html_ratio: `The text-to-HTML ratio is very low. Suggest ways to increase meaningful text content or reduce unnecessary HTML bloat.`,
+        no_https: `The page is not served over HTTPS. Recommend enabling HTTPS/SSL for the domain.`,
+        no_images: `This content-heavy page has no images. Suggest 2-3 relevant image ideas with descriptive alt text that would improve engagement. Return as a brief recommendation.`,
+        excessive_external_links: `This page has too many external links. Suggest which types of external links to remove or nofollow to preserve link equity.`,
     };
     return prompts[issueId] || `Generate the most appropriate SEO fix for this issue. Be specific and provide exact replacement text.`;
 }
