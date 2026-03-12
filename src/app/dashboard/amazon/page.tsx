@@ -27,6 +27,7 @@ import {
     Check,
     RefreshCw,
     Globe,
+    Link2,
 } from "lucide-react";
 
 interface AmazonProduct {
@@ -60,6 +61,7 @@ export default function AmazonAffiliatePage() {
     const [articleType, setArticleType] = useState("roundup");
     const [language, setLanguage] = useState("English");
     const [tone, setTone] = useState("professional");
+    const [productUrl, setProductUrl] = useState("");
     const [includeTable, setIncludeTable] = useState(true);
     const [customInstructions, setCustomInstructions] = useState("");
 
@@ -110,8 +112,9 @@ export default function AmazonAffiliatePage() {
                     niche: niche.trim(),
                     storeId: storeId.trim(),
                     storeRegion,
+                    productUrl: productUrl.trim() || undefined,
                     productCount: parseInt(productCount),
-                    articleType,
+                    articleType: productUrl.trim() ? "single-review" : articleType,
                     language,
                     tone,
                     includeComparisonTable: includeTable,
@@ -266,7 +269,31 @@ export default function AmazonAffiliatePage() {
                             />
                         </div>
 
-                        {/* Article Type */}
+                        {/* Specific Product URL */}
+                        <div>
+                            <Label className="text-sm font-medium flex items-center gap-1.5">
+                                <Link2 className="w-3.5 h-3.5" />
+                                Specific Product URL (optional)
+                            </Label>
+                            <Input
+                                placeholder="https://www.amazon.ca/dp/B00CH9QWOU"
+                                value={productUrl}
+                                onChange={(e) => setProductUrl(e.target.value)}
+                                className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
+                            />
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                Paste an Amazon product URL to write a deep review about that specific product. Leave empty to let AI research products.
+                            </p>
+                            {productUrl.trim() && (
+                                <div className="mt-2 flex items-center gap-2 text-xs text-[#FF9900] bg-[#FF9900]/5 px-3 py-1.5 rounded-lg border border-[#FF9900]/20">
+                                    <Link2 className="w-3 h-3 shrink-0" />
+                                    <span>Deep single-product review mode — AI will analyze this specific product + competitors</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Article Type - hidden when product URL is set */}
+                        {!productUrl.trim() && (
                         <div>
                             <Label className="text-sm font-medium">Article Type</Label>
                             <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
@@ -281,9 +308,10 @@ export default function AmazonAffiliatePage() {
                                 </SelectContent>
                             </Select>
                         </div>
+                        )}
 
-                        {/* Product Count */}
-                        {articleType !== "single-review" && (
+                        {/* Product Count - hidden when product URL is set or single review */}
+                        {!productUrl.trim() && articleType !== "single-review" && (
                             <div>
                                 <Label className="text-sm font-medium">Number of Products</Label>
                                 <Select value={productCount} onValueChange={(v) => v && setProductCount(v)}>
