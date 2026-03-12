@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
-import OpenAI from "openai";
+import { openai } from "@/lib/ai/client";
 import { getPost } from "@/lib/blogger-api";
 import { prisma } from "@/lib/prisma";
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || "dummy_key_for_build",
-});
 
 export async function POST(req: Request) {
     try {

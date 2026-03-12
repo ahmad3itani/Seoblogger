@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
-import OpenAI from "openai";
+import { openai } from "@/lib/ai/client";
 import { getPost } from "@/lib/blogger-api";
 import { prisma } from "@/lib/prisma";
 import * as cheerio from "cheerio";
-
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY || "dummy_key_for_build",
-});
 
 function getIssuePrompt(issueId: string): string {
     const prompts: Record<string, string> = {
