@@ -11,6 +11,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
     }
 
+    console.log("🔄 Syncing user:", user.email);
+
     // Parse optional body (Google tokens from OAuth callback)
     let googleAccessToken: string | undefined;
     let googleRefreshToken: string | undefined;
@@ -22,10 +24,23 @@ export async function POST(request: Request) {
       // No body is fine
     }
 
-    // Get the free plan for default assignment
-    const freePlan = await prisma.plan.findUnique({
+    // Get the free plan for default assignment - create if it doesn't exist
+    let freePlan = await prisma.plan.findUnique({
       where: { name: "free" },
     });
+
+    if (!freePlan) {
+      console.log("📋 Creating default free plan...");
+      freePlan = await prisma.plan.create({
+        data: {
+          name: "free",
+          displayName: "Free Plan",
+          price: 0,
+          articlesPerMonth: 10,
+          imagesPerMonth: 30,
+        },
+      });
+    }
 
     // Upsert user profile in our database
     const profile = await prisma.user.upsert({
@@ -44,7 +59,7 @@ export async function POST(request: Request) {
         name: user.user_metadata?.full_name || user.user_metadata?.name || null,
         avatarUrl: user.user_metadata?.avatar_url || null,
         role: "user",
-        planId: freePlan?.id || null,
+        planId: freePlan.id,
         ...(googleAccessToken && { googleAccessToken }),
         ...(googleRefreshToken && { googleRefreshToken }),
         ...(googleAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
@@ -59,11 +74,12 @@ export async function POST(request: Request) {
       create: { userId: user.id },
     });
 
+    console.log("✅ User synced:", profile.email, "Plan:", profile.plan?.name);
     return NextResponse.json({ profile });
   } catch (error: any) {
-    console.error("User sync error:", error);
+    console.error("❌ User sync error:", error.message, error.stack);
     return NextResponse.json(
-      { error: "Failed to sync user" },
+      { error: "Failed to sync user", details: error.message },
       { status: 500 }
     );
   }

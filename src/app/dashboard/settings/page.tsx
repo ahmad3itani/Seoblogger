@@ -19,18 +19,9 @@ import {
 import {
     Globe,
     Save,
-    Link2,
-    Shield,
-    Palette,
-    Type,
     Check,
-    User,
-    Languages,
-    Target,
     FileText,
-    Tag,
     Image,
-    MessageSquare,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -38,11 +29,6 @@ export default function SettingsPage() {
     const supabase = createClient();
     const [blogs, setBlogs] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-    const [saved, setSaved] = useState(false);
-    const [profileName, setProfileName] = useState("");
-    const [profileTone, setProfileTone] = useState("professional");
-    const [profileInstructions, setProfileInstructions] = useState("");
-    const [profileId, setProfileId] = useState<string | null>(null);
     const [isMounted, setIsMounted] = useState(false);
     const [hasConnection, setHasConnection] = useState(false);
 
@@ -53,7 +39,6 @@ export default function SettingsPage() {
     useEffect(() => {
         if (user) {
             fetchBlogs();
-            fetchBrandProfile();
         }
     }, [user]);
 
@@ -61,33 +46,17 @@ export default function SettingsPage() {
         // Check for success parameter from OAuth callback
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'blogger_connected') {
-            // Refresh blogs list after successful connection
-            fetchBlogs();
+            // Refresh blogs from Blogger API after successful connection
+            fetchBlogs(true);
             // Clean up URL
             window.history.replaceState({}, '', '/dashboard/settings');
         }
     }, []);
 
-    const fetchBrandProfile = async () => {
-        try {
-            const res = await fetch("/api/brand-voices");
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-                const profile = data[0]; // For now, just handle the first one
-                setProfileId(profile.id);
-                setProfileName(profile.name);
-                setProfileTone(profile.tone);
-                setProfileInstructions(profile.instructions || "");
-            }
-        } catch (error) {
-            console.error("Failed to fetch brand profile:", error);
-        }
-    };
-
-    const fetchBlogs = async () => {
+    const fetchBlogs = async (refresh = false) => {
         try {
             setLoading(true);
-            const res = await fetch("/api/blogs");
+            const res = await fetch(`/api/blogs${refresh ? "?refresh=true" : ""}`);
             const data = await res.json();
 
             if (data.error) {
@@ -102,31 +71,6 @@ export default function SettingsPage() {
             setHasConnection(false);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleSave = async () => {
-        try {
-            const res = await fetch("/api/brand-voices", {
-                method: profileId ? "PUT" : "POST", // Needs a PUT if ID exists
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    id: profileId,
-                    name: profileName || "Default Voice",
-                    tone: profileTone,
-                    instructions: profileInstructions,
-                    isDefault: true,
-                }),
-            });
-
-            if (res.ok) {
-                const data = await res.json();
-                if (!profileId) setProfileId(data.id);
-                setSaved(true);
-                setTimeout(() => setSaved(false), 2000);
-            }
-        } catch (error) {
-            console.error("Failed to save brand profile:", error);
         }
     };
 
@@ -261,68 +205,6 @@ export default function SettingsPage() {
 
             <Separator className="bg-border/30" />
 
-            {/* Brand Voice */}
-            <section className="glass-card rounded-xl p-6">
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#FF6600] to-purple-500 flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                        <h2 className="font-semibold">Brand Voice</h2>
-                        <p className="text-xs text-muted-foreground">
-                            Define your writing style and brand personality
-                        </p>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <Label htmlFor="brand-name">Brand Name</Label>
-                        <Input
-                            id="brand-name"
-                            placeholder="My Blog"
-                            className="mt-1.5 bg-muted/30 border-border/50"
-                            value={profileName}
-                            onChange={(e) => setProfileName(e.target.value)}
-                        />
-                    </div>
-                    <div>
-                        <Label>Default Tone</Label>
-                        <Select value={profileTone} onValueChange={(v) => v && setProfileTone(v)}>
-                            <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {[
-                                    "professional",
-                                    "casual",
-                                    "expert",
-                                    "friendly",
-                                    "authoritative",
-                                    "conversational",
-                                ].map((t) => (
-                                    <SelectItem key={t} value={t}>
-                                        {t.charAt(0).toUpperCase() + t.slice(1)}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div className="md:col-span-2">
-                        <Label htmlFor="brand-instructions">Custom Instructions</Label>
-                        <Textarea
-                            id="brand-instructions"
-                            placeholder="e.g., Always include personal anecdotes. Use data and statistics. Write for beginners..."
-                            className="mt-1.5 bg-muted/30 border-border/50 min-h-[80px]"
-                            value={profileInstructions}
-                            onChange={(e) => setProfileInstructions(e.target.value)}
-                        />
-                    </div>
-                </div>
-            </section>
-
-            <Separator className="bg-border/30" />
-
             {/* Default Article Settings */}
             <section className="glass-card rounded-xl p-6">
                 <div className="flex items-center gap-3 mb-6">
@@ -435,25 +317,6 @@ export default function SettingsPage() {
                 </div>
             </section>
 
-            {/* Save */}
-            <div className="flex justify-end">
-                <Button
-                    className="glow-button text-white border-0 px-8"
-                    onClick={handleSave}
-                >
-                    {saved ? (
-                        <>
-                            <Check className="w-4 h-4 mr-2" />
-                            Saved!
-                        </>
-                    ) : (
-                        <>
-                            <Save className="w-4 h-4 mr-2" />
-                            Save Settings
-                        </>
-                    )}
-                </Button>
-            </div>
         </div>
     );
 }

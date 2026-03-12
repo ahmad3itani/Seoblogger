@@ -9,6 +9,9 @@ export async function GET(req: Request) {
         if (authResult instanceof NextResponse) return authResult;
         const userId = authResult.user.id;
 
+        const { searchParams } = new URL(req.url);
+        const refresh = searchParams.get("refresh") === "true";
+
         // Get user's default blog
         const blog = await prisma.blog.findFirst({
             where: { userId: userId, isDefault: true }
@@ -18,14 +21,16 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "No default blog found" }, { status: 400 });
         }
 
-        // Try to sync latest posts first, but don't fail if it doesn't work perfectly
-        try {
-            await syncBloggerPosts(userId, blog.blogId, 50);
-        } catch (e) {
-            console.error("Failed to sync posts in /api/posts/cached:", e);
+        // Only sync from Blogger API when explicitly requested
+        if (refresh) {
+            try {
+                await syncBloggerPosts(userId, blog.blogId, 50);
+            } catch (e) {
+                console.error("Failed to sync posts:", e);
+            }
         }
 
-        // Fetch the recent cached posts
+        // Return cached posts from database (fast)
         const posts = await prisma.cachedPost.findMany({
             where: { blogId: blog.blogId },
             orderBy: { publishedAt: 'desc' },

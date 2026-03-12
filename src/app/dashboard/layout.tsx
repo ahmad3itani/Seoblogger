@@ -49,24 +49,64 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 
-const NAV_ITEMS = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, feature: null },
-    { href: "/dashboard/new", label: "New Article", icon: PenTool, feature: null },
-    { href: "/dashboard/keywords", label: "Keyword Research", icon: TrendingUp, feature: null },
-    { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, feature: "hasAnalytics", minPlan: "pro" },
-    { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "pro" },
-    { href: "/dashboard/ideas", label: "Trend Ideas", icon: Lightbulb, feature: "hasTrendIdeas", minPlan: "pro" },
-    { href: "/dashboard/clustering", label: "Auto Clustering", icon: Network, feature: "hasAutoClustering", minPlan: "pro" },
-    { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "pro" },
-    { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, feature: "hasScheduling", minPlan: "pro" },
-    { href: "/dashboard/articles", label: "My Articles", icon: FileText, feature: null },
-    { href: "/dashboard/audit/full", label: "Advanced Site Audit", icon: Activity, feature: null },
-    { href: "/dashboard/refresh", label: "Content Refresh", icon: RefreshCw, feature: "hasContentRefresh", minPlan: "pro" },
-    { href: "/dashboard/linker", label: "Internal Linker", icon: LinkIcon, feature: null },
-    { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
-    { href: "/dashboard/settings", label: "Settings", icon: Settings, feature: null },
-    { href: "/dashboard/profile", label: "Profile", icon: User, feature: null },
+interface NavItem {
+    href: string;
+    label: string;
+    icon: any;
+    feature: string | null;
+    minPlan?: string;
+}
+
+interface NavSection {
+    title: string | null;
+    items: NavItem[];
+}
+
+const NAV_SECTIONS: NavSection[] = [
+    {
+        title: null,
+        items: [
+            { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, feature: null },
+        ],
+    },
+    {
+        title: "Content",
+        items: [
+            { href: "/dashboard/new", label: "New Article", icon: PenTool, feature: null },
+            { href: "/dashboard/articles", label: "My Articles", icon: FileText, feature: null },
+            { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "pro" },
+            { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
+        ],
+    },
+    {
+        title: "SEO Tools",
+        items: [
+            { href: "/dashboard/keywords", label: "Keyword Research", icon: TrendingUp, feature: null },
+            { href: "/dashboard/ideas", label: "Trend Ideas", icon: Lightbulb, feature: "hasTrendIdeas", minPlan: "pro" },
+            { href: "/dashboard/clustering", label: "Keyword Clustering", icon: Network, feature: "hasAutoClustering", minPlan: "pro" },
+            { href: "/dashboard/audit/full", label: "Site Audit", icon: Activity, feature: null },
+            { href: "/dashboard/refresh", label: "Content Refresh", icon: RefreshCw, feature: "hasContentRefresh", minPlan: "pro" },
+            { href: "/dashboard/linker", label: "Internal Linker", icon: LinkIcon, feature: null },
+        ],
+    },
+    {
+        title: "Scheduling",
+        items: [
+            { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "pro" },
+            { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, feature: "hasScheduling", minPlan: "pro" },
+        ],
+    },
+    {
+        title: null,
+        items: [
+            { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, feature: "hasAnalytics", minPlan: "pro" },
+            { href: "/dashboard/settings", label: "Settings", icon: Settings, feature: null },
+        ],
+    },
 ];
+
+// Flat list for route matching
+const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
 export default function DashboardLayout({
     children,
@@ -107,17 +147,21 @@ export default function DashboardLayout({
     };
 
     const handleSwitchBlog = async (blogId: string) => {
+        // Optimistic UI update - instant switch
+        const newBlogs = blogs.map(b => ({ ...b, isDefault: b.id === blogId }));
+        setBlogs(newBlogs);
+        setActiveBlog(newBlogs.find(b => b.id === blogId) || null);
+
         try {
-            const res = await fetch("/api/blogs", {
+            await fetch("/api/blogs", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ blogId }),
             });
-            if (res.ok) {
-                fetchBlogs();
-            }
         } catch (error) {
             console.error("Failed to switch blog:", error);
+            // Revert on failure
+            fetchBlogs();
         }
     };
 
@@ -176,48 +220,57 @@ export default function DashboardLayout({
                 </div>
 
                 {/* Navigation */}
-                <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-                    {NAV_ITEMS.map((item) => {
-                        const isActive =
-                            pathname === item.href ||
-                            (item.href !== "/dashboard" && pathname.startsWith(item.href));
-
-                        const isLocked = item.feature
-                            ? !isFeatureAvailable(currentPlan, item.feature)
-                            : false;
-
-                        return (
-                            <Link
-                                key={item.href}
-                                href={isLocked ? "/pricing" : item.href}
-                                title={isLocked ? `Upgrade to ${item.minPlan || "Pro"} to unlock` : ""}
-                            >
-                                <div
-                                    className={`flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200 group ${isActive
-                                        ? "bg-[#FFF4E6] text-[#FF6600] border-l-4 border-[#FF6600]"
-                                        : isLocked
-                                            ? "text-gray-400 hover:text-gray-500 hover:bg-gray-50"
-                                            : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
-                                        }`}
-                                >
-                                    <item.icon
-                                        className={`w-4 h-4 ${isActive
-                                            ? "text-[#FF6600]"
-                                            : isLocked
-                                                ? "text-sidebar-foreground/20"
-                                                : "text-sidebar-foreground/40 group-hover:text-sidebar-foreground/70"
-                                            }`}
-                                    />
-                                    <span className={isLocked ? "opacity-50" : ""}>{item.label}</span>
-                                    {isLocked ? (
-                                        <Lock className="w-3 h-3 ml-auto text-amber-500/60" />
-                                    ) : isActive ? (
-                                        <ChevronRight className="w-3 h-3 ml-auto text-[#FF6600]" />
-                                    ) : null}
+                <nav className="flex-1 px-3 py-4 space-y-0.5 overflow-y-auto">
+                    {NAV_SECTIONS.map((section, sectionIdx) => (
+                        <div key={sectionIdx} className={section.title ? "mt-4 first:mt-0" : ""}>
+                            {section.title && (
+                                <div className="px-3 py-1.5 text-[10px] font-semibold text-gray-400 uppercase tracking-wider">
+                                    {section.title}
                                 </div>
-                            </Link>
-                        );
-                    })}
+                            )}
+                            {section.items.map((item) => {
+                                const isActive =
+                                    pathname === item.href ||
+                                    (item.href !== "/dashboard" && pathname.startsWith(item.href));
+
+                                const isLocked = item.feature
+                                    ? !isFeatureAvailable(currentPlan, item.feature)
+                                    : false;
+
+                                return (
+                                    <Link
+                                        key={item.href}
+                                        href={isLocked ? "/pricing" : item.href}
+                                        title={isLocked ? `Upgrade to ${item.minPlan || "Pro"} to unlock` : ""}
+                                    >
+                                        <div
+                                            className={`flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 group ${isActive
+                                                ? "bg-[#FFF4E6] text-[#FF6600] border-l-4 border-[#FF6600]"
+                                                : isLocked
+                                                    ? "text-gray-400 hover:text-gray-500 hover:bg-gray-50"
+                                                    : "text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+                                                }`}
+                                        >
+                                            <item.icon
+                                                className={`w-4 h-4 ${isActive
+                                                    ? "text-[#FF6600]"
+                                                    : isLocked
+                                                        ? "text-sidebar-foreground/20"
+                                                        : "text-sidebar-foreground/40 group-hover:text-sidebar-foreground/70"
+                                                    }`}
+                                            />
+                                            <span className={isLocked ? "opacity-50" : ""}>{item.label}</span>
+                                            {isLocked ? (
+                                                <Lock className="w-3 h-3 ml-auto text-amber-500/60" />
+                                            ) : isActive ? (
+                                                <ChevronRight className="w-3 h-3 ml-auto text-[#FF6600]" />
+                                            ) : null}
+                                        </div>
+                                    </Link>
+                                );
+                            })}
+                        </div>
+                    ))}
                 </nav>
 
                 {/* Upgrade CTA for free users */}

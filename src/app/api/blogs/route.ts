@@ -6,59 +6,56 @@ import { requireAuth } from "@/lib/supabase/auth-helpers";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
         const authResult = await requireAuth();
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 
+        const { searchParams } = new URL(req.url);
+        const refresh = searchParams.get("refresh") === "true";
+
         const user = await prisma.user.findUnique({
             where: { id: authUser.id },
-            include: { blogs: true },
         });
 
         if (!user) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        // Get valid Google account access token (auto-refreshes if needed)
-        let accessToken: string;
-        try {
-            accessToken = await getValidAccessToken(user.id);
-        } catch (error: any) {
-            if (error.message === "NEEDS_RECONNECT") {
-                // Tell the frontend they must reconnect because their refresh token is missing/invalid
-                return NextResponse.json({ error: "Session expired. Please reconnect Google Account." }, { status: 401 });
+        // Only call Blogger API when explicitly requested (e.g. after connecting or clicking refresh)
+        if (refresh) {
+            try {
+                const accessToken = await getValidAccessToken(user.id);
+                const blogs = await listBlogs(accessToken);
+
+                for (const blog of blogs) {
+                    await prisma.blog.upsert({
+                        where: { blogId: blog.id },
+                        update: {
+                            name: blog.name,
+                            url: blog.url,
+                            description: blog.description || null,
+                        },
+                        create: {
+                            blogId: blog.id,
+                            name: blog.name,
+                            url: blog.url,
+                            description: blog.description || null,
+                            userId: user.id,
+                        },
+                    });
+                }
+            } catch (error: any) {
+                if (error.message === "NEEDS_RECONNECT") {
+                    return NextResponse.json({ error: "Session expired. Please reconnect Google Account." }, { status: 401 });
+                }
+                // Don't fail the whole request if Blogger API is down - just return cached blogs
+                console.error("Blogger API sync error (returning cached):", error.message);
             }
-            return NextResponse.json(
-                { error: "Google account not connected" },
-                { status: 400 }
-            );
         }
 
-        // Fetch blogs from Blogger API (now safely returns [] on 404s)
-        const blogs = await listBlogs(accessToken);
-
-        // Sync blogs to database
-        for (const blog of blogs) {
-            await prisma.blog.upsert({
-                where: { blogId: blog.id },
-                update: {
-                    name: blog.name,
-                    url: blog.url,
-                    description: blog.description || null,
-                },
-                create: {
-                    blogId: blog.id,
-                    name: blog.name,
-                    url: blog.url,
-                    description: blog.description || null,
-                    userId: user.id,
-                },
-            });
-        }
-
-        // Return all user blogs from DB
+        // Always return blogs from database (fast)
         const userBlogs = await prisma.blog.findMany({
             where: { userId: user.id },
             orderBy: { createdAt: 'desc' }
@@ -71,6 +68,11 @@ export async function GET() {
                 data: { isDefault: true }
             });
             userBlogs[0].isDefault = true;
+        }
+
+        // If no blogs and no Google connection, tell frontend
+        if (userBlogs.length === 0 && !user.googleAccessToken) {
+            return NextResponse.json({ error: "Google account not connected", blogs: [] }, { status: 200 });
         }
 
         return NextResponse.json({ blogs: userBlogs });
