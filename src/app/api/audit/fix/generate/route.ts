@@ -1,0 +1,74 @@
+import { NextResponse } from "next/server";
+import { requireAuth } from "@/lib/supabase/auth-helpers";
+import OpenAI from "openai";
+import { getPost } from "@/lib/blogger-api";
+import { prisma } from "@/lib/prisma";
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY || "dummy_key_for_build",
+});
+
+export async function POST(req: Request) {
+    try {
+        const authResult = await requireAuth();
+        if (authResult instanceof NextResponse) return authResult;
+        const userId = authResult.user.id;
+
+        const { issueId, description, pageUrl, bloggerPostId, blogId } = await req.json();
+
+        if (!issueId || !bloggerPostId) {
+            return NextResponse.json({ error: "Missing required data" }, { status: 400 });
+        }
+
+        // Fetch original post content to provide context to the AI
+        const originalPost = await getPost(userId, blogId, bloggerPostId);
+        const title = originalPost.title;
+        const html = originalPost.content || "";
+
+        // Extract a snippet of the HTML to save tokens
+        const contentSnippet = html.slice(0, 3000);
+
+        const completion = await openai.chat.completions.create({
+            model: "gpt-4o", // Need complex reasoning and structured JSON output
+            response_format: { type: "json_object" },
+            messages: [
+                {
+                    role: "system",
+                    content: `You are an expert SEO engineer. Generate a specific, copy-pasteable fix for a technical SEO issue.
+                    
+Your output MUST be a precise JSON object following this exact schema:
+{
+  "suggested_fix": "The exact replacement text, HTML snippet, or Title string to use.",
+  "explanation": "A one-sentence explanation of why this fix is highly optimized.",
+  "confidence": 0.95
+}
+
+Rules depending on issue:
+- If 'missing_meta_description' or 'meta_description_too_short', generate a compelling 150-160 char meta description.
+- If 'missing_title' or 'title_too_short', generate an SEO optimized title (50-60 chars) summarizing the content.
+- If 'missing_alt_text', examine the content and suggest a generic descriptive alt pattern.
+- If 'thin_content', suggest a brief <div class="faq">...</div> HTML block to append to the post.`
+                },
+                {
+                    role: "user",
+                    content: `Issue: ${issueId} (${description})\nPost Title: ${title}\nContent Snippet: ${contentSnippet}`
+                }
+            ],
+            temperature: 0.7,
+            max_tokens: 800,
+        });
+
+        const rawJson = completion.choices[0].message.content || "{}";
+        const parsedResult = JSON.parse(rawJson);
+
+        return NextResponse.json({
+            success: true,
+            suggestion: parsedResult.suggested_fix,
+            explanation: parsedResult.explanation
+        });
+
+    } catch (error: any) {
+        console.error("AI Fix Gen Error:", error);
+        return NextResponse.json({ error: error.message || "Failed to generate AI fix" }, { status: 500 });
+    }
+}

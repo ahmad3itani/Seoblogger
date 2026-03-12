@@ -231,11 +231,14 @@ async function main() {
   ];
 
   for (const template of templates) {
-    await prisma.template.upsert({
+    const existing = await prisma.template.findFirst({
       where: { name: template.name },
-      update: {},
-      create: template,
     });
+    if (!existing) {
+      await prisma.template.create({
+        data: template,
+      });
+    }
   }
 
   console.log(`✅ Created ${templates.length} default templates`);
