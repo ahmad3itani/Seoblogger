@@ -34,7 +34,7 @@ export async function POST(req: Request) {
 
         // 2. We don't want to block the HTTP response for a 20-page crawl.
         // We will kick off async processing, and return success immediately so the UI can poll.
-        processCrawlAsync(session.id, blog.url, maxPages).catch(console.error);
+        processCrawlAsync(session.id, blog.id, blog.url, maxPages).catch(console.error);
 
         return NextResponse.json({
             success: true,
@@ -48,15 +48,31 @@ export async function POST(req: Request) {
     }
 }
 
-async function processCrawlAsync(sessionId: string, blogUrl: string, maxPages: number) {
+async function processCrawlAsync(sessionId: string, blogId: string, blogUrl: string, maxPages: number) {
     try {
-        const sitemapUrls = await fetchSitemapUrls(blogUrl);
-        const urlsToCrawl = sitemapUrls.slice(0, maxPages);
+        let urlsToCrawl = await fetchSitemapUrls(blogUrl);
+        
+        // Fallback: If sitemap fails or is empty, use the locally synced posts!
+        if (urlsToCrawl.length === 0) {
+            console.log("Sitemap empty or failed, falling back to CachedPost database for URLs.");
+            const cachedPosts = await prisma.cachedPost.findMany({
+                where: { blogId: blogId },
+                take: maxPages
+            });
+            urlsToCrawl = cachedPosts.map(p => p.url);
+            
+            // Add the homepage url as well
+            if (!urlsToCrawl.includes(blogUrl)) {
+                 urlsToCrawl.unshift(blogUrl);
+            }
+        }
+        
+        urlsToCrawl = urlsToCrawl.slice(0, maxPages);
 
         let totalScoreSum = 0;
         let pagesScannedCount = 0;
 
-        // Note: For a real production app with 2000 pages, use a queue (SQS, BullMQ, or Inngest)
+        // Note: For a real production app with 2000 pages, use a queue
         // For this context, standard async loops work for ~20 limits.
         for (const url of urlsToCrawl) {
             // 1. Crawl HTML

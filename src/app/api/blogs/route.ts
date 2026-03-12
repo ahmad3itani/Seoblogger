@@ -4,6 +4,8 @@ import { listBlogs } from "@/lib/blogger";
 import { getValidAccessToken } from "@/lib/google";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
     try {
         const authResult = await requireAuth();
