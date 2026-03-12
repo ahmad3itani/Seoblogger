@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
     Activity,
     AlertCircle,
@@ -21,6 +23,7 @@ export default function AdvancedAuditPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isScanning, setIsScanning] = useState(false);
     const [selectedBlog, setSelectedBlog] = useState<{ id: string, url: string } | null>(null);
+    const [blogs, setBlogs] = useState<any[]>([]);
 
     // AI Fix Panel State
     const [selectedIssue, setSelectedIssue] = useState<any>(null);
@@ -40,6 +43,7 @@ export default function AdvancedAuditPage() {
             const pData = await pRes.json();
             
             if (pData.blogs && pData.blogs.length > 0) {
+                setBlogs(pData.blogs);
                 // Find default blog or fallback to the first one
                 const defaultBlog = pData.blogs.find((b: any) => b.isDefault) || pData.blogs[0];
                 setSelectedBlog({ id: defaultBlog.blogId, url: defaultBlog.url });
@@ -56,6 +60,24 @@ export default function AdvancedAuditPage() {
         } catch (error) {
             console.error(error);
             setIsLoading(false);
+        }
+    };
+
+    const handleBlogChange = async (blogId: string) => {
+        const blog = blogs.find(b => b.blogId === blogId);
+        if (blog) {
+             setSelectedBlog({ id: blog.blogId, url: blog.url });
+             setAuditData(null); // Clear old data
+             setIsLoading(true);
+             try {
+                const res = await fetch(`/api/audit/full?blogId=${blog.blogId}`); 
+                const auditResp = await res.json();
+                if (auditResp.success && auditResp.session) {
+                     setAuditData(auditResp.session);
+                }
+             } finally {
+                 setIsLoading(false);
+             }
         }
     };
 
@@ -179,14 +201,35 @@ export default function AdvancedAuditPage() {
 
     return (
         <div className="space-y-8 max-w-7xl animate-in fade-in duration-500">
-            <div>
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 mb-2 flex items-center gap-2">
-                    <Activity className="w-8 h-8 text-[#FF6600]" />
-                    Advanced Site Auditor
-                </h1>
-                <p className="text-muted-foreground">
-                    Deep crawl your entire Blogger website to uncover highly technical SEO errors, thin content, and performance bottlenecks.
-                </p>
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 mb-2 flex items-center gap-2">
+                        <Activity className="w-8 h-8 text-[#FF6600]" />
+                        Advanced Site Auditor
+                    </h1>
+                    <p className="text-muted-foreground">
+                        Deep crawl your entire Blogger website to uncover highly technical SEO errors, thin content, and performance bottlenecks.
+                    </p>
+                </div>
+                {blogs.length > 0 && (
+                    <div className="flex items-center gap-3">
+                        <Select value={selectedBlog?.id || ""} onValueChange={(val) => val && handleBlogChange(val)} disabled={isScanning}>
+                            <SelectTrigger className="w-[200px] h-11 bg-white">
+                                <SelectValue placeholder="Select a blog" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {blogs.map(b => (
+                                    <SelectItem key={b.blogId} value={b.blogId}>{b.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        {auditData && !isScanning && (
+                            <Button onClick={handleStartScan} variant="outline" className="h-11 border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10 shrink-0">
+                                <RefreshCw className="w-4 h-4 mr-2" /> Rescan Site
+                            </Button>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Empty State / Start Scan */}
@@ -306,10 +349,17 @@ export default function AdvancedAuditPage() {
                             ) : aiFix ? (
                                 <div className="space-y-4">
                                     <div className="bg-green-500/10 p-4 rounded-xl border border-green-500/20">
-                                        <p className="text-xs text-green-600 uppercase font-semibold mb-2 flex items-center gap-1">
-                                            <CheckCircle2 className="w-3 h-3" /> AI SEO Recommendation
-                                        </p>
-                                        <p className="text-sm">{aiFix.suggestion}</p>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <p className="text-xs text-green-600 uppercase font-semibold flex items-center gap-1">
+                                                <CheckCircle2 className="w-3 h-3" /> AI SEO Recommendation
+                                            </p>
+                                            <span className="text-[10px] text-muted-foreground uppercase">Editable</span>
+                                        </div>
+                                        <Textarea 
+                                            value={aiFix.suggestion} 
+                                            onChange={(e) => setAiFix({ ...aiFix, suggestion: e.target.value })}
+                                            className="min-h-[120px] bg-white border-green-500/30 focus-visible:ring-green-500 font-medium"
+                                        />
                                         <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-green-500/10">
                                             {aiFix.explanation}
                                         </p>
