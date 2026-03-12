@@ -36,19 +36,22 @@ export default function AdvancedAuditPage() {
         setIsLoading(true);
         try {
             // 1. Get default blog
-            const pRes = await fetch("/api/posts/cached"); // Reusing for blog info context
+            const pRes = await fetch("/api/blogs"); 
             const pData = await pRes.json();
-
-            // To properly mock this without deep props passing, 
-            // Assume we fetch the latest session from the backend
-            // In a real flow, you'd select the blog first or pull the user's default blog.
-            // For now, we kick off fetching the session right away if a blogId query param existed
-            // Let's just fetch all blogs and pick the default.
-
-            // Temporary fetch loop for demo purposes
-            const res = await fetch("/api/audit/full?blogId=demo-123");
-            // Note: Since I don't have the exact blog ID in the frontend state easily without passing it down,
-            // we will need to adjust this to fetch the user's default blog first.
+            
+            if (pData.blogs && pData.blogs.length > 0) {
+                // Find default blog or fallback to the first one
+                const defaultBlog = pData.blogs.find((b: any) => b.isDefault) || pData.blogs[0];
+                setSelectedBlog({ id: defaultBlog.blogId, url: defaultBlog.url });
+                
+                // Fetch the latest session for this blog
+                const res = await fetch(`/api/audit/full?blogId=${defaultBlog.blogId}`); 
+                const auditResp = await res.json();
+                
+                if (auditResp.success && auditResp.session) {
+                     setAuditData(auditResp.session);
+                }
+            }
             setIsLoading(false);
         } catch (error) {
             console.error(error);
@@ -59,16 +62,40 @@ export default function AdvancedAuditPage() {
     const handleStartScan = async () => {
         if (!selectedBlog) return;
         setIsScanning(true);
+        setAuditData(null);
         try {
             const res = await fetch("/api/audit/full/run", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ blogId: selectedBlog.id })
             });
-            // Polling would start here
+            const data = await res.json();
+            
+            if (data.success && data.sessionId) {
+                // Poll for completion
+                const interval = setInterval(async () => {
+                    try {
+                        const checkRes = await fetch(`/api/audit/full?blogId=${selectedBlog.id}`);
+                        const checkData = await checkRes.json();
+                        
+                        if (checkData.success && checkData.session) {
+                            if (checkData.session.id === data.sessionId) {
+                                if (checkData.session.status === "completed" || checkData.session.status === "failed") {
+                                    clearInterval(interval);
+                                    setAuditData(checkData.session);
+                                    setIsScanning(false);
+                                }
+                            }
+                        }
+                    } catch (e) {
+                         console.error("Poller Error", e);
+                    }
+                }, 3000); // Check every 3 seconds
+            } else {
+                setIsScanning(false);
+            }
         } catch (error) {
             console.error(error);
-        } finally {
             setIsScanning(false);
         }
     };
@@ -142,6 +169,70 @@ export default function AdvancedAuditPage() {
                     <p className="text-muted-foreground">
                         Analyzing HTML structure, extracting headings, checking broken links...
                     </p>
+                </div>
+            )}
+
+            {auditData && !isScanning && (
+                <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-700 delay-150">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="glass-card p-6 rounded-2xl border-l-4 border-l-[#FF6600]">
+                            <p className="text-sm text-muted-foreground uppercase font-semibold">Global Health Score</p>
+                            <h2 className="text-5xl font-black mt-2 text-[#FF6600]">{auditData?.totalScore || 0}<span className="text-xl text-muted-foreground">/100</span></h2>
+                        </div>
+                        <div className="glass-card p-6 rounded-2xl">
+                            <p className="text-sm text-muted-foreground uppercase font-semibold">Pages Scanned</p>
+                            <h2 className="text-3xl font-bold mt-2">{auditData?.pagesScanned}</h2>
+                        </div>
+                        <div className="glass-card p-6 rounded-2xl">
+                            <p className="text-sm text-muted-foreground uppercase font-semibold">Scan Date</p>
+                            <h2 className="text-xl font-bold mt-2">{new Date(auditData?.startedAt).toLocaleDateString()}</h2>
+                        </div>
+                    </div>
+
+                    <div className="glass-card rounded-2xl overflow-hidden border">
+                        <div className="bg-muted px-6 py-4 flex justify-between items-center border-b">
+                            <h3 className="font-bold">Detected SEO Issues</h3>
+                        </div>
+                        <div className="divide-y max-h-[600px] overflow-y-auto">
+                            {auditData?.scannedPages?.map((page: any) => 
+                                page.issues?.map((issue: any) => (
+                                    <div key={issue.id} className="p-6 hover:bg-muted/50 transition-colors flex items-start justify-between">
+                                        <div className="flex gap-4">
+                                            {issue.severity === "high" ? <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-1" /> : <AlertCircle className="w-5 h-5 text-orange-400 shrink-0 mt-1" />}
+                                            <div>
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <Badge variant="outline" className={issue.severity === 'high' ? 'border-red-500/30 text-red-500 bg-red-500/10' : 'border-orange-500/30 text-orange-500 bg-orange-500/10'}>
+                                                        {issue.severity.toUpperCase()}
+                                                    </Badge>
+                                                    <Badge variant="secondary">{issue.type}</Badge>
+                                                </div>
+                                                <h4 className="font-semibold text-lg">{issue.description}</h4>
+                                                <p className="text-sm text-muted-foreground mt-1 truncate max-w-xl flex items-center gap-1">
+                                                    <ExternalLink className="w-3 h-3" /> <a href={page.url} target="_blank" className="hover:underline">{page.url}</a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="shrink-0 flex items-center">
+                                            {issue.fixable ? (
+                                                <Button size="sm" onClick={() => handleGenerateFix(issue, page)} className="bg-[#FF6600]/10 text-[#FF6600] border border-[#FF6600]/20 hover:bg-[#FF6600] hover:text-white transition-all">
+                                                    <Wand2 className="w-4 h-4 mr-2" /> Auto-Fix
+                                                </Button>
+                                            ) : (
+                                                <span className="text-xs text-muted-foreground uppercase font-semibold">Manual Action</span>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))
+                            )}
+                            
+                            {(!auditData?.scannedPages || auditData.scannedPages.length === 0 || !auditData.scannedPages.some((p:any) => p.issues?.length > 0)) && (
+                                <div className="p-12 text-center text-muted-foreground flex flex-col items-center">
+                                    <CheckCircle2 className="w-12 h-12 text-green-500 mb-4" />
+                                    <p>No critical issues detected. Your site is highly optimized!</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
             )}
 
