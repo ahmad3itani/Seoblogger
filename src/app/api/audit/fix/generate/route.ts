@@ -16,12 +16,23 @@ export async function POST(req: Request) {
 
         const { issueId, description, pageUrl, bloggerPostId, blogId } = await req.json();
 
-        if (!issueId || !bloggerPostId) {
-            return NextResponse.json({ error: "Missing required data" }, { status: 400 });
+        // Find the original post ID from the URL we crawled
+        let targetPostId = bloggerPostId;
+        
+        if (targetPostId === "mock-post-id" || !targetPostId) {
+            // Find post in cache by URL
+            const cached = await prisma.cachedPost.findFirst({
+                where: { url: pageUrl, blogId: blogId }
+            });
+            if (cached) {
+                targetPostId = cached.postId;
+            } else {
+                return NextResponse.json({ error: "Could not locate Blogger Post ID for this URL. Ensure posts are synced." }, { status: 404 });
+            }
         }
 
         // Fetch original post content to provide context to the AI
-        const originalPost = await getPost(userId, blogId, bloggerPostId);
+        const originalPost = await getPost(userId, blogId, targetPostId);
         const title = originalPost.title;
         const html = originalPost.content || "";
 

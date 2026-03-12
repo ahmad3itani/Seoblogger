@@ -128,6 +128,51 @@ export default function AdvancedAuditPage() {
         }
     };
 
+    const handleApplyFix = async () => {
+        if (!selectedIssue || !aiFix || !selectedBlog) return;
+        setIsApplyingFix(true);
+
+        try {
+            const pageUrl = auditData.scannedPages.find(
+                (p: any) => p.issues.some((i: any) => i.id === selectedIssue.id)
+            )?.url;
+
+            const res = await fetch("/api/audit/fix/apply", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    issueId: selectedIssue.type,
+                    dbIssueId: selectedIssue.id,
+                    suggestedFix: aiFix.suggestion,
+                    pageUrl: pageUrl,
+                    bloggerPostId: "mock-post-id",
+                    blogId: selectedBlog.id
+                })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                // Update local list to hide the applied issue or mark it green
+                setAuditData((prev: any) => {
+                    const newPages = prev.scannedPages.map((p: any) => {
+                        return {
+                            ...p,
+                            issues: p.issues.map((i: any) => 
+                                i.id === selectedIssue.id ? { ...i, fixable: false, description: "Fix applied: " + i.description } : i
+                            )
+                        };
+                    });
+                    return { ...prev, scannedPages: newPages };
+                });
+                setSelectedIssue(null);
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsApplyingFix(false);
+        }
+    };
+
     if (isLoading) {
         return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" /></div>;
     }
@@ -270,8 +315,13 @@ export default function AdvancedAuditPage() {
                                         </p>
                                     </div>
 
-                                    <Button className="w-full bg-[#FF6600] text-white hover:bg-orange-600">
-                                        Apply Fix Live to Blogger
+                                    <Button 
+                                        disabled={isApplyingFix}
+                                        onClick={handleApplyFix} 
+                                        className="w-full bg-[#FF6600] text-white hover:bg-orange-600"
+                                    >
+                                        {isApplyingFix ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : null}
+                                        {isApplyingFix ? "Pushing Live..." : "Apply Fix Live to Blogger"}
                                     </Button>
                                 </div>
                             ) : null}

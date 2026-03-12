@@ -9,14 +9,29 @@ export async function POST(req: Request) {
         if (authResult instanceof NextResponse) return authResult;
         const userId = authResult.user.id;
 
-        const { bloggerPostId, blogId, issueId, suggestedFix, dbIssueId } = await req.json();
+        const { bloggerPostId, blogId, issueId, suggestedFix, dbIssueId, pageUrl } = await req.json();
 
         if (!bloggerPostId || !blogId || !issueId || !suggestedFix) {
             return NextResponse.json({ error: "Missing required data" }, { status: 400 });
         }
 
+        // Find the original post ID from the URL we crawled
+        let targetPostId = bloggerPostId;
+        
+        if (targetPostId === "mock-post-id" || !targetPostId) {
+            // Find post in cache by URL
+            const cached = await prisma.cachedPost.findFirst({
+                where: { url: pageUrl, blogId: blogId }
+            });
+            if (cached) {
+                targetPostId = cached.postId;
+            } else {
+                return NextResponse.json({ error: "Could not locate Blogger Post ID for this URL. Ensure posts are synced." }, { status: 404 });
+            }
+        }
+
         // 1. Fetch current post state from Blogger
-        const originalPost = await getPost(userId, blogId, bloggerPostId);
+        const originalPost = await getPost(userId, blogId, targetPostId);
 
         // 2. Map the fix to the Blogger properties
         let newTitle = originalPost.title;
@@ -62,7 +77,7 @@ export async function POST(req: Request) {
         }
 
         // 3. Push to Blogger API
-        const updatedPost = await updatePost(userId, blogId, bloggerPostId, newTitle || "", newContent);
+        const updatedPost = await updatePost(userId, blogId, targetPostId, newTitle || "", newContent);
 
         // 4. Mark issue as "applied" in our local database history
         if (dbIssueId) {
