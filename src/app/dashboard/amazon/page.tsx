@@ -26,6 +26,7 @@ import {
     Copy,
     Check,
     RefreshCw,
+    Globe,
 } from "lucide-react";
 
 interface AmazonProduct {
@@ -54,6 +55,7 @@ interface GeneratedArticle {
 export default function AmazonAffiliatePage() {
     const [niche, setNiche] = useState("");
     const [storeId, setStoreId] = useState("");
+    const [storeRegion, setStoreRegion] = useState("us");
     const [productCount, setProductCount] = useState("5");
     const [articleType, setArticleType] = useState("roundup");
     const [language, setLanguage] = useState("English");
@@ -69,16 +71,21 @@ export default function AmazonAffiliatePage() {
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishSuccess, setPublishSuccess] = useState(false);
 
-    // Load saved store ID from localStorage
+    // Load saved store ID and region from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem("amazon_store_id");
-        if (saved) setStoreId(saved);
+        const savedId = localStorage.getItem("amazon_store_id");
+        const savedRegion = localStorage.getItem("amazon_store_region");
+        if (savedId) setStoreId(savedId);
+        if (savedRegion) setStoreRegion(savedRegion);
     }, []);
 
-    // Save store ID when it changes
+    // Save store ID and region when they change
     useEffect(() => {
         if (storeId) localStorage.setItem("amazon_store_id", storeId);
     }, [storeId]);
+    useEffect(() => {
+        localStorage.setItem("amazon_store_region", storeRegion);
+    }, [storeRegion]);
 
     const handleGenerate = async () => {
         if (!niche.trim()) {
@@ -102,6 +109,7 @@ export default function AmazonAffiliatePage() {
                 body: JSON.stringify({
                     niche: niche.trim(),
                     storeId: storeId.trim(),
+                    storeRegion,
                     productCount: parseInt(productCount),
                     articleType,
                     language,
@@ -189,6 +197,42 @@ export default function AmazonAffiliatePage() {
                                 <ShoppingCart className="w-4 h-4 text-[#FF9900]" />
                             </div>
                             <h2 className="font-semibold">Configuration</h2>
+                        </div>
+
+                        {/* Amazon Store Region */}
+                        <div>
+                            <Label className="text-sm font-medium flex items-center gap-1.5">
+                                <Globe className="w-3.5 h-3.5" />
+                                Amazon Store Region *
+                            </Label>
+                            <Select value={storeRegion} onValueChange={(v) => v && setStoreRegion(v)}>
+                                <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="us">🇺🇸 United States (.com)</SelectItem>
+                                    <SelectItem value="ca">🇨🇦 Canada (.ca)</SelectItem>
+                                    <SelectItem value="uk">🇬🇧 United Kingdom (.co.uk)</SelectItem>
+                                    <SelectItem value="de">🇩🇪 Germany (.de)</SelectItem>
+                                    <SelectItem value="fr">🇫🇷 France (.fr)</SelectItem>
+                                    <SelectItem value="es">🇪🇸 Spain (.es)</SelectItem>
+                                    <SelectItem value="it">🇮🇹 Italy (.it)</SelectItem>
+                                    <SelectItem value="nl">🇳🇱 Netherlands (.nl)</SelectItem>
+                                    <SelectItem value="se">🇸🇪 Sweden (.se)</SelectItem>
+                                    <SelectItem value="pl">🇵🇱 Poland (.pl)</SelectItem>
+                                    <SelectItem value="jp">🇯🇵 Japan (.co.jp)</SelectItem>
+                                    <SelectItem value="au">🇦🇺 Australia (.com.au)</SelectItem>
+                                    <SelectItem value="in">🇮🇳 India (.in)</SelectItem>
+                                    <SelectItem value="sg">🇸🇬 Singapore (.sg)</SelectItem>
+                                    <SelectItem value="mx">🇲🇽 Mexico (.com.mx)</SelectItem>
+                                    <SelectItem value="br">🇧🇷 Brazil (.com.br)</SelectItem>
+                                    <SelectItem value="ae">🇦🇪 UAE (.ae)</SelectItem>
+                                    <SelectItem value="sa">🇸🇦 Saudi Arabia (.sa)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <p className="text-[11px] text-muted-foreground mt-1">
+                                Select the Amazon region where your store is registered. Links will use the correct domain.
+                            </p>
                         </div>
 
                         {/* Amazon Store ID */}

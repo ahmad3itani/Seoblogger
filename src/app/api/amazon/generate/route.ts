@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         const {
             niche,
             storeId,
+            storeRegion = "us",
             productCount = 5,
             articleType = "roundup",
             language = "English",
@@ -59,6 +60,7 @@ export async function POST(req: Request) {
         const result = await generateAmazonArticle({
             niche,
             storeId,
+            storeRegion,
             productCount,
             articleType: articleType as "roundup" | "single-review" | "comparison" | "buyers-guide",
             language,

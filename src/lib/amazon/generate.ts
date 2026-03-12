@@ -25,6 +25,42 @@ import {
     type MetaOutput,
 } from "@/lib/ai/generate";
 
+// ─── Amazon Store Regions ────────────────────────────────────────────────────
+
+export interface AmazonRegion {
+    code: string;
+    name: string;
+    domain: string;
+    currency: string;
+    currencySymbol: string;
+    flag: string;
+}
+
+export const AMAZON_REGIONS: Record<string, AmazonRegion> = {
+    us: { code: 'us', name: 'United States', domain: 'amazon.com', currency: 'USD', currencySymbol: '$', flag: '🇺🇸' },
+    ca: { code: 'ca', name: 'Canada', domain: 'amazon.ca', currency: 'CAD', currencySymbol: 'CA$', flag: '🇨🇦' },
+    uk: { code: 'uk', name: 'United Kingdom', domain: 'amazon.co.uk', currency: 'GBP', currencySymbol: '£', flag: '🇬🇧' },
+    de: { code: 'de', name: 'Germany', domain: 'amazon.de', currency: 'EUR', currencySymbol: '€', flag: '🇩🇪' },
+    fr: { code: 'fr', name: 'France', domain: 'amazon.fr', currency: 'EUR', currencySymbol: '€', flag: '🇫🇷' },
+    es: { code: 'es', name: 'Spain', domain: 'amazon.es', currency: 'EUR', currencySymbol: '€', flag: '🇪🇸' },
+    it: { code: 'it', name: 'Italy', domain: 'amazon.it', currency: 'EUR', currencySymbol: '€', flag: '🇮🇹' },
+    jp: { code: 'jp', name: 'Japan', domain: 'amazon.co.jp', currency: 'JPY', currencySymbol: '¥', flag: '🇯🇵' },
+    au: { code: 'au', name: 'Australia', domain: 'amazon.com.au', currency: 'AUD', currencySymbol: 'A$', flag: '🇦🇺' },
+    in: { code: 'in', name: 'India', domain: 'amazon.in', currency: 'INR', currencySymbol: '₹', flag: '🇮🇳' },
+    mx: { code: 'mx', name: 'Mexico', domain: 'amazon.com.mx', currency: 'MXN', currencySymbol: 'MX$', flag: '🇲🇽' },
+    br: { code: 'br', name: 'Brazil', domain: 'amazon.com.br', currency: 'BRL', currencySymbol: 'R$', flag: '🇧🇷' },
+    ae: { code: 'ae', name: 'UAE', domain: 'amazon.ae', currency: 'AED', currencySymbol: 'AED', flag: '🇦🇪' },
+    sa: { code: 'sa', name: 'Saudi Arabia', domain: 'amazon.sa', currency: 'SAR', currencySymbol: 'SAR', flag: '🇸🇦' },
+    nl: { code: 'nl', name: 'Netherlands', domain: 'amazon.nl', currency: 'EUR', currencySymbol: '€', flag: '🇳🇱' },
+    se: { code: 'se', name: 'Sweden', domain: 'amazon.se', currency: 'SEK', currencySymbol: 'kr', flag: '🇸🇪' },
+    pl: { code: 'pl', name: 'Poland', domain: 'amazon.pl', currency: 'PLN', currencySymbol: 'zł', flag: '🇵🇱' },
+    sg: { code: 'sg', name: 'Singapore', domain: 'amazon.sg', currency: 'SGD', currencySymbol: 'S$', flag: '🇸🇬' },
+};
+
+export function getRegion(code?: string): AmazonRegion {
+    return AMAZON_REGIONS[code || 'us'] || AMAZON_REGIONS.us;
+}
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface AmazonProduct {
@@ -40,6 +76,7 @@ export interface AmazonProduct {
 export interface AmazonGenerationOptions {
     niche: string;
     storeId: string;
+    storeRegion?: string;
     productCount?: number;
     articleType?: "roundup" | "single-review" | "comparison" | "buyers-guide";
     language?: string;
@@ -81,23 +118,26 @@ export async function researchProducts(
     niche: string,
     productCount: number,
     articleType: string,
-    userPlan?: string
+    userPlan?: string,
+    regionCode?: string
 ): Promise<AmazonProduct[]> {
     const model = getModelForPlan(userPlan);
+    const region = getRegion(regionCode);
 
     const response = await openai.chat.completions.create({
         model,
         messages: [
             {
                 role: "system",
-                content: `You are an Amazon product research expert. Your job is to identify the most popular, TOP-SELLING products currently available on Amazon for a given niche.
+                content: `You are an Amazon product research expert. Your job is to identify the most popular, TOP-SELLING products currently available on Amazon ${region.name} (${region.domain}) for a given niche.
 
 CRITICAL RULES:
-- ONLY suggest products that are VERIFIED best-sellers on Amazon right now (2026)
+- ONLY suggest products that are VERIFIED best-sellers on Amazon ${region.name} right now (2026)
+- Products MUST be available on ${region.domain} — do not suggest products only available in other regions
 - Use the EXACT brand and product name as it appears on Amazon listings
 - Do NOT invent or guess model numbers — if unsure, use the brand + general product line (e.g. "Sony WH-1000XM5" not "Sony WH-1000XM7")
 - Pick products that have thousands of reviews on Amazon (popular, well-known items)
-- Include accurate, current price ranges
+- Include accurate price ranges in ${region.currency} (${region.currencySymbol})
 - Include realistic ratings (4.0-4.8 range)
 - Cover different price tiers: budget, mid-range, and premium
 - For single-review: pick THE most popular product in that exact category
@@ -108,20 +148,22 @@ SEARCH TERMS RULES (VERY IMPORTANT):
 - "searchTerms" must be BROAD category searches that a real person would type into Amazon
 - Use format: "brand name + product category" (e.g. "Sony wireless headphones", "Ninja air fryer", "Breville espresso machine")
 - NEVER use specific model numbers in searchTerms — keep them broad so Amazon search returns relevant results
-- The searchTerms are used in Amazon search URLs like: amazon.com/s?k=SEARCH+TERMS
+- The searchTerms are used in Amazon search URLs like: ${region.domain}/s?k=SEARCH+TERMS
 
 Return ONLY a valid JSON array.`
             },
             {
                 role: "user",
-                content: `Research the top ${productCount} REAL best-selling products on Amazon for "${niche}" (article type: ${articleType}).
+                content: `Research the top ${productCount} REAL best-selling products on Amazon ${region.name} (${region.domain}) for "${niche}" (article type: ${articleType}).
+
+All prices MUST be in ${region.currency} (${region.currencySymbol}).
 
 Return JSON array:
 [
   {
     "name": "Brand + Product Name (as listed on Amazon)",
     "searchTerms": "broad Amazon search terms (brand + category, NO model numbers)",
-    "priceRange": "$XX-$XX",
+    "priceRange": "${region.currencySymbol}XX-${region.currencySymbol}XX",
     "rating": "4.X out of 5",
     "keyFeatures": ["feature 1", "feature 2", "feature 3", "feature 4"],
     "bestFor": "Best for [specific use case]"
@@ -149,11 +191,13 @@ BAD searchTerms: "Breville BES870XL Barista Express", "Sony WH-1000XM5 Wireless"
 
 export function buildAffiliateData(
     products: AmazonProduct[],
-    storeId: string
+    storeId: string,
+    regionCode?: string
 ): AmazonProduct[] {
+    const region = getRegion(regionCode);
     return products.map(product => ({
         ...product,
-        affiliateUrl: `https://www.amazon.com/s?k=${encodeURIComponent(product.searchTerms || product.name).replace(/%20/g, '+')}&tag=${storeId}`,
+        affiliateUrl: `https://www.${region.domain}/s?k=${encodeURIComponent(product.searchTerms || product.name).replace(/%20/g, '+')}&tag=${storeId}`,
     }));
 }
 
@@ -197,19 +241,20 @@ function getWordCount(amazonType: string, productCount: number): number {
     }
 }
 
-function buildBrandVoice(niche: string, storeId: string, products: AmazonProduct[], customInstructions?: string): string {
+function buildBrandVoice(niche: string, storeId: string, products: AmazonProduct[], regionCode?: string, customInstructions?: string): string {
+    const region = getRegion(regionCode);
     const productList = products.map((p, i) => 
         `${i + 1}. ${p.name} (${p.priceRange}, ${p.rating}) - ${p.bestFor}\n   Features: ${p.keyFeatures.join(', ')}\n   Amazon Search Link: ${p.affiliateUrl}`
     ).join('\n');
 
-    return `YOU ARE WRITING AN AMAZON AFFILIATE PRODUCT REVIEW ARTICLE.
+    return `YOU ARE WRITING AN AMAZON AFFILIATE PRODUCT REVIEW ARTICLE FOR Amazon ${region.name} (${region.domain}).
 
 PRODUCT DATA (use these EXACT products and names):
 ${productList}
 
 AFFILIATE LINK RULES — READ CAREFULLY:
-- ONLY use the Amazon SEARCH URLs provided above (format: amazon.com/s?k=...&tag=...)
-- NEVER create direct product URLs (amazon.com/dp/ASIN) — the affiliate tag ONLY works on search URLs
+- ONLY use the Amazon SEARCH URLs provided above (format: ${region.domain}/s?k=...&tag=...)
+- NEVER create direct product URLs (${region.domain}/dp/ASIN) — the affiliate tag ONLY works on search URLs
 - For each product, use this exact format: <a href="THE_SEARCH_URL_PROVIDED_ABOVE" target="_blank" rel="nofollow noopener sponsored">Product Name</a>
 - First mention of each product in its section MUST be a clickable affiliate link using the search URL above
 - After each product review section, add a styled CTA: <p><strong><a href="SEARCH_URL" target="_blank" rel="nofollow noopener sponsored">➡ Check ${'{product short name}'} Price on Amazon</a></strong></p>
@@ -217,6 +262,16 @@ AFFILIATE LINK RULES — READ CAREFULLY:
 - In the conclusion, link to the top pick with its search URL
 - NEVER use "click here" — always use the product name or "Check Price on Amazon" as anchor text
 - NEVER invent or guess Amazon URLs — only use the exact URLs listed above
+- All prices must be in ${region.currency} (${region.currencySymbol})
+
+OUTBOUND & EXTERNAL LINKS (IMPORTANT FOR SEO):
+- Include 2-4 outbound links to authoritative, non-competing sources throughout the article
+- Good outbound link targets: manufacturer official pages, respected review sites (Wirecutter, RTINGS, Consumer Reports), Wikipedia for technical terms, relevant subreddits, industry publications
+- Format: <a href="https://example.com/relevant-page" target="_blank" rel="noopener">descriptive anchor text</a>
+- Place outbound links naturally where they add value (e.g. "According to <a href="...">Wirecutter's testing</a>...")
+- These outbound links signal to Google that your content is well-researched and connected to the broader web
+- Do NOT link to competitor affiliate sites or other Amazon affiliate blogs
+- Do NOT overdo it — 2-4 quality outbound links is ideal for a review article
 
 WRITING STYLE RULES:
 - After the FIRST full mention of a product name, use a SHORT name for the rest (e.g. "Breville Barista Express" → "the Barista Express" or "Breville")
@@ -251,6 +306,7 @@ export async function generateAmazonArticle(
     const {
         niche,
         storeId,
+        storeRegion,
         productCount = 5,
         articleType = "roundup",
         language = "English",
@@ -262,15 +318,17 @@ export async function generateAmazonArticle(
         numInlineImages = 3,
     } = options;
 
+    const region = getRegion(storeRegion);
+
     // ── Step 1: Research products ──
-    console.log(`🔍 Step 1: Researching ${productCount} products for "${niche}"...`);
-    let products = await researchProducts(niche, productCount, articleType, userPlan);
+    console.log(`🔍 Step 1: Researching ${productCount} products for "${niche}" on Amazon ${region.name}...`);
+    let products = await researchProducts(niche, productCount, articleType, userPlan, storeRegion);
     if (products.length === 0) {
         // Fallback: generate generic product names
         products = Array.from({ length: productCount }, (_, i) => ({
             name: `Top ${niche} Pick #${i + 1}`,
             searchTerms: niche,
-            priceRange: "$30-$100",
+            priceRange: `${region.currencySymbol}30-${region.currencySymbol}100`,
             rating: "4.5 out of 5",
             keyFeatures: ["High quality", "Great value", "Popular choice"],
             bestFor: `Best overall ${niche}`,
@@ -280,14 +338,14 @@ export async function generateAmazonArticle(
 
     // ── Step 2: Build affiliate data ──
     console.log(`🔗 Step 2: Building affiliate links for ${products.length} products...`);
-    products = buildAffiliateData(products, storeId);
+    products = buildAffiliateData(products, storeId, storeRegion);
     const affiliateLinks = buildAffiliateLinksArray(products);
 
     // ── Step 3: Determine keyword and article config ──
     const keyword = getKeyword(niche, articleType, products);
     const mappedArticleType = getArticleType(articleType);
     const wordCount = getWordCount(articleType, productCount);
-    const brandVoice = buildBrandVoice(niche, storeId, products, customInstructions);
+    const brandVoice = buildBrandVoice(niche, storeId, products, storeRegion, customInstructions);
 
     console.log(`🎯 Step 3: Keyword="${keyword}", Type="${mappedArticleType}", Words=${wordCount}`);
 
