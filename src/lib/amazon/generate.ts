@@ -90,36 +90,46 @@ export async function researchProducts(
         messages: [
             {
                 role: "system",
-                content: `You are an Amazon product research expert. Given a product niche, identify the top real, currently-available products on Amazon that people actually buy and review.
+                content: `You are an Amazon product research expert. Your job is to identify the most popular, TOP-SELLING products currently available on Amazon for a given niche.
 
-RULES:
-- Use REAL product names from actual brands
-- Include accurate price ranges
+CRITICAL RULES:
+- ONLY suggest products that are VERIFIED best-sellers on Amazon right now (2026)
+- Use the EXACT brand and product name as it appears on Amazon listings
+- Do NOT invent or guess model numbers — if unsure, use the brand + general product line (e.g. "Sony WH-1000XM5" not "Sony WH-1000XM7")
+- Pick products that have thousands of reviews on Amazon (popular, well-known items)
+- Include accurate, current price ranges
 - Include realistic ratings (4.0-4.8 range)
-- Include specific key features that differentiate each product
-- Include who the product is best for
-- Cover different price points (budget, mid-range, premium)
-- For single-review: pick the #1 best-seller in the category
-- For comparison: pick 2-3 direct competitors
-- For buyer's guide: pick products across different sub-categories
+- Cover different price tiers: budget, mid-range, and premium
+- For single-review: pick THE most popular product in that exact category
+- For comparison: pick 2-3 direct competitors at similar price points
+- For buyer's guide: pick products across different sub-categories/use cases
+
+SEARCH TERMS RULES (VERY IMPORTANT):
+- "searchTerms" must be BROAD category searches that a real person would type into Amazon
+- Use format: "brand name + product category" (e.g. "Sony wireless headphones", "Ninja air fryer", "Breville espresso machine")
+- NEVER use specific model numbers in searchTerms — keep them broad so Amazon search returns relevant results
+- The searchTerms are used in Amazon search URLs like: amazon.com/s?k=SEARCH+TERMS
 
 Return ONLY a valid JSON array.`
             },
             {
                 role: "user",
-                content: `Research the top ${productCount} products for "${niche}" (article type: ${articleType}).
+                content: `Research the top ${productCount} REAL best-selling products on Amazon for "${niche}" (article type: ${articleType}).
 
 Return JSON array:
 [
   {
-    "name": "Full Product Name with Brand",
-    "searchTerms": "search terms for Amazon",
+    "name": "Brand + Product Name (as listed on Amazon)",
+    "searchTerms": "broad Amazon search terms (brand + category, NO model numbers)",
     "priceRange": "$XX-$XX",
     "rating": "4.X out of 5",
     "keyFeatures": ["feature 1", "feature 2", "feature 3", "feature 4"],
-    "bestFor": "Best for [use case]"
+    "bestFor": "Best for [specific use case]"
   }
-]`
+]
+
+Example searchTerms: "Breville espresso machine", "Sony wireless headphones", "Ninja air fryer large"
+BAD searchTerms: "Breville BES870XL Barista Express", "Sony WH-1000XM5 Wireless"`
             }
         ],
         temperature: 0.7,
@@ -179,40 +189,53 @@ function getArticleType(amazonType: string): string {
 
 function getWordCount(amazonType: string, productCount: number): number {
     switch (amazonType) {
-        case "roundup": return Math.max(2500, productCount * 400 + 1000);
-        case "single-review": return 2000;
-        case "comparison": return 2500;
-        case "buyers-guide": return 3000;
-        default: return 2500;
+        case "roundup": return Math.max(3000, productCount * 500 + 1000);
+        case "single-review": return 2500;
+        case "comparison": return 3000;
+        case "buyers-guide": return 3500;
+        default: return 3000;
     }
 }
 
 function buildBrandVoice(niche: string, storeId: string, products: AmazonProduct[], customInstructions?: string): string {
     const productList = products.map((p, i) => 
-        `${i + 1}. ${p.name} (${p.priceRange}, ${p.rating}) - ${p.bestFor}\n   Features: ${p.keyFeatures.join(', ')}\n   Link: ${p.affiliateUrl}`
+        `${i + 1}. ${p.name} (${p.priceRange}, ${p.rating}) - ${p.bestFor}\n   Features: ${p.keyFeatures.join(', ')}\n   Amazon Search Link: ${p.affiliateUrl}`
     ).join('\n');
 
     return `YOU ARE WRITING AN AMAZON AFFILIATE PRODUCT REVIEW ARTICLE.
 
-PRODUCT DATA (use these EXACT products):
+PRODUCT DATA (use these EXACT products and names):
 ${productList}
 
-AFFILIATE LINK RULES:
-- For each product, use this exact link format: <a href="AFFILIATE_URL" target="_blank" rel="nofollow noopener sponsored">Product Name</a>
-- First mention of each product in its section MUST be an affiliate link
-- Add "Check Price on Amazon" links after each product review section
+AFFILIATE LINK RULES — READ CAREFULLY:
+- ONLY use the Amazon SEARCH URLs provided above (format: amazon.com/s?k=...&tag=...)
+- NEVER create direct product URLs (amazon.com/dp/ASIN) — the affiliate tag ONLY works on search URLs
+- For each product, use this exact format: <a href="THE_SEARCH_URL_PROVIDED_ABOVE" target="_blank" rel="nofollow noopener sponsored">Product Name</a>
+- First mention of each product in its section MUST be a clickable affiliate link using the search URL above
+- After each product review section, add a styled CTA: <p><strong><a href="SEARCH_URL" target="_blank" rel="nofollow noopener sponsored">➡ Check ${'{product short name}'} Price on Amazon</a></strong></p>
 - In comparison tables, product names should be affiliate links
-- In the conclusion/verdict, link to the top pick
-- NEVER use generic "click here" text — always use the product name as anchor text
+- In the conclusion, link to the top pick with its search URL
+- NEVER use "click here" — always use the product name or "Check Price on Amazon" as anchor text
+- NEVER invent or guess Amazon URLs — only use the exact URLs listed above
 
-CONTENT STYLE:
-- Write as someone who has personally tested these products
-- Include specific, realistic details (weight, dimensions, performance metrics)
-- Be honest — mention real limitations alongside strengths
-- Compare products against each other naturally
-- Include "who should buy this" recommendations per product
-- Mention price-to-value ratio for each product
-- Use E-E-A-T signals: "After testing for 2 weeks...", "In my experience..."
+WRITING STYLE RULES:
+- After the FIRST full mention of a product name, use a SHORT name for the rest (e.g. "Breville Barista Express" → "the Barista Express" or "Breville")
+- Do NOT repeat the full product name in every sentence — it sounds robotic
+- Write as someone who has personally tested and compared these products hands-on
+- Include SPECIFIC, realistic details: weight in lbs/kg, dimensions, wattage, capacity, material
+- Be honest — mention 2-3 real limitations per product alongside strengths
+- Compare products against each other directly ("Unlike the X, the Y offers...")
+- Include "Who should buy this" and "Who should skip this" for each product
+- Mention price-to-value ratio and whether it's worth the premium
+- Use first-person E-E-A-T signals: "After testing for 2 weeks...", "In my hands-on testing...", "What surprised me was..."
+- Every paragraph should be 2-4 sentences MAX for readability
+- Use varied sentence structures — avoid starting consecutive sentences with the same word
+
+WORD COUNT:
+- Write COMPREHENSIVE content — aim for the FULL target word count
+- Each product section should be 300-500 words minimum
+- Include a thorough buying guide section (400+ words)
+- Do NOT pad with fluff — every sentence should add value
 
 DISCLOSURE:
 - Start the article with: <p><em>As an Amazon Associate, I earn from qualifying purchases. This helps support the site at no extra cost to you.</em></p>
