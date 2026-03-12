@@ -32,90 +32,157 @@ export async function POST(req: Request) {
         let userPrompt = "";
 
         if (articleType === "roundup") {
-            systemPrompt = `You are an expert Amazon affiliate content writer. You create highly converting, SEO-optimized product roundup articles that drive affiliate revenue.
+            systemPrompt = `You are an elite SEO content writer and Amazon affiliate expert. Create professional, magazine-quality product roundup articles optimized for search engines and conversions.
 
-CRITICAL RULES:
-1. Write in ${language}, ${tone} tone.
-2. For EVERY product mentioned, create an affiliate link using this EXACT format:
-   - For product links: https://www.amazon.com/s?k=PRODUCT+NAME+KEYWORDS&tag=${storeId}
-   - Replace spaces with + in the search query
-3. Include ${productCount} products in the roundup.
-4. Each product section MUST have: Product name as H3, Why it's great (2-3 paragraphs), Pros list, Cons list, and a prominent "Check Price on Amazon" CTA link.
-5. ${includeComparisonTable ? "Include an HTML comparison table at the top with key specs for all products." : "Do NOT include a comparison table."}
-6. Start with an engaging intro about the niche and why choosing the right product matters.
-7. End with a "Buying Guide" section with H2 heading and 3-5 factors to consider.
-8. End with a brief conclusion and final recommendation.
-9. Add an affiliate disclosure at the very top: "As an Amazon Associate, we earn from qualifying purchases."
-10. Output ONLY valid HTML. No markdown. Use proper heading hierarchy (H1 > H2 > H3).
-11. Make product names bold and linkable.
-12. Include realistic product features, specs, and use cases based on your knowledge of the niche.
-${customInstructions ? `13. Additional instructions: ${customInstructions}` : ""}`;
+CRITICAL SEO & FORMATTING RULES:
+1. Write in ${language}, ${tone} tone with exceptional readability.
+2. Use proper semantic HTML5 structure with schema.org markup.
+3. NO product links in the main content - only informational content.
+4. Include ${productCount} products with detailed, unbiased reviews.
+5. Each product section structure:
+   - H3: Product name (bold, no link)
+   - Featured image placeholder: <img src="https://via.placeholder.com/800x500/4A90E2/ffffff?text=PRODUCT+NAME" alt="Descriptive alt text with keywords" class="product-image" loading="lazy" />
+   - 3-4 detailed paragraphs covering features, benefits, use cases
+   - Specifications list with <ul> bullets
+   - Pros & Cons in separate lists
+   - NO "Check Price" links in product sections
+6. ${includeComparisonTable ? "Include a professional HTML comparison table with key specs (NO links in table)." : ""}
+7. Article structure:
+   - Affiliate disclosure (subtle, professional)
+   - SEO-optimized H1 title
+   - Engaging 2-3 paragraph introduction with target keyword
+   - Table of Contents (if >2000 words)
+   - ${includeComparisonTable ? "Comparison table" : ""}
+   - Individual product reviews (H2: "Top ${productCount} ${niche} Reviewed")
+   - H2: "Buying Guide" with 5-7 detailed factors
+   - H2: "Frequently Asked Questions" with 5 Q&As
+   - H2: "Final Verdict" conclusion
+   - CTA section at END with affiliate buttons
+8. SEO optimization:
+   - Target keyword in H1, first paragraph, H2s naturally
+   - LSI keywords throughout
+   - Meta description worthy intro
+   - Image alt text optimized
+   - Internal linking opportunities mentioned
+9. Add JSON-LD schema for Article and Product aggregate rating
+10. Professional styling with CSS classes: .product-image, .comparison-table, .pros-cons, .cta-button
+11. Include realistic specs, pricing tiers ($, $$, $$$), and current year context
+${customInstructions ? `12. Additional: ${customInstructions}` : ""}
 
-            userPrompt = `Write a complete "Best ${niche}" product roundup article with ${productCount} products.
+OUTPUT FORMAT:
+Return ONLY clean, valid HTML starting with the disclosure paragraph. NO <html>, <head>, or <body> tags.`;
 
-The article should be comprehensive (2000+ words), highly detailed, and optimized for the keyword "best ${niche}".
+            userPrompt = `Write a comprehensive, SEO-optimized "Best ${niche} [Current Year]" product roundup with ${productCount} products.
 
-Amazon Store ID for affiliate links: ${storeId}
-Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}
+Target keyword: "best ${niche}"
+Word count: 2500-3000 words
+Focus: In-depth, helpful, unbiased reviews that help readers make informed decisions.
 
-Make the products realistic and based on actual popular products in this niche. Include specific features, specs, and pricing ranges where appropriate.`;
+Include:
+- Real product names from top brands in this niche
+- Specific technical specifications and features
+- Realistic pricing tiers and value analysis
+- Use cases for different user types
+- Professional product images (placeholders with descriptive names)
+- Comparison table with key specs
+- Comprehensive buying guide
+- FAQ section addressing common concerns
+
+Make it authoritative, trustworthy, and conversion-focused without being salesy.`;
 
         } else if (articleType === "single-review") {
-            systemPrompt = `You are an expert Amazon affiliate content writer specializing in in-depth single product reviews.
+            systemPrompt = `You are an elite SEO content writer specializing in in-depth product reviews.
 
-CRITICAL RULES:
-1. Write in ${language}, ${tone} tone.
-2. Create affiliate links using: https://www.amazon.com/s?k=PRODUCT+NAME&tag=${storeId}
-3. Write a comprehensive 1500+ word review.
-4. Include: Overview, Key Features (detailed), Performance, Pros & Cons, Who Should Buy, Alternatives, Verdict.
-5. Use HTML only. Proper heading hierarchy.
-6. Add affiliate disclosure at the top.
-7. Include at least 2 "Check Price on Amazon" CTA buttons as styled HTML links.
-${customInstructions ? `8. Additional instructions: ${customInstructions}` : ""}`;
+CRITICAL SEO & FORMATTING RULES:
+1. Write in ${language}, ${tone} tone - authoritative yet approachable.
+2. NO product links in main content - pure informational review.
+3. Structure:
+   - Affiliate disclosure (professional)
+   - SEO-optimized H1: "[Product Name] Review [Year]: Is It Worth It?"
+   - Hero image: <img src="https://via.placeholder.com/1200x600/4A90E2/ffffff?text=PRODUCT+NAME+Review" alt="Product name review" class="hero-image" loading="eager" />
+   - Quick verdict box (HTML styled div)
+   - H2: "Overview"
+   - H2: "Design & Build Quality" (with image)
+   - H2: "Key Features & Performance" (with images)
+   - H2: "Pros & Cons"
+   - H2: "Who Should Buy This?"
+   - H2: "Alternatives to Consider"
+   - H2: "Frequently Asked Questions"
+   - H2: "Final Verdict"
+   - CTA section at end
+4. Include 4-6 product images (placeholders) with descriptive alt text
+5. Add specifications table
+6. Include JSON-LD Product schema with rating
+7. 2000+ words, SEO-optimized for "[product name] review"
+8. Professional CSS classes for styling
+${customInstructions ? `9. Additional: ${customInstructions}` : ""}`;
 
-            userPrompt = `Write a comprehensive single product review for the best/most popular product in the "${niche}" category.
+            userPrompt = `Write an in-depth, SEO-optimized review of the most popular/best product in the "${niche}" category.
 
-Pick a specific, real, popular product in this niche and write an expert-level review.
-Amazon Store ID: ${storeId}
-Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}`;
+Pick a specific, real flagship product and write an expert review.
+Target keyword: "[product name] review"
+Word count: 2000-2500 words
+Include real specs, features, and honest pros/cons analysis.`;
 
         } else if (articleType === "comparison") {
-            systemPrompt = `You are an expert Amazon affiliate content writer specializing in product comparisons.
+            systemPrompt = `You are an elite SEO content writer specializing in product comparisons.
 
-CRITICAL RULES:
-1. Write in ${language}, ${tone} tone.
-2. Create affiliate links using: https://www.amazon.com/s?k=PRODUCT+NAME&tag=${storeId}
+CRITICAL SEO & FORMATTING RULES:
+1. Write in ${language}, ${tone} tone - objective and data-driven.
+2. NO product links in main content.
 3. Compare ${Math.min(productCount, 3)} top products head-to-head.
-4. Include: Introduction, individual overviews, comparison table, category winners, final verdict.
-5. Use HTML only. Proper heading hierarchy.
-6. Add affiliate disclosure at the top.
-${customInstructions ? `7. Additional instructions: ${customInstructions}` : ""}`;
+4. Structure:
+   - Affiliate disclosure
+   - H1: "[Product A] vs [Product B] vs [Product C]: Which Is Best?"
+   - Quick comparison summary table
+   - H2: "At a Glance" (3-column comparison)
+   - Individual H2 sections for each product with images
+   - H2: "Head-to-Head Comparison" (detailed table)
+   - H2: "Category Winners" (Best for X, Best for Y, etc.)
+   - H2: "Which Should You Choose?"
+   - H2: "FAQ"
+   - CTA section
+5. Include comparison images and spec tables
+6. 1800+ words, SEO-optimized
+7. Professional styling with comparison tables
+${customInstructions ? `8. Additional: ${customInstructions}` : ""}`;
 
-            userPrompt = `Write a detailed product comparison article for "${niche}".
+            userPrompt = `Write a detailed comparison of the top ${Math.min(productCount, 3)} products in "${niche}".
 
-Compare the top ${Math.min(productCount, 3)} products in this category head-to-head.
-Amazon Store ID: ${storeId}
-Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}`;
+Pick real competing products and compare them objectively.
+Target keyword: "[product] vs [product]"
+Word count: 1800-2200 words`;
 
         } else {
             // buyers-guide
-            systemPrompt = `You are an expert Amazon affiliate content writer specializing in buyer's guides.
+            systemPrompt = `You are an elite SEO content writer specializing in comprehensive buyer's guides.
 
-CRITICAL RULES:
-1. Write in ${language}, ${tone} tone.
-2. Create affiliate links using: https://www.amazon.com/s?k=CATEGORY+KEYWORDS&tag=${storeId}
-3. Write a comprehensive 2000+ word buyer's guide.
-4. Include: Introduction, Types/Categories, Key Features to Consider, Budget Ranges, Top Picks (${productCount} products), FAQ section.
-5. Use HTML only. Proper heading hierarchy.
-6. Add affiliate disclosure at the top.
-${customInstructions ? `7. Additional instructions: ${customInstructions}` : ""}`;
+CRITICAL SEO & FORMATTING RULES:
+1. Write in ${language}, ${tone} tone - educational and helpful.
+2. NO product links in main content.
+3. Structure:
+   - Affiliate disclosure
+   - H1: "The Ultimate ${niche} Buying Guide [Year]"
+   - H2: "Why This Guide?"
+   - H2: "Types of ${niche}" (with images)
+   - H2: "Key Features to Consider" (7-10 factors, each H3)
+   - H2: "Budget Breakdown" (Entry/Mid/Premium tiers)
+   - H2: "Top ${productCount} ${niche} Recommendations" (brief mentions, no links)
+   - H2: "Common Mistakes to Avoid"
+   - H2: "FAQ" (8-10 questions)
+   - H2: "Final Recommendations"
+   - CTA section
+4. Include infographic-style images and comparison charts
+5. 2500+ words, highly educational
+6. SEO-optimized for "how to choose ${niche}"
+${customInstructions ? `7. Additional: ${customInstructions}` : ""}`;
 
-            userPrompt = `Write a comprehensive buyer's guide for "${niche}".
+            userPrompt = `Write the ultimate buyer's guide for "${niche}".
 
-Help readers understand everything they need to know before purchasing.
-Include ${productCount} top product recommendations with affiliate links.
-Amazon Store ID: ${storeId}
-Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}`;
+Target keyword: "how to choose ${niche}" and "${niche} buying guide"
+Word count: 2500-3000 words
+Focus: Educate readers on making the best purchase decision.
+Include ${productCount} product recommendations (brief mentions only).`;
         }
 
         const completion = await openai.chat.completions.create({
@@ -128,7 +195,7 @@ Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}`;
             max_tokens: 4000,
         });
 
-        const generatedHtml = completion.choices[0].message.content || "";
+        let generatedHtml = completion.choices[0].message.content || "";
 
         // Extract a title from the generated content
         const titleMatch = generatedHtml.match(/<h1[^>]*>(.*?)<\/h1>/i);
@@ -136,7 +203,48 @@ Link format: https://www.amazon.com/s?k=SEARCH+TERMS&tag=${storeId}`;
             ? titleMatch[1].replace(/<[^>]*>/g, "")
             : `Best ${niche} - Top ${productCount} Picks`;
 
-        // Count affiliate links
+        // Build affiliate CTA section to append at the end
+        const nicheEncoded = encodeURIComponent(niche).replace(/%20/g, '+');
+        const affiliateUrl = `https://www.amazon.com/s?k=${nicheEncoded}&tag=${storeId}`;
+        
+        const ctaSection = `
+<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px; border-radius: 12px; margin: 40px 0; text-align: center; color: white;">
+    <h2 style="color: white; margin-bottom: 20px; font-size: 28px;">Ready to Make Your Purchase?</h2>
+    <p style="font-size: 18px; margin-bottom: 30px; opacity: 0.95;">Click below to explore these products on Amazon and find the best deals available today.</p>
+    <a href="${affiliateUrl}" target="_blank" rel="nofollow noopener" style="display: inline-block; background: #FF9900; color: #232F3E; padding: 18px 40px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 18px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: transform 0.2s;">
+        🛒 View on Amazon
+    </a>
+    <p style="font-size: 14px; margin-top: 20px; opacity: 0.8;">As an Amazon Associate, we earn from qualifying purchases at no extra cost to you.</p>
+</div>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "${title.replace(/"/g, '\\"')}",
+  "description": "Comprehensive guide to the best ${niche} with expert reviews, comparisons, and buying advice.",
+  "author": {
+    "@type": "Organization",
+    "name": "BloggerSEO"
+  },
+  "datePublished": "${new Date().toISOString()}",
+  "dateModified": "${new Date().toISOString()}",
+  "image": "https://via.placeholder.com/1200x630/4A90E2/ffffff?text=${encodeURIComponent(niche)}",
+  "publisher": {
+    "@type": "Organization",
+    "name": "BloggerSEO",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://via.placeholder.com/200x60/4A90E2/ffffff?text=Logo"
+    }
+  }
+}
+</script>`;
+
+        // Append CTA section to the generated content
+        generatedHtml += ctaSection;
+
+        // Count affiliate links (should be 1 from CTA section)
         const affiliateLinkCount = (generatedHtml.match(new RegExp(storeId, "g")) || []).length;
 
         // Count words
