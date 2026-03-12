@@ -114,6 +114,114 @@ export function analyzePageSeo(
         score -= 3;
     }
 
+    // Multiple H1 tags
+    if (page.h1Count > 1) {
+        issues.push({
+            type: "on_page",
+            issueId: "multiple_h1",
+            severity: "medium",
+            description: `Page has ${page.h1Count} H1 tags. Best practice is to use exactly one H1.`,
+            fixable: false,
+        });
+        score -= 3;
+    }
+
+    // Missing canonical URL
+    if (!page.canonical) {
+        issues.push({
+            type: "technical",
+            issueId: "missing_canonical",
+            severity: "medium",
+            description: "Page is missing a canonical URL tag, which can cause duplicate content issues.",
+            fixable: false,
+        });
+        score -= 4;
+    }
+
+    // Missing Open Graph tags
+    if (!page.hasOpenGraph) {
+        issues.push({
+            type: "on_page",
+            issueId: "missing_open_graph",
+            severity: "low",
+            description: "Page is missing Open Graph meta tags for social sharing.",
+            fixable: false,
+        });
+        score -= 2;
+    }
+
+    // Missing Schema / structured data
+    if (!page.hasSchemaMarkup) {
+        issues.push({
+            type: "technical",
+            issueId: "missing_schema",
+            severity: "medium",
+            description: "Page has no structured data (JSON-LD). Adding schema markup improves rich snippet eligibility.",
+            fixable: false,
+        });
+        score -= 3;
+    }
+
+    // Noindex check
+    if (page.robotsMeta && page.robotsMeta.toLowerCase().includes("noindex")) {
+        issues.push({
+            type: "technical",
+            issueId: "noindex_detected",
+            severity: "high",
+            description: "Page has a noindex robots meta tag — it will NOT appear in search results.",
+            fixable: false,
+        });
+        score -= 20;
+    }
+
+    // Missing viewport meta (mobile-friendliness)
+    if (!page.hasViewport) {
+        issues.push({
+            type: "technical",
+            issueId: "missing_viewport",
+            severity: "medium",
+            description: "Page is missing a viewport meta tag, hurting mobile usability.",
+            fixable: false,
+        });
+        score -= 4;
+    }
+
+    // Missing HTML lang attribute
+    if (!page.htmlLang) {
+        issues.push({
+            type: "technical",
+            issueId: "missing_lang",
+            severity: "low",
+            description: "HTML element is missing a lang attribute, which helps search engines understand the page language.",
+            fixable: false,
+        });
+        score -= 2;
+    }
+
+    // Low text-to-HTML ratio
+    if (page.textToHtmlRatio > 0 && page.textToHtmlRatio < 10) {
+        issues.push({
+            type: "content",
+            issueId: "low_text_html_ratio",
+            severity: "low",
+            description: `Text-to-HTML ratio is very low (${page.textToHtmlRatio}%). This can signal thin or bloated content.`,
+            fixable: false,
+        });
+        score -= 2;
+    }
+
+    // SSL issue
+    if (page.hasSslIssue) {
+        issues.push({
+            type: "technical",
+            issueId: "no_https",
+            severity: "high",
+            description: "Page is not served over HTTPS, which is a negative ranking signal.",
+            fixable: false,
+        });
+        score -= 10;
+    }
+
     // --- CONTENT SEO (Base 25 points) ---
     if (page.wordCount < 300) {
         issues.push({
@@ -135,6 +243,18 @@ export function analyzePageSeo(
         score -= 5;
     }
 
+    // No images at all
+    if (page.imagesCount === 0 && page.wordCount > 200) {
+        issues.push({
+            type: "content",
+            issueId: "no_images",
+            severity: "low",
+            description: "Page has no images. Visual content improves engagement and dwell time.",
+            fixable: false,
+        });
+        score -= 2;
+    }
+
     // --- INTERNAL LINKING (Base 15 points) ---
     if (page.internalLinks === 0) {
         issues.push({
@@ -152,6 +272,18 @@ export function analyzePageSeo(
             severity: "low",
             description: "Page has very few internal links.",
             fixable: true,
+        });
+        score -= 3;
+    }
+
+    // Excessive external links
+    if (page.externalLinks > 50) {
+        issues.push({
+            type: "internal_link",
+            issueId: "excessive_external_links",
+            severity: "medium",
+            description: `Page has ${page.externalLinks} external links, which may dilute link equity.`,
+            fixable: false,
         });
         score -= 3;
     }
