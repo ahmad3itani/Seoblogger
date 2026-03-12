@@ -31,6 +31,11 @@ export default function AdvancedAuditPage() {
     const [aiFix, setAiFix] = useState<{ suggestion: string, explanation: string, analyzedKeyword?: string } | null>(null);
     const [isApplyingFix, setIsApplyingFix] = useState(false);
 
+    // Batch Fix State
+    const [isFixingAll, setIsFixingAll] = useState(false);
+    const [fixProgress, setFixProgress] = useState({ current: 0, total: 0, currentIssue: "" });
+    const [fixedIssueIds, setFixedIssueIds] = useState<Set<string>>(new Set());
+
     useEffect(() => {
         fetchInitialData();
     }, []);
@@ -199,6 +204,93 @@ export default function AdvancedAuditPage() {
         }
     };
 
+    // Collect all fixable issues with their page context
+    const getAllFixableIssues = () => {
+        if (!auditData?.scannedPages) return [];
+        const issues: { issue: any; page: any }[] = [];
+        for (const page of auditData.scannedPages) {
+            for (const issue of (page.issues || [])) {
+                if (issue.fixable && !fixedIssueIds.has(issue.id)) {
+                    issues.push({ issue, page });
+                }
+            }
+        }
+        return issues;
+    };
+
+    // Get issue counts by category
+    const getIssueCounts = () => {
+        if (!auditData?.scannedPages) return { total: 0, fixable: 0, fixed: 0, high: 0, medium: 0, low: 0 };
+        let total = 0, fixable = 0, high = 0, medium = 0, low = 0;
+        for (const page of auditData.scannedPages) {
+            for (const issue of (page.issues || [])) {
+                total++;
+                if (issue.fixable && !fixedIssueIds.has(issue.id)) fixable++;
+                if (issue.severity === "high") high++;
+                else if (issue.severity === "medium") medium++;
+                else low++;
+            }
+        }
+        return { total, fixable, fixed: fixedIssueIds.size, high, medium, low };
+    };
+
+    const handleFixAll = async () => {
+        const fixableIssues = getAllFixableIssues();
+        if (fixableIssues.length === 0) return;
+
+        setIsFixingAll(true);
+        setFixProgress({ current: 0, total: fixableIssues.length, currentIssue: "" });
+
+        for (let i = 0; i < fixableIssues.length; i++) {
+            const { issue, page } = fixableIssues[i];
+            setFixProgress({ current: i + 1, total: fixableIssues.length, currentIssue: issue.description });
+
+            try {
+                // 1. Generate fix
+                const genRes = await fetch("/api/audit/fix/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        issueId: issue.issueId,
+                        description: issue.description,
+                        pageUrl: page.url,
+                        bloggerPostId: "mock-post-id",
+                        blogId: selectedBlog?.id || ""
+                    })
+                });
+                const genData = await genRes.json();
+
+                if (genData.success && genData.suggestion) {
+                    // 2. Apply fix
+                    const applyRes = await fetch("/api/audit/fix/apply", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            issueId: issue.issueId,
+                            dbIssueId: issue.id,
+                            suggestedFix: genData.suggestion,
+                            pageUrl: page.url,
+                            bloggerPostId: "mock-post-id",
+                            blogId: selectedBlog?.id || ""
+                        })
+                    });
+                    const applyData = await applyRes.json();
+
+                    if (applyData.success) {
+                        setFixedIssueIds(prev => new Set([...prev, issue.id]));
+                    }
+                }
+            } catch (error) {
+                console.error(`Failed to fix issue ${issue.issueId}:`, error);
+            }
+
+            // Small delay between fixes to avoid rate limits
+            await new Promise(r => setTimeout(r, 1500));
+        }
+
+        setIsFixingAll(false);
+    };
+
     if (isLoading) {
         return <div className="flex h-64 items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" /></div>;
     }
@@ -264,57 +356,128 @@ export default function AdvancedAuditPage() {
                 </div>
             )}
 
-            {auditData && !isScanning && (
+            {auditData && !isScanning && (() => {
+                const counts = getIssueCounts();
+                return (
                 <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-700 delay-150">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="glass-card p-6 rounded-2xl border-l-4 border-l-[#FF6600]">
-                            <p className="text-sm text-muted-foreground uppercase font-semibold">Global Health Score</p>
-                            <h2 className="text-5xl font-black mt-2 text-[#FF6600]">{auditData?.totalScore || 0}<span className="text-xl text-muted-foreground">/100</span></h2>
+                    {/* Stats Grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <div className="glass-card p-5 rounded-2xl border-l-4 border-l-[#FF6600]">
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Health Score</p>
+                            <h2 className="text-4xl font-black mt-1 text-[#FF6600]">{auditData?.totalScore || 0}<span className="text-lg text-muted-foreground">/100</span></h2>
                         </div>
-                        <div className="glass-card p-6 rounded-2xl">
-                            <p className="text-sm text-muted-foreground uppercase font-semibold">Pages Scanned</p>
-                            <h2 className="text-3xl font-bold mt-2">{auditData?.pagesScanned}</h2>
+                        <div className="glass-card p-5 rounded-2xl">
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold">Pages Scanned</p>
+                            <h2 className="text-2xl font-bold mt-1">{auditData?.pagesScanned}</h2>
                         </div>
-                        <div className="glass-card p-6 rounded-2xl">
-                            <p className="text-sm text-muted-foreground uppercase font-semibold">Scan Date</p>
-                            <h2 className="text-xl font-bold mt-2">{new Date(auditData?.startedAt).toLocaleDateString()}</h2>
+                        <div className="glass-card p-5 rounded-2xl">
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-red-500 inline-block"></span> High</p>
+                            <h2 className="text-2xl font-bold mt-1 text-red-500">{counts.high}</h2>
+                        </div>
+                        <div className="glass-card p-5 rounded-2xl">
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-orange-400 inline-block"></span> Medium</p>
+                            <h2 className="text-2xl font-bold mt-1 text-orange-400">{counts.medium}</h2>
+                        </div>
+                        <div className="glass-card p-5 rounded-2xl">
+                            <p className="text-[10px] text-muted-foreground uppercase font-semibold flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-yellow-400 inline-block"></span> Low</p>
+                            <h2 className="text-2xl font-bold mt-1 text-yellow-500">{counts.low}</h2>
                         </div>
                     </div>
 
+                    {/* Fix All Progress Bar */}
+                    {isFixingAll && (
+                        <div className="glass-card rounded-2xl p-6 border-2 border-[#FF6600]/30">
+                            <div className="flex items-center justify-between mb-3">
+                                <h3 className="font-bold flex items-center gap-2">
+                                    <Wand2 className="w-5 h-5 text-[#FF6600] animate-pulse" />
+                                    Fixing Issues... ({fixProgress.current}/{fixProgress.total})
+                                </h3>
+                                <Badge className="bg-[#FF6600]/10 text-[#FF6600]">{Math.round((fixProgress.current / fixProgress.total) * 100)}%</Badge>
+                            </div>
+                            <div className="w-full bg-gray-200 rounded-full h-3 mb-3">
+                                <div
+                                    className="bg-gradient-to-r from-[#FF6600] to-orange-400 h-3 rounded-full transition-all duration-500"
+                                    style={{ width: `${(fixProgress.current / fixProgress.total) * 100}%` }}
+                                />
+                            </div>
+                            <p className="text-xs text-muted-foreground truncate">
+                                Currently fixing: {fixProgress.currentIssue}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Issues List */}
                     <div className="glass-card rounded-2xl overflow-hidden border">
                         <div className="bg-muted px-6 py-4 flex justify-between items-center border-b">
-                            <h3 className="font-bold">Detected SEO Issues</h3>
+                            <div className="flex items-center gap-3">
+                                <h3 className="font-bold">Detected Issues</h3>
+                                <Badge variant="secondary">{counts.total} total</Badge>
+                                {counts.fixed > 0 && (
+                                    <Badge className="bg-green-500/10 text-green-600 border-green-500/20">{counts.fixed} fixed</Badge>
+                                )}
+                            </div>
+                            {counts.fixable > 0 && !isFixingAll && (
+                                <Button
+                                    onClick={handleFixAll}
+                                    size="sm"
+                                    className="bg-[#FF6600] text-white hover:bg-orange-600 shadow-lg shadow-orange-500/20"
+                                >
+                                    <Wand2 className="w-4 h-4 mr-2" />
+                                    Fix All ({counts.fixable} issues)
+                                </Button>
+                            )}
                         </div>
                         <div className="divide-y max-h-[600px] overflow-y-auto">
                             {auditData?.scannedPages?.map((page: any) => 
-                                page.issues?.map((issue: any) => (
-                                    <div key={issue.id} className="p-6 hover:bg-muted/50 transition-colors flex items-start justify-between">
-                                        <div className="flex gap-4">
-                                            {issue.severity === "high" ? <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-1" /> : <AlertCircle className="w-5 h-5 text-orange-400 shrink-0 mt-1" />}
+                                page.issues?.map((issue: any) => {
+                                    const isFixed = fixedIssueIds.has(issue.id);
+                                    return (
+                                    <div key={issue.id} className={`p-5 hover:bg-muted/50 transition-colors flex items-start justify-between ${isFixed ? "opacity-60 bg-green-50/50" : ""}`}>
+                                        <div className="flex gap-3">
+                                            {isFixed ? (
+                                                <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0 mt-0.5" />
+                                            ) : issue.severity === "high" ? (
+                                                <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                                            ) : issue.severity === "medium" ? (
+                                                <AlertCircle className="w-5 h-5 text-orange-400 shrink-0 mt-0.5" />
+                                            ) : (
+                                                <AlertCircle className="w-5 h-5 text-yellow-400 shrink-0 mt-0.5" />
+                                            )}
                                             <div>
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <Badge variant="outline" className={issue.severity === 'high' ? 'border-red-500/30 text-red-500 bg-red-500/10' : 'border-orange-500/30 text-orange-500 bg-orange-500/10'}>
-                                                        {issue.severity.toUpperCase()}
-                                                    </Badge>
-                                                    <Badge variant="secondary">{issue.type}</Badge>
+                                                    {isFixed ? (
+                                                        <Badge className="bg-green-500/10 text-green-600 border-green-500/30">FIXED</Badge>
+                                                    ) : (
+                                                        <Badge variant="outline" className={
+                                                            issue.severity === 'high' ? 'border-red-500/30 text-red-500 bg-red-500/10' :
+                                                            issue.severity === 'medium' ? 'border-orange-500/30 text-orange-500 bg-orange-500/10' :
+                                                            'border-yellow-500/30 text-yellow-600 bg-yellow-500/10'
+                                                        }>
+                                                            {issue.severity.toUpperCase()}
+                                                        </Badge>
+                                                    )}
+                                                    <Badge variant="secondary" className="text-[10px]">{issue.type}</Badge>
                                                 </div>
-                                                <h4 className="font-semibold text-lg">{issue.description}</h4>
-                                                <p className="text-sm text-muted-foreground mt-1 truncate max-w-xl flex items-center gap-1">
+                                                <h4 className={`font-semibold ${isFixed ? "line-through text-muted-foreground" : ""}`}>{issue.description}</h4>
+                                                <p className="text-xs text-muted-foreground mt-1 truncate max-w-xl flex items-center gap-1">
                                                     <ExternalLink className="w-3 h-3" /> <a href={page.url} target="_blank" className="hover:underline">{page.url}</a>
                                                 </p>
                                             </div>
                                         </div>
                                         <div className="shrink-0 flex items-center">
-                                            {issue.fixable ? (
-                                                <Button size="sm" onClick={() => handleGenerateFix(issue, page)} className="bg-[#FF6600]/10 text-[#FF6600] border border-[#FF6600]/20 hover:bg-[#FF6600] hover:text-white transition-all">
-                                                    <Wand2 className="w-4 h-4 mr-2" /> Auto-Fix
+                                            {isFixed ? (
+                                                <span className="text-xs text-green-600 font-semibold">✓ Applied</span>
+                                            ) : issue.fixable ? (
+                                                <Button size="sm" onClick={() => handleGenerateFix(issue, page)} disabled={isFixingAll} className="bg-[#FF6600]/10 text-[#FF6600] border border-[#FF6600]/20 hover:bg-[#FF6600] hover:text-white transition-all">
+                                                    <Wand2 className="w-4 h-4 mr-1.5" /> Fix
                                                 </Button>
                                             ) : (
-                                                <span className="text-xs text-muted-foreground uppercase font-semibold">Manual Action</span>
+                                                <span className="text-[10px] text-muted-foreground uppercase font-semibold">Manual</span>
                                             )}
                                         </div>
                                     </div>
-                                ))
+                                    );
+                                })
                             )}
                             
                             {(!auditData?.scannedPages || auditData.scannedPages.length === 0 || !auditData.scannedPages.some((p:any) => p.issues?.length > 0)) && (
@@ -326,7 +489,8 @@ export default function AdvancedAuditPage() {
                         </div>
                     </div>
                 </div>
-            )}
+                );
+            })()}
 
             {/* AI Fix Panel Slide-out Modal Placeholder */}
             {selectedIssue && (
