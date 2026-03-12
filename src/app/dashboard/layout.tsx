@@ -36,6 +36,7 @@ import {
     User,
     Activity,
     Link as LinkIcon,
+    ShoppingCart,
 } from "lucide-react";
 
 import {
@@ -75,6 +76,7 @@ const NAV_SECTIONS: NavSection[] = [
             { href: "/dashboard/new", label: "New Article", icon: PenTool, feature: null },
             { href: "/dashboard/articles", label: "My Articles", icon: FileText, feature: null },
             { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "pro" },
+            { href: "/dashboard/amazon", label: "Amazon Affiliate", icon: ShoppingCart, feature: null },
             { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
         ],
     },

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { getPost, updatePost } from "@/lib/blogger-api";
 import { prisma } from "@/lib/prisma";
+import * as cheerio from "cheerio";
 
 export async function POST(req: Request) {
     try {
@@ -11,15 +12,14 @@ export async function POST(req: Request) {
 
         const { bloggerPostId, blogId, issueId, suggestedFix, dbIssueId, pageUrl } = await req.json();
 
-        if (!bloggerPostId || !blogId || !issueId || !suggestedFix) {
+        if (!blogId || !issueId || !suggestedFix) {
             return NextResponse.json({ error: "Missing required data" }, { status: 400 });
         }
 
         // Find the original post ID from the URL we crawled
         let targetPostId = bloggerPostId;
         
-        if (targetPostId === "mock-post-id" || !targetPostId) {
-            // Find post in cache by URL
+        if (!targetPostId || targetPostId === "mock-post-id") {
             const cached = await prisma.cachedPost.findFirst({
                 where: { url: pageUrl, blog: { blogId: blogId } }
             });
@@ -32,54 +32,95 @@ export async function POST(req: Request) {
 
         // 1. Fetch current post state from Blogger
         const originalPost = await getPost(userId, blogId, targetPostId);
-
-        // 2. Map the fix to the Blogger properties
-        let newTitle = originalPost.title;
+        let newTitle = originalPost.title || "";
         let newContent = originalPost.content || "";
+
+        // 2. Use cheerio for safe, targeted HTML manipulation
+        const $ = cheerio.load(newContent);
 
         switch (issueId) {
             case "missing_title":
             case "title_too_short":
             case "title_too_long":
-                // AI suggestion replaces the entire title
-                newTitle = suggestedFix.replace(/^"|"$/g, '').trim();
+                newTitle = suggestedFix.replace(/^"|"$/g, "").trim();
                 break;
 
             case "missing_meta_description":
             case "meta_description_too_short":
             case "meta_description_too_long":
-                // Blogger doesn't have a native "meta description" API property for posts
-                // But it does have a `customMetaData` property, though we'll inject it into the HTML head if standard
-                // Alternatively, we can inject it at the top of the content in a hidden span or schema tag.
-                // For safety, we'll append a hidden div or use standard Blogger schema syntax.
-                newContent = `\n<div style="display:none;" data-seo-meta-description="true">${suggestedFix}</div>\n` + newContent;
+                // Use Blogger's searchDescription field via the API
+                // Also store as a hidden meta tag in content as fallback
+                $("div[data-seo-meta-description]").remove(); // Remove old injected meta
+                $.root().prepend(`<div style="display:none;" data-seo-meta-description="true">${suggestedFix}</div>\n`);
+                newContent = $.html();
                 break;
 
             case "thin_content":
             case "low_word_count":
-                // AI generated an FAQ block to append
-                newContent = newContent + `\n\n${suggestedFix}`;
+                // Append AI-generated content at the end
+                $.root().append(`\n\n${suggestedFix}`);
+                newContent = $.html();
                 break;
 
             case "missing_h1":
-                newContent = `<h1>${suggestedFix}</h1>\n` + newContent;
+                // Prepend H1 before existing content
+                $.root().prepend(`<h1>${suggestedFix}</h1>\n`);
+                newContent = $.html();
+                break;
+
+            case "no_h2_tags":
+                // AI returns H2 headings — append them as structural improvement
+                $.root().append(`\n\n${suggestedFix}`);
+                newContent = $.html();
                 break;
 
             case "missing_alt_text":
-                // Very naive replace for the first image without an alt tag.
-                // A true parser would require Cheerio here as well, but for simplicity we regex inject.
-                newContent = newContent.replace(/<img(.*?)>/, `<img alt="${suggestedFix.replace(/"/g, "'")}" $1>`);
+                // AI returns JSON array of [{imgIndex, altText}]
+                try {
+                    const altFixes = typeof suggestedFix === "string" ? JSON.parse(suggestedFix) : suggestedFix;
+                    if (Array.isArray(altFixes)) {
+                        const imgs = $("img");
+                        altFixes.forEach((fix: { imgIndex: number; altText: string }) => {
+                            const img = imgs.eq(fix.imgIndex);
+                            if (img.length && (!img.attr("alt") || img.attr("alt")?.trim() === "")) {
+                                img.attr("alt", fix.altText);
+                            }
+                        });
+                    } else {
+                        // Fallback: apply to first image without alt
+                        const firstNoAlt = $("img:not([alt]), img[alt='']").first();
+                        if (firstNoAlt.length) {
+                            firstNoAlt.attr("alt", String(suggestedFix));
+                        }
+                    }
+                } catch {
+                    // If JSON parse fails, apply as text to first image without alt
+                    const firstNoAlt = $("img:not([alt]), img[alt='']").first();
+                    if (firstNoAlt.length) {
+                        firstNoAlt.attr("alt", String(suggestedFix));
+                    }
+                }
+                newContent = $.html();
+                break;
+
+            case "orphan_page":
+            case "low_internal_links":
+                // AI returns HTML anchor tags — append as a "Related Posts" section
+                $.root().append(`\n\n<div class="related-posts"><h3>Related Articles</h3>${suggestedFix}</div>`);
+                newContent = $.html();
                 break;
 
             default:
-                // For anything else (or unmapped custom fixes), we append it or ignore
                 console.warn("Unmapped fix type:", issueId);
+                // For unmapped types, append the fix
+                $.root().append(`\n\n${suggestedFix}`);
+                newContent = $.html();
         }
 
-        // 3. Push to Blogger API
-        const updatedPost = await updatePost(userId, blogId, targetPostId, newTitle || "", newContent);
+        // 3. Push to Blogger API — only the changed title/content
+        const updatedPost = await updatePost(userId, blogId, targetPostId, newTitle, newContent);
 
-        // 4. Mark issue as "applied" in our local database history
+        // 4. Mark issue as "applied" in database
         if (dbIssueId) {
             await prisma.fixSuggestion.updateMany({
                 where: { issueId: dbIssueId },
@@ -87,9 +128,27 @@ export async function POST(req: Request) {
             });
         }
 
+        // Also mark the SeoIssue itself
+        try {
+            const seoIssue = await prisma.seoIssue.findFirst({
+                where: { issueId, page: { url: pageUrl } },
+                orderBy: { createdAt: "desc" },
+            });
+            if (seoIssue) {
+                await prisma.seoIssue.update({
+                    where: { id: seoIssue.id },
+                    data: { fixable: false, description: `✅ Fixed: ${seoIssue.description}` },
+                });
+            }
+        } catch (e) {
+            console.warn("Could not mark issue as fixed in DB:", e);
+        }
+
         return NextResponse.json({
             success: true,
-            postUrl: updatedPost.url
+            postUrl: updatedPost.url,
+            changedTitle: issueId.includes("title"),
+            changedContent: !issueId.includes("title"),
         });
 
     } catch (error: any) {

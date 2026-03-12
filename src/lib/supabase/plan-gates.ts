@@ -14,6 +14,7 @@ export const FEATURE_GATES: FeatureGate[] = [
   { route: "/dashboard/keywords", requiredFeature: null, label: "Keyword Research", minPlan: "free" },
   { route: "/dashboard/articles", requiredFeature: null, label: "My Articles", minPlan: "free" },
   { route: "/dashboard/brand-voice", requiredFeature: null, label: "Brand Voices", minPlan: "free" },
+  { route: "/dashboard/amazon", requiredFeature: null, label: "Amazon Affiliate", minPlan: "free" },
   { route: "/dashboard/settings", requiredFeature: null, label: "Settings", minPlan: "free" },
   { route: "/dashboard/profile", requiredFeature: null, label: "Profile", minPlan: "free" },
   { route: "/dashboard/analytics", requiredFeature: "hasAnalytics", label: "Analytics", minPlan: "pro" },
