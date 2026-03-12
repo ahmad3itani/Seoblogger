@@ -121,6 +121,44 @@ async function processCrawlAsync(sessionId: string, blogId: string, blogUrl: str
             });
         }
 
+        // --- CROSS-PAGE ANALYSIS: Duplicate Titles ---
+        const allPages = await prisma.scannedPage.findMany({
+            where: { sessionId },
+            select: { id: true, title: true, url: true },
+        });
+
+        const titleMap = new Map<string, { id: string; url: string }[]>();
+        for (const p of allPages) {
+            if (!p.title) continue;
+            const normalized = p.title.trim().toLowerCase();
+            if (!titleMap.has(normalized)) titleMap.set(normalized, []);
+            titleMap.get(normalized)!.push({ id: p.id, url: p.url });
+        }
+
+        for (const [title, pages] of titleMap) {
+            if (pages.length > 1) {
+                const otherUrls = pages.map(p => p.url);
+                for (const page of pages) {
+                    await prisma.seoIssue.create({
+                        data: {
+                            pageId: page.id,
+                            type: "on_page",
+                            issueId: "duplicate_title",
+                            severity: "high",
+                            description: `Duplicate title "${title}" found on ${pages.length} pages: ${otherUrls.filter(u => u !== page.url).join(", ")}`,
+                            fixable: true,
+                        },
+                    });
+                    // Deduct score for the affected page
+                    await prisma.scannedPage.update({
+                        where: { id: page.id },
+                        data: { score: { decrement: 5 } },
+                    });
+                    totalScoreSum -= 5;
+                }
+            }
+        }
+
         const avgScore = pagesScannedCount > 0 ? Math.round(totalScoreSum / pagesScannedCount) : 0;
 
         await prisma.crawlSession.update({

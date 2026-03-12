@@ -35,6 +35,7 @@ function getIssuePrompt(issueId: string): string {
         no_https: `The page is not served over HTTPS. Recommend enabling HTTPS/SSL for the domain.`,
         no_images: `This content-heavy page has no images. Suggest 2-3 relevant image ideas with descriptive alt text that would improve engagement. Return as a brief recommendation.`,
         excessive_external_links: `This page has too many external links. Suggest which types of external links to remove or nofollow to preserve link equity.`,
+        duplicate_title: `This page has a duplicate title shared with other pages. Generate a unique, SEO-optimized title (50-60 characters) that differentiates this page by incorporating its specific content and primary keyword.`,
     };
     return prompts[issueId] || `Generate the most appropriate SEO fix for this issue. Be specific and provide exact replacement text.`;
 }

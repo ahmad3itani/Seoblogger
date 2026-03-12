@@ -42,6 +42,7 @@ export async function POST(req: Request) {
             case "missing_title":
             case "title_too_short":
             case "title_too_long":
+            case "duplicate_title":
                 newTitle = suggestedFix.replace(/^"|"$/g, "").trim();
                 break;
 
