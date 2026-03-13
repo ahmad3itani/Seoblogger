@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { generateAmazonArticle } from "@/lib/amazon/generate";
 import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
 import { checkRateLimit } from "@/lib/security/rate-limit";
+import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
 
 export async function POST(req: Request) {
     try {
@@ -57,6 +58,40 @@ export async function POST(req: Request) {
 
         console.log(`🚀 Starting Amazon article generation for "${niche}" (${articleType})`);
 
+        // Smart internal linking: find relevant existing posts
+        let existingPostsList: string | undefined;
+        const currentUser = await prisma.user.findUnique({
+            where: { id: userId },
+            include: { blogs: true },
+        });
+        const activeBlogId = blogId || currentUser?.blogs?.find((b: any) => b.isDefault)?.id || currentUser?.blogs?.[0]?.id;
+
+        if (activeBlogId) {
+            try {
+                const cachedPosts = await prisma.cachedPost.findMany({
+                    where: { blogId: activeBlogId },
+                    orderBy: { publishedAt: 'desc' },
+                    take: 100,
+                });
+
+                if (cachedPosts.length > 0) {
+                    const relevantLinks = findRelevantInternalLinks(
+                        niche,
+                        `best ${niche}`,
+                        cachedPosts.map(p => ({ title: p.title, url: p.url })),
+                        5
+                    );
+
+                    if (relevantLinks.length > 0) {
+                        existingPostsList = formatLinksForPrompt(relevantLinks);
+                        console.log(`🔗 Smart interlink (Amazon): Found ${relevantLinks.length} relevant posts for "${niche}"`);
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch cached posts for Amazon smart interlinking", err);
+            }
+        }
+
         // ── Run the full pipeline (same as regular articles) ──
         const result = await generateAmazonArticle({
             niche,
@@ -73,6 +108,7 @@ export async function POST(req: Request) {
             includeImages,
             numInlineImages: Math.min(productCount, 5),
             blogId,
+            existingPostsList,
         });
 
         const {
@@ -158,14 +194,8 @@ export async function POST(req: Request) {
         const finalWordCount = countWords(formattedContent);
 
         // ── Save to database ──
-        const currentUser = await prisma.user.findUnique({
-            where: { id: userId },
-            include: { blogs: true },
-        });
-
         let savedArticle = null;
         if (currentUser) {
-            const activeBlogId = blogId || currentUser.blogs?.find((b: any) => b.isDefault)?.id || currentUser.blogs?.[0]?.id;
 
             savedArticle = await prisma.article.create({
                 data: {

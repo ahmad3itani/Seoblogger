@@ -88,6 +88,7 @@ export interface AmazonGenerationOptions {
     includeImages?: boolean;
     numInlineImages?: number;
     blogId?: string;
+    existingPostsList?: string;
 }
 
 export interface AmazonArticleResult {
@@ -577,6 +578,7 @@ export async function generateAmazonArticle(
         includeComparisonTable,
         includeProsCons: true,
         userPlan,
+        existingPostsList: options.existingPostsList,
     };
 
     // ── Step 4: Generate titles (same function as regular articles) ──

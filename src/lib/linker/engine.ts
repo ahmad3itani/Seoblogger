@@ -462,3 +462,120 @@ function findOpportunities(
         })
         .slice(0, 50);
 }
+
+// ─── Smart Internal Link Matching for Article Generation ────────────────────
+
+export interface ExistingPost {
+    title: string;
+    url: string;
+}
+
+export interface RelevantLink {
+    title: string;
+    url: string;
+    relevanceScore: number;
+    matchedKeywords: string[];
+}
+
+/**
+ * Given a keyword and article title being generated,
+ * finds the most relevant existing posts to link to.
+ * Used during article generation to automatically inject internal links.
+ */
+export function findRelevantInternalLinks(
+    keyword: string,
+    articleTitle: string,
+    existingPosts: ExistingPost[],
+    maxLinks: number = 5
+): RelevantLink[] {
+    if (!existingPosts || existingPosts.length === 0) return [];
+
+    const articleKeywords = extractKeywords(keyword + " " + articleTitle);
+    if (articleKeywords.length === 0) return [];
+
+    const scored: RelevantLink[] = [];
+
+    for (const post of existingPosts) {
+        // Skip if this post title is too similar to the article being generated
+        // (likely the same article or a duplicate)
+        const titleSimilarity = computeTitleSimilarity(articleTitle, post.title);
+        if (titleSimilarity > 0.8) continue;
+
+        const postKeywords = extractKeywords(post.title);
+        if (postKeywords.length === 0) continue;
+
+        // Find matched keywords
+        const articleKwSet = new Set(articleKeywords);
+        const matched = postKeywords.filter((kw) => articleKwSet.has(kw));
+
+        if (matched.length === 0) continue;
+
+        // Score: keyword overlap + bonus for matching the primary keyword
+        const overlapScore = matched.length / Math.max(articleKeywords.length, 1);
+        const primaryKwLower = keyword.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(w => w.length > 3 && !STOP_WORDS.has(w));
+        const primaryMatch = primaryKwLower.some((kw) => postKeywords.includes(kw));
+        const score = overlapScore * 0.7 + (primaryMatch ? 0.3 : 0);
+
+        if (score >= 0.05) {
+            scored.push({
+                title: post.title,
+                url: post.url,
+                relevanceScore: Math.round(score * 100) / 100,
+                matchedKeywords: matched.slice(0, 5),
+            });
+        }
+    }
+
+    // Sort by relevance and return top N
+    return scored
+        .sort((a, b) => b.relevanceScore - a.relevanceScore)
+        .slice(0, maxLinks);
+}
+
+/**
+ * Simple title similarity check (Jaccard on words) to avoid
+ * suggesting a link to essentially the same article.
+ */
+function computeTitleSimilarity(titleA: string, titleB: string): number {
+    const wordsA = new Set(
+        titleA.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter((w) => w.length > 2)
+    );
+    const wordsB = new Set(
+        titleB.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter((w) => w.length > 2)
+    );
+    if (wordsA.size === 0 || wordsB.size === 0) return 0;
+
+    let intersection = 0;
+    for (const w of wordsA) {
+        if (wordsB.has(w)) intersection++;
+    }
+
+    return intersection / (wordsA.size + wordsB.size - intersection);
+}
+
+/**
+ * Formats relevant links into a structured prompt block
+ * for the AI article generator to naturally weave into content.
+ */
+export function formatLinksForPrompt(links: RelevantLink[]): string {
+    if (links.length === 0) return "";
+
+    let prompt = `\nINTERNAL LINKING INSTRUCTIONS — MANDATORY:
+You MUST naturally insert internal links to these related articles from the same blog.
+For each link, find the most natural place in the content where the topic is mentioned and create an <a href="URL">descriptive anchor text</a>.
+Rules:
+- Use descriptive anchor text (2-5 words that describe the linked page), NEVER "click here" or "read more"
+- Place each link in a contextually relevant paragraph where that topic naturally comes up
+- Make the link feel like a natural part of the sentence
+- Do NOT cluster all links in one section — spread them throughout the article
+- Do NOT force a link if it doesn't fit naturally — skip it instead
+- Each link should appear exactly ONCE
+
+Related articles to link to:\n`;
+
+    for (const link of links) {
+        prompt += `- "${link.title}" → ${link.url} (related keywords: ${link.matchedKeywords.join(", ")})\n`;
+    }
+
+    return prompt;
+}

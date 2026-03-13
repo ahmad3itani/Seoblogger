@@ -10,8 +10,8 @@ import {
     type GenerationOptions,
 } from "@/lib/ai/generate";
 import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
-import { getValidAccessToken } from "@/lib/google";
 import { requireAuth, checkUsageLimit, trackUsage } from "@/lib/supabase/auth-helpers";
+import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { sanitizeString, sanitizeNumber } from "@/lib/security/validate";
 
@@ -144,24 +144,32 @@ export async function POST(req: Request) {
                     activeBlogId = currentUser.blogs.find((b: any) => b.isDefault)?.id || currentUser.blogs[0]?.id;
                 }
 
-                if (autoInterlink && activeBlogId && currentUser) {
+                // Smart internal linking: find relevant existing posts by keyword similarity
+                if (activeBlogId) {
                     try {
-                        const accessToken = await getValidAccessToken(currentUser.id);
-                        // Use the local database cache for lightning-fast internal linking
-                        const blogData = await prisma.blog.findUnique({ where: { id: activeBlogId } });
-                        if (blogData) {
-                            const cachedPosts = await prisma.cachedPost.findMany({
-                                where: { blogId: blogData.blogId },
-                                orderBy: { publishedAt: 'desc' },
-                                take: 30
-                            });
+                        const cachedPosts = await prisma.cachedPost.findMany({
+                            where: { blogId: activeBlogId },
+                            orderBy: { publishedAt: 'desc' },
+                            take: 100
+                        });
 
-                            if (cachedPosts.length > 0) {
-                                options.existingPostsList = cachedPosts.map(p => `- ${p.title}: ${p.url}`).join("\n");
+                        if (cachedPosts.length > 0) {
+                            const relevantLinks = findRelevantInternalLinks(
+                                keyword,
+                                selectedTitle,
+                                cachedPosts.map(p => ({ title: p.title, url: p.url })),
+                                5
+                            );
+
+                            if (relevantLinks.length > 0) {
+                                options.existingPostsList = formatLinksForPrompt(relevantLinks);
+                                console.log(`🔗 Smart interlink: Found ${relevantLinks.length} relevant posts for "${keyword}"`);
+                            } else {
+                                console.log(`🔗 Smart interlink: No relevant posts found for "${keyword}"`);
                             }
                         }
                     } catch (err) {
-                        console.error("Failed to fetch cached posts for auto interlinking", err);
+                        console.error("Failed to fetch cached posts for smart interlinking", err);
                     }
                 }
 
