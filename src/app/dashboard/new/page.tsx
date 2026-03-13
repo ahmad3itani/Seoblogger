@@ -120,7 +120,8 @@ function NewArticleContent() {
     const [includeImages, setIncludeImages] = useState(true);
     const [numInlineImages, setNumInlineImages] = useState(3);
     const [includeToc, setIncludeToc] = useState(true);
-    const [autoInterlink, setAutoInterlink] = useState(true);
+    const [includeInternalLinks, setIncludeInternalLinks] = useState(true);
+    const [includeExternalLinks, setIncludeExternalLinks] = useState(true);
     const [includeComparisonTable, setIncludeComparisonTable] = useState(false);
     const [includeRecipe, setIncludeRecipe] = useState(false);
     const [includeProsCons, setIncludeProsCons] = useState(false);
@@ -312,7 +313,9 @@ function NewArticleContent() {
                     brandVoice: getBrandVoice(),
                     selectedTitle, outline, includeFaq, includeImages,
                     numInlineImages,
-                    includeToc, autoInterlink,
+                    includeToc,
+                    includeInternalLinks,
+                    includeExternalLinks,
                     includeComparisonTable,
                     includeRecipe,
                     includeProsCons,
@@ -595,7 +598,8 @@ function NewArticleContent() {
                                         { label: "Include FAQ", value: includeFaq, setter: setIncludeFaq },
                                         { label: "Generate Image", value: includeImages, setter: setIncludeImages },
                                         { label: "Table of Contents", value: includeToc, setter: setIncludeToc },
-                                        { label: "Auto Internal-link", value: autoInterlink, setter: setAutoInterlink },
+                                        { label: "Internal Links", value: includeInternalLinks, setter: setIncludeInternalLinks },
+                                        { label: "External Links", value: includeExternalLinks, setter: setIncludeExternalLinks },
                                         { label: "Comparison Table", value: includeComparisonTable, setter: setIncludeComparisonTable },
                                         { label: "Recipe Format", value: includeRecipe, setter: setIncludeRecipe },
                                         { label: "Pros & Cons", value: includeProsCons, setter: setIncludeProsCons },

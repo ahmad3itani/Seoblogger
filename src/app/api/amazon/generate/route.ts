@@ -32,6 +32,8 @@ export async function POST(req: Request) {
             language = "English",
             tone = "professional",
             includeComparisonTable = true,
+            includeInternalLinks = true,
+            includeExternalLinks = true,
             customInstructions,
             includeImages = true,
             blogId,
@@ -58,7 +60,7 @@ export async function POST(req: Request) {
 
         console.log(`🚀 Starting Amazon article generation for "${niche}" (${articleType})`);
 
-        // Smart internal linking: find relevant existing posts
+        // Smart internal linking: find relevant existing posts (if enabled)
         let existingPostsList: string | undefined;
         const currentUser = await prisma.user.findUnique({
             where: { id: userId },
@@ -66,7 +68,7 @@ export async function POST(req: Request) {
         });
         const activeBlogId = blogId || currentUser?.blogs?.find((b: any) => b.isDefault)?.id || currentUser?.blogs?.[0]?.id;
 
-        if (activeBlogId) {
+        if (includeInternalLinks && activeBlogId) {
             try {
                 const cachedPosts = await prisma.cachedPost.findMany({
                     where: { blogId: activeBlogId },
@@ -109,6 +111,7 @@ export async function POST(req: Request) {
             numInlineImages: Math.min(productCount, 5),
             blogId,
             existingPostsList,
+            includeExternalLinks,
         });
 
         const {

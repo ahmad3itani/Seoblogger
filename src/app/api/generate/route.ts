@@ -54,7 +54,8 @@ export async function POST(req: Request) {
             includeToc = true,
             includeDisclosure,
             includeCta,
-            autoInterlink = false,
+            includeInternalLinks = true,
+            includeExternalLinks = true,
             affiliateLinks = [],
             competitorData,
             publishAction = "draft",
@@ -94,6 +95,7 @@ export async function POST(req: Request) {
             includeRecipe,
             includeProsCons,
             includeStepByStep,
+            includeExternalLinks,
             affiliateLinks,
             competitorData,
             userPlan: currentUser?.plan?.name || "free", // Pass user plan for premium model selection
@@ -144,8 +146,8 @@ export async function POST(req: Request) {
                     activeBlogId = currentUser.blogs.find((b: any) => b.isDefault)?.id || currentUser.blogs[0]?.id;
                 }
 
-                // Smart internal linking: find relevant existing posts by keyword similarity
-                if (activeBlogId) {
+                // Smart internal linking: find relevant existing posts by keyword similarity (if enabled)
+                if (includeInternalLinks && activeBlogId) {
                     try {
                         const cachedPosts = await prisma.cachedPost.findMany({
                             where: { blogId: activeBlogId },

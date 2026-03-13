@@ -63,6 +63,8 @@ export default function AmazonAffiliatePage() {
     const [tone, setTone] = useState("professional");
     const [productUrl, setProductUrl] = useState("");
     const [includeTable, setIncludeTable] = useState(true);
+    const [includeInternalLinks, setIncludeInternalLinks] = useState(true);
+    const [includeExternalLinks, setIncludeExternalLinks] = useState(true);
     const [customInstructions, setCustomInstructions] = useState("");
 
     const [isGenerating, setIsGenerating] = useState(false);
@@ -118,6 +120,8 @@ export default function AmazonAffiliatePage() {
                     language,
                     tone,
                     includeComparisonTable: includeTable,
+                    includeInternalLinks,
+                    includeExternalLinks,
                     customInstructions: customInstructions.trim() || undefined,
                 }),
             });
@@ -369,6 +373,28 @@ export default function AmazonAffiliatePage() {
                                 className={`relative w-11 h-6 rounded-full transition-colors ${includeTable ? "bg-[#FF9900]" : "bg-gray-300"}`}
                             >
                                 <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeTable ? "translate-x-5" : ""}`} />
+                            </button>
+                        </div>
+
+                        {/* Include Internal Links */}
+                        <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Include Internal Links</Label>
+                            <button
+                                onClick={() => setIncludeInternalLinks(!includeInternalLinks)}
+                                className={`relative w-11 h-6 rounded-full transition-colors ${includeInternalLinks ? "bg-[#FF9900]" : "bg-gray-300"}`}
+                            >
+                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeInternalLinks ? "translate-x-5" : ""}`} />
+                            </button>
+                        </div>
+
+                        {/* Include External Links */}
+                        <div className="flex items-center justify-between">
+                            <Label className="text-sm font-medium">Include External Links</Label>
+                            <button
+                                onClick={() => setIncludeExternalLinks(!includeExternalLinks)}
+                                className={`relative w-11 h-6 rounded-full transition-colors ${includeExternalLinks ? "bg-[#FF9900]" : "bg-gray-300"}`}
+                            >
+                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeExternalLinks ? "translate-x-5" : ""}`} />
                             </button>
                         </div>
 

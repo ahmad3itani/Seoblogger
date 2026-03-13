@@ -55,6 +55,7 @@ export interface GenerationOptions {
     includeRecipe?: boolean;
     includeProsCons?: boolean;
     includeStepByStep?: boolean;
+    includeExternalLinks?: boolean;
     userPlan?: string; // User's subscription plan for model selection
 }
 
@@ -245,6 +246,7 @@ Article Type: ${options.articleType || "blog post"}
 ${options.brandVoice ? `Brand Voice Instructions: ${options.brandVoice}` : ""}
 ${options.existingPostsList ? `\nInternal Linking: Where natural and relevant, insert 2-3 HTML anchor (<a>) links pointing to these existing posts:\n${options.existingPostsList}` : ""}
 ${options.affiliateLinks && options.affiliateLinks.length > 0 ? `\nAffiliate Links: Naturally integrate these links as contextual text links or recommendation sections:\n- ${options.affiliateLinks.join("\n- ")}\n` : ""}
+${options.includeExternalLinks === false ? `\nIMPORTANT: Do NOT include any external links to other websites. Only use internal links if provided above.` : `\nExternal Links: Where helpful for credibility, you may include 1-2 relevant external links to authoritative sources (e.g., research, official sites, trusted publications). Use rel="noopener noreferrer" and target="_blank" for external links.`}
 ${contentTypeInstructions}
 
 OUTLINE TO FOLLOW:
