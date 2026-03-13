@@ -220,6 +220,7 @@ model Article {
   user            User?    @relation(fields: [userId], references: [id])
   images          GeneratedImage[]
   publishLogs     PublishLog[]
+  qualityPasses   QualityPassRun[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -520,6 +521,89 @@ model RefreshVersion {
 
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
+}
+
+// ─── HUMAN QUALITY PASS ──────────────────────────────────────
+
+model QualityPassRun {
+  id                  String    @id @default(cuid())
+  articleId           String
+  article             Article   @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId              String    @db.Uuid
+
+  // 6 category scores (0-100)
+  readabilityScore    Int       @default(0)
+  helpfulnessScore    Int       @default(0)
+  originalityScore    Int       @default(0)
+  naturalnessScore    Int       @default(0)
+  trustScore          Int       @default(0)
+  publishSafetyScore  Int       @default(0)
+  overallScore        Int       @default(0)
+
+  // Stage tracking
+  stage1Complete      Boolean   @default(false) // Deterministic analysis
+  stage2Complete      Boolean   @default(false) // Cheap model review
+  stage3Complete      Boolean   @default(false) // Stronger model rewrite
+
+  // Metadata
+  modelUsed           String    @default("unknown")
+  status              String    @default("analyzing") // analyzing, reviewed, rewritten, approved, applied
+  durationMs          Int       @default(0)
+
+  // Relations
+  flags               QualityFlag[]
+  versions            QualityVersion[]
+
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([articleId])
+  @@index([userId])
+}
+
+model QualityFlag {
+  id                  String    @id @default(cuid())
+  passRunId           String
+  passRun             QualityPassRun @relation(fields: [passRunId], references: [id], onDelete: Cascade)
+
+  flagType            String    // readability, repetition, specificity, helpfulness, originality, trust, naturalness, structure, blogger_safety
+  severity            String    @default("info") // critical, warning, info, suggestion
+  category            String    // which module found it
+  locationRef         String?   // section heading or paragraph index
+  message             String    @db.Text
+  suggestedFix        String?   @db.Text
+  beforeSnippet       String?   @db.Text
+  afterSnippet        String?   @db.Text
+
+  status              String    @default("open") // open, accepted, rejected, fixed
+  createdAt           DateTime  @default(now())
+
+  @@index([passRunId])
+}
+
+model QualityVersion {
+  id                  String    @id @default(cuid())
+  passRunId           String
+  passRun             QualityPassRun @relation(fields: [passRunId], references: [id], onDelete: Cascade)
+  articleId           String
+
+  versionType         String    @default("rewrite") // analysis, rewrite, final
+  html                String    @db.Text
+  changeSummary       String?   @db.Text // Human-readable summary of changes
+
+  // Scores at this version
+  readabilityScore    Int       @default(0)
+  helpfulnessScore    Int       @default(0)
+  originalityScore    Int       @default(0)
+  naturalnessScore    Int       @default(0)
+  trustScore          Int       @default(0)
+  publishSafetyScore  Int       @default(0)
+  overallScore        Int       @default(0)
+
+  createdAt           DateTime  @default(now())
+
+  @@index([passRunId])
+  @@index([articleId])
 }
 
 // ─── FIX HISTORY & VERIFICATION ──────────────────────────────

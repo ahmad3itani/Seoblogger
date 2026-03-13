@@ -20,6 +20,7 @@ import {
     Edit3,
     Save,
     Tag,
+    Sparkles,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
@@ -256,6 +257,15 @@ export default function ArticleDetailPage() {
                             Publish
                         </Button>
                     )}
+                    <Link href={`/dashboard/quality-pass?articleId=${article.id}`}>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-[#FF6600]/30 text-[#FF6600] hover:bg-[#FF6600]/5"
+                        >
+                            <Sparkles className="w-4 h-4 mr-2" /> Quality Pass
+                        </Button>
+                    </Link>
                     <Button
                         variant="outline"
                         size="sm"
