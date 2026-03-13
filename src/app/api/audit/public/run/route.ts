@@ -2,24 +2,54 @@ import { NextResponse } from "next/server";
 import { crawlPage, fetchSitemapUrls } from "@/lib/seo/crawler";
 import { analyzePageSeo } from "@/lib/seo/rules";
 import { fetchPageSpeedMetrics } from "@/lib/seo/pagespeed";
+import { checkRateLimit } from "@/lib/security/rate-limit";
 
 export const dynamic = "force-dynamic";
-export const maxDuration = 60; // Allow Vercel to run up to 60s for this route
+export const maxDuration = 60;
 
 export async function POST(req: Request) {
     try {
+        // Rate limit: 3 scans per IP per 10 minutes
+        const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+        const rl = checkRateLimit(`public-audit:${ip}`, 3, 600_000);
+        if (!rl.allowed) {
+            return NextResponse.json(
+                { success: false, error: `Rate limit exceeded. Try again in ${rl.retryAfter}s.` },
+                { status: 429 }
+            );
+        }
+
         const { blogUrl } = await req.json();
 
-        if (!blogUrl) {
+        if (!blogUrl || typeof blogUrl !== "string") {
             return NextResponse.json({ success: false, error: "Missing blogUrl" }, { status: 400 });
         }
 
-        // Validate basic URL shape
+        // Validate URL shape
         let parsedUrl;
         try {
             parsedUrl = new URL(blogUrl);
         } catch (e) {
             return NextResponse.json({ success: false, error: "Invalid URL format" }, { status: 400 });
+        }
+
+        // Block private/internal IPs (SSRF protection)
+        const hostname = parsedUrl.hostname;
+        if (
+            hostname === "localhost" ||
+            hostname === "127.0.0.1" ||
+            hostname.startsWith("10.") ||
+            hostname.startsWith("192.168.") ||
+            hostname.startsWith("172.") ||
+            hostname === "0.0.0.0" ||
+            hostname.endsWith(".internal")
+        ) {
+            return NextResponse.json({ success: false, error: "Cannot scan internal URLs" }, { status: 400 });
+        }
+
+        // Only allow http/https
+        if (!parsedUrl.protocol.startsWith("http")) {
+            return NextResponse.json({ success: false, error: "Only HTTP/HTTPS URLs allowed" }, { status: 400 });
         }
 
         const maxPages = 5; // Free scan limit

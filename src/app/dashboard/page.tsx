@@ -18,6 +18,13 @@ import {
     Tag,
     Loader2,
     TrendingDown,
+    Search,
+    Activity,
+    RefreshCw,
+    Link as LinkIcon,
+    ShoppingCart,
+    Lightbulb,
+    Network,
 } from "lucide-react";
 
 interface DashboardStats {
@@ -61,27 +68,15 @@ const QUICK_ACTIONS = [
     },
 ];
 
-const RECENT_FEATURES = [
-    {
-        icon: Sparkles,
-        title: "AI Article Writer",
-        description: "Full articles from a single keyword",
-    },
-    {
-        icon: Image,
-        title: "Image Generation",
-        description: "AI-powered featured images",
-    },
-    {
-        icon: Tag,
-        title: "Auto Labels",
-        description: "Smart label suggestions",
-    },
-    {
-        icon: TrendingUp,
-        title: "SEO Optimization",
-        description: "Titles, meta, and headings",
-    },
+const TOOL_SHORTCUTS = [
+    { icon: PenTool, title: "Write Article", description: "AI article from keyword", href: "/dashboard/new", color: "from-[#FF6600] to-amber-500" },
+    { icon: Search, title: "Keywords", description: "Research & analyze", href: "/dashboard/keywords", color: "from-blue-500 to-cyan-500" },
+    { icon: Activity, title: "Site Audit", description: "50+ SEO checks", href: "/dashboard/audit", color: "from-green-500 to-emerald-500" },
+    { icon: Lightbulb, title: "Trend Ideas", description: "AI topic discovery", href: "/dashboard/ideas", color: "from-amber-500 to-yellow-500" },
+    { icon: ShoppingCart, title: "Amazon Writer", description: "Affiliate reviews", href: "/dashboard/amazon", color: "from-emerald-500 to-teal-500" },
+    { icon: LinkIcon, title: "Internal Linker", description: "Smart link suggestions", href: "/dashboard/linker", color: "from-violet-500 to-purple-500" },
+    { icon: Network, title: "Clustering", description: "Topic clusters", href: "/dashboard/clustering", color: "from-cyan-500 to-blue-500" },
+    { icon: RefreshCw, title: "Content Refresh", description: "Update old posts", href: "/dashboard/refresh", color: "from-indigo-500 to-blue-500" },
 ];
 
 export default function DashboardPage() {
@@ -300,7 +295,7 @@ export default function DashboardPage() {
                         {stats.recentArticles.map((article) => (
                             <Link
                                 key={article.id}
-                                href={`/dashboard/articles?id=${article.id}`}
+                                href={`/dashboard/articles/${article.id}`}
                                 className="block p-4 hover:bg-muted/20 transition-colors cursor-pointer"
                             >
                                 <div className="flex items-start justify-between gap-4">
@@ -374,23 +369,22 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* Features preview */}
+            {/* Tool shortcuts */}
             <div>
-                <h2 className="text-lg font-semibold mb-4">What You Can Do</h2>
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    {RECENT_FEATURES.map((feature) => (
-                        <div
-                            key={feature.title}
-                            className="glass-card rounded-xl p-5 text-center hover:scale-[1.03] transition-all duration-300"
-                        >
-                            <div className="w-10 h-10 rounded-full bg-orange-500/10 flex items-center justify-center mx-auto mb-3">
-                                <feature.icon className="w-5 h-5 text-[#FF6600]" />
+                <h2 className="text-lg font-semibold mb-4">Your Tools</h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {TOOL_SHORTCUTS.map((tool) => (
+                        <Link key={tool.title} href={tool.href}>
+                            <div className="glass-card rounded-xl p-5 text-center hover:scale-[1.03] transition-all duration-300 cursor-pointer group">
+                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${tool.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
+                                    <tool.icon className="w-5 h-5 text-white" />
+                                </div>
+                                <h4 className="text-sm font-medium mb-1">{tool.title}</h4>
+                                <p className="text-xs text-muted-foreground">
+                                    {tool.description}
+                                </p>
                             </div>
-                            <h4 className="text-sm font-medium mb-1">{feature.title}</h4>
-                            <p className="text-xs text-muted-foreground">
-                                {feature.description}
-                            </p>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </div>
