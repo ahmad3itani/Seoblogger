@@ -102,17 +102,30 @@ Generate the complete improved article HTML. Also suggest an improved title if t
 
 After the HTML, add a line "---CHANGES---" followed by a brief summary of what you changed and why.`;
 
-    const response = await openai.chat.completions.create({
-        model,
-        messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-        ],
-        temperature: 0.6,
-        max_tokens: 8000,
-    });
+    let output = "";
+    try {
+        const response = await openai.chat.completions.create({
+            model,
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+            ],
+            temperature: 0.6,
+            max_tokens: 8000,
+        });
 
-    let output = response.choices[0]?.message?.content || "";
+        output = response.choices[0]?.message?.content || "";
+        
+        if (!output) {
+            throw new Error("AI model returned empty response. Please try again.");
+        }
+    } catch (error: any) {
+        console.error("AI rewrite API error:", error);
+        throw new Error(
+            error.message || 
+            "AI rewrite failed. This could be due to rate limits or API issues. Please try again in a moment."
+        );
+    }
 
     // Clean markdown wrapping
     output = output.replace(/^```html?\s*/i, "").replace(/```\s*$/i, "").trim();
