@@ -45,6 +45,8 @@ model User {
   brandProfiles BrandProfile[]
   campaigns     Campaign[]
   articles      Article[]
+  fixHistory    FixHistory[]
+  scanReports   ScanReport[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -374,4 +376,54 @@ model FixSuggestion {
   status          String   @default("pending") // pending, applied, rejected
   appliedAt       DateTime?
   createdAt       DateTime @default(now())
+}
+
+// ─── FIX HISTORY & VERIFICATION ──────────────────────────────
+
+model FixHistory {
+  id               String    @id @default(cuid())
+  userId           String    @db.Uuid
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blogId           String
+  postId           String
+  pageUrl          String
+  pageTitle        String
+  issueType        String    // e.g., missing_meta_description, thin_content
+  issueTitle       String    // Human-readable issue name
+  fixType          String    // auto, assisted, guided
+  beforeContent    String    @db.Text // Full content before fix
+  afterContent     String    @db.Text // Full content after fix
+  explanation      String    // Why the fix was made
+  confidence       Int       @default(0) // 0-100
+  safety           String    @default("safe_with_review")
+  status           String    @default("pending") // pending, approved, applied, verified, failed, rolled_back
+  appliedBy        String?   @db.Uuid
+  appliedAt        DateTime?
+  verifiedAt       DateTime?
+  verificationNote String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+// ─── SCAN REPORTS (HISTORY & TRENDS) ─────────────────────────
+
+model ScanReport {
+  id               String    @id @default(cuid())
+  userId           String    @db.Uuid
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  blogId           String
+  blogUrl          String
+  overallScore     Int       @default(0)
+  grade            String    @default("F")
+  pagesScanned     Int       @default(0)
+  totalIssues      Int       @default(0)
+  criticalIssues   Int       @default(0)
+  fixableIssues    Int       @default(0)
+  categoryScores   Json      @default("{}") // { technical: 80, content: 65, ... }
+  issuesSummary    Json      @default("[]") // Array of issue counts by type
+  newIssues        Int       @default(0)   // Issues found that weren't in previous scan
+  fixedIssues      Int       @default(0)   // Issues resolved since previous scan
+  scanDurationMs   Int       @default(0)
+  completedAt      DateTime  @default(now())
+  createdAt        DateTime  @default(now())
 }
