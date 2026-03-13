@@ -13,14 +13,6 @@ export async function POST(req: Request) {
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
 
-        const rl = checkRateLimit(`pro-scan:${authUser.id}`, 2, 300_000);
-        if (!rl.allowed) {
-            return NextResponse.json(
-                { error: `Rate limit exceeded. Try again in ${rl.retryAfter}s.` },
-                { status: 429 }
-            );
-        }
-
         const { blogId } = await req.json();
 
         // Get user's blog
@@ -31,6 +23,15 @@ export async function POST(req: Request) {
 
         if (!blog) {
             return NextResponse.json({ error: "No blog connected" }, { status: 400 });
+        }
+
+        // Check rate limit AFTER validating blog exists
+        const rl = checkRateLimit(`pro-scan:${authUser.id}`, 2, 300_000);
+        if (!rl.allowed) {
+            return NextResponse.json(
+                { error: `Rate limit exceeded. Try again in ${rl.retryAfter}s.` },
+                { status: 429 }
+            );
         }
 
         const scanStart = Date.now();
