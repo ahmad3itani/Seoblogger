@@ -378,6 +378,150 @@ model FixSuggestion {
   createdAt       DateTime @default(now())
 }
 
+// ─── CONTENT REFRESH ENGINE ──────────────────────────────────
+
+model RefreshCandidate {
+  id             String    @id @default(cuid())
+  userId         String    @db.Uuid
+  blogId         String
+  postId         String    // Blogger post ID
+  url            String
+  title          String
+  publishedAt    DateTime?
+  labels         String?   // Comma-separated labels
+
+  // Scoring
+  refreshScore   Int       @default(0)  // 0-100 composite score
+  tier           Int       @default(3)  // 1=best opportunity, 2=declining, 3=weak legacy
+  tierLabel      String    @default("weak_legacy") // best_opportunity, declining_asset, weak_legacy
+
+  // Performance metrics (from Search Console)
+  clicksLast28       Int?
+  clicksPrev28       Int?
+  impressionsLast28  Int?
+  impressionsPrev28  Int?
+  ctrLast28          Float?
+  avgPositionLast28  Float?
+
+  // Content signals (from crawler)
+  wordCount          Int       @default(0)
+  h2Count            Int       @default(0)
+  internalLinks      Int       @default(0)
+  externalLinks      Int       @default(0)
+  imagesCount        Int       @default(0)
+  missingAltCount    Int       @default(0)
+  hasFaq             Boolean   @default(false)
+  hasSchema          Boolean   @default(false)
+
+  // Diagnosis summary
+  reasonSummary      String?   @db.Text
+  status             String    @default("detected") // detected, diagnosed, planned, refreshed, applied, verified
+
+  // Relations
+  diagnostic    RefreshDiagnostic?
+  plans         RefreshPlan[]
+  versions      RefreshVersion[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([blogId, postId])
+  @@index([userId])
+  @@index([refreshScore])
+}
+
+model RefreshDiagnostic {
+  id               String   @id @default(cuid())
+  candidateId      String   @unique
+  candidate        RefreshCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Performance diagnosis
+  performanceOpportunity  Int @default(0) // 0-100
+  declineSignal           Int @default(0) // 0-100
+  contentWeakness         Int @default(0) // 0-100
+  freshnessAge            Int @default(0) // 0-100
+  indexConfidence          Int @default(0) // 0-100
+
+  // Content diagnosis
+  introQuality            String  @default("unknown") // strong, adequate, weak, missing
+  headingStructure        String  @default("unknown") // strong, adequate, weak, missing
+  faqPresent              Boolean @default(false)
+  conclusionPresent       Boolean @default(false)
+  snippetReadiness        String  @default("unknown") // ready, partial, weak
+
+  // Gap analysis
+  missingSubtopics        Json    @default("[]") // Array of strings
+  outdatedSignals         Json    @default("[]") // Array of strings (e.g., "references 2023")
+  thinSections            Json    @default("[]") // Array of strings
+  internalLinkOpportunity Int     @default(0) // How many links could be added
+
+  // Raw data
+  topQueries              Json    @default("[]") // Top search queries from GSC
+  indexedStatus           String? // indexed, not_indexed, unknown
+
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+}
+
+model RefreshPlan {
+  id               String   @id @default(cuid())
+  candidateId      String
+  candidate        RefreshCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Plan content
+  mode             String   @default("section") // recommendation, section, full
+  proposedOutline  Json     @default("[]") // Array of { heading, action: keep|expand|add|rewrite }
+  proposedFaqs     Json     @default("[]") // Array of { question, answer }
+  sectionsToExpand Json     @default("[]") // Array of section names
+  subtopicsToAdd   Json     @default("[]") // Array of subtopic strings
+  suggestedTitle   String?
+  expectedImpact   String   @default("medium") // high, medium, low
+  confidence       Int      @default(0) // 0-100
+
+  // AI explanation
+  whyRefresh       String?  @db.Text
+  whatToAdd         String?  @db.Text
+  whatToKeep        String?  @db.Text
+  whatToRemove      String?  @db.Text
+
+  status           String   @default("draft") // draft, approved, generating, completed
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model RefreshVersion {
+  id               String   @id @default(cuid())
+  candidateId      String
+  candidate        RefreshCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  // Content
+  oldTitle         String
+  newTitle         String
+  oldHtml          String   @db.Text
+  newHtml          String   @db.Text
+
+  // Change tracking
+  sectionsExpanded   Json   @default("[]")
+  subtopicsAdded     Json   @default("[]")
+  faqsAdded          Int    @default(0)
+  wordCountBefore    Int    @default(0)
+  wordCountAfter     Int    @default(0)
+
+  // Trust signals
+  confidence         Int    @default(0) // 0-100
+  aiModel            String @default("unknown")
+
+  // Status
+  status             String @default("draft") // draft, approved, applied, verified, rolled_back
+  appliedBy          String? @db.Uuid
+  appliedAt          DateTime?
+  verifiedAt         DateTime?
+  verificationNote   String?
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
 // ─── FIX HISTORY & VERIFICATION ──────────────────────────────
 
 model FixHistory {
