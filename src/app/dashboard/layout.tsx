@@ -78,6 +78,7 @@ const NAV_SECTIONS: NavSection[] = [
             { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "pro" },
             { href: "/dashboard/amazon", label: "Amazon Affiliate", icon: ShoppingCart, feature: null },
             { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
+            { href: "/dashboard/quality-pass", label: "Quality Pass", icon: Sparkles, feature: "hasQualityPass", minPlan: "pro" },
         ],
     },
     {

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
+import { isFeatureAvailable } from "@/lib/supabase/plan-gates";
 import { runQualityRewrite } from "@/lib/quality-pass/ai-rewrite";
 import { runDeterministicAnalysis } from "@/lib/quality-pass/deterministic";
 import { validateFinalVersion } from "@/lib/quality-pass/validation";
@@ -16,6 +17,13 @@ export async function POST(req: Request) {
         const authResult = await requireAuth();
         if (authResult instanceof NextResponse) return authResult;
         const { user: authUser } = authResult;
+
+        if (!isFeatureAvailable(authUser.planName, "hasQualityPass")) {
+            return NextResponse.json(
+                { error: "Human Quality Pass requires a Pro plan. Upgrade to unlock.", upgrade: true },
+                { status: 403 }
+            );
+        }
 
         const { passRunId, brandVoice, targetAudience, language, userContext } = await req.json();
 

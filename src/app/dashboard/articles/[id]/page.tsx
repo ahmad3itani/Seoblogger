@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useAuth } from "@/lib/supabase/auth-context";
+import { isFeatureAvailable } from "@/lib/supabase/plan-gates";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -21,6 +23,8 @@ import {
     Save,
     Tag,
     Sparkles,
+    Crown,
+    Lock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import Link from "next/link";
@@ -56,6 +60,9 @@ interface ArticleDetail {
 export default function ArticleDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const { profile } = useAuth();
+    const currentPlan = profile?.plan?.name || "free";
+    const hasQualityPass = isFeatureAvailable(currentPlan, "hasQualityPass");
     const [article, setArticle] = useState<ArticleDetail | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [copied, setCopied] = useState(false);
@@ -257,15 +264,31 @@ export default function ArticleDetailPage() {
                             Publish
                         </Button>
                     )}
-                    <Link href={`/dashboard/quality-pass?articleId=${article.id}`}>
-                        <Button
-                            size="sm"
-                            variant="outline"
-                            className="border-[#FF6600]/30 text-[#FF6600] hover:bg-[#FF6600]/5"
-                        >
-                            <Sparkles className="w-4 h-4 mr-2" /> Quality Pass
-                        </Button>
-                    </Link>
+                    {hasQualityPass ? (
+                        <Link href={`/dashboard/quality-pass?articleId=${article.id}`}>
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-[#FF6600]/30 text-[#FF6600] hover:bg-[#FF6600]/5"
+                            >
+                                <Sparkles className="w-4 h-4 mr-2" /> Quality Pass
+                            </Button>
+                        </Link>
+                    ) : (
+                        <Link href="/pricing">
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="border-amber-300/50 text-amber-600 hover:bg-amber-50 gap-1.5"
+                                title="Upgrade to Pro to unlock Human Quality Pass"
+                            >
+                                <Lock className="w-3.5 h-3.5" />
+                                <Sparkles className="w-3.5 h-3.5" />
+                                Quality Pass
+                                <Crown className="w-3 h-3 text-amber-500" />
+                            </Button>
+                        </Link>
+                    )}
                     <Button
                         variant="outline"
                         size="sm"

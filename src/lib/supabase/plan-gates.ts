@@ -24,6 +24,7 @@ export const FEATURE_GATES: FeatureGate[] = [
   { route: "/dashboard/campaigns", requiredFeature: "hasScheduling", label: "Campaigns", minPlan: "pro" },
   { route: "/dashboard/calendar", requiredFeature: "hasScheduling", label: "Calendar", minPlan: "pro" },
   { route: "/dashboard/refresh", requiredFeature: "hasContentRefresh", label: "Content Refresh", minPlan: "pro" },
+  { route: "/dashboard/quality-pass", requiredFeature: "hasQualityPass", label: "Human Quality Pass", minPlan: "pro" },
 ];
 
 export function getFeatureGate(pathname: string): FeatureGate | undefined {
@@ -51,6 +52,7 @@ export function isFeatureAvailable(planName: string | undefined, feature: string
       "hasTrendIdeas",
       "hasAutoClustering",
       "hasContentRefresh",
+      "hasQualityPass",
       "hasPrioritySupport",
       "hasAdvancedAI",
       "hasCompetitorAnalysis",
@@ -64,6 +66,7 @@ export function isFeatureAvailable(planName: string | undefined, feature: string
       "hasTrendIdeas",
       "hasAutoClustering",
       "hasContentRefresh",
+      "hasQualityPass",
       "hasApiAccess",
       "hasPrioritySupport",
       "hasWhiteLabel",
