@@ -93,11 +93,11 @@ export default function AdvancedAuditPage() {
             if (pData.blogs && pData.blogs.length > 0) {
                 setBlogs(pData.blogs);
                 const defaultBlog = pData.blogs.find((b: any) => b.isDefault) || pData.blogs[0];
-                setSelectedBlog({ id: defaultBlog.blogId, url: defaultBlog.url });
+                setSelectedBlog({ id: defaultBlog.id, url: defaultBlog.url });
 
                 // Try to fetch legacy data
                 try {
-                    const res = await fetch(`/api/audit/full?blogId=${defaultBlog.blogId}`);
+                    const res = await fetch(`/api/audit/full?blogId=${defaultBlog.id}`);
                     const auditResp = await res.json();
                     if (auditResp.success && auditResp.session) {
                         setLegacyData(auditResp.session);
@@ -114,14 +114,14 @@ export default function AdvancedAuditPage() {
     };
 
     const handleBlogChange = async (blogId: string) => {
-        const blog = blogs.find((b: any) => b.blogId === blogId);
+        const blog = blogs.find((b: any) => b.id === blogId);
         if (blog) {
-            setSelectedBlog({ id: blog.blogId, url: blog.url });
+            setSelectedBlog({ id: blog.id, url: blog.url });
             setScanData(null);
             setLegacyData(null);
             setIsLoading(true);
             try {
-                const res = await fetch(`/api/audit/full?blogId=${blog.blogId}`);
+                const res = await fetch(`/api/audit/full?blogId=${blog.id}`);
                 const auditResp = await res.json();
                 if (auditResp.success && auditResp.session) {
                     setLegacyData(auditResp.session);
@@ -133,7 +133,10 @@ export default function AdvancedAuditPage() {
     };
 
     const handleProScan = async () => {
-        if (!selectedBlog) return;
+        if (!selectedBlog) {
+            alert("Please connect a blog first");
+            return;
+        }
         setIsScanning(true);
         setScanData(null);
         setScanProgress("Discovering pages from sitemap...");
@@ -146,14 +149,18 @@ export default function AdvancedAuditPage() {
             });
             const data = await res.json();
 
-            if (data.success) {
-                setScanData(data);
-                setActiveTab("overview");
-            } else {
+            if (!res.ok || !data.success) {
+                setIsScanning(false);
+                setScanProgress("");
                 alert(data.error || "Scan failed");
+                return;
             }
+
+            setScanData(data);
+            setActiveTab("overview");
         } catch (error) {
             console.error(error);
+            alert("Scan failed. Please try again.");
         } finally {
             setIsScanning(false);
             setScanProgress("");
@@ -323,7 +330,7 @@ export default function AdvancedAuditPage() {
                             </SelectTrigger>
                             <SelectContent>
                                 {blogs.map((b: any) => (
-                                    <SelectItem key={b.blogId} value={b.blogId}>{b.name}</SelectItem>
+                                    <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
