@@ -1,7 +1,0 @@
-Environment variables loaded from .env
-Prisma schema loaded from prisma\schema.prisma
-Datasource "db": PostgreSQL database "postgres", schema "public" at "aws-0-us-west-2.pooler.supabase.com:5432"
-Error: P2002
-
-Unique constraint failed on the fields: (`name`)
-

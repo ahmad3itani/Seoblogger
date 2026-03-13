@@ -47,10 +47,9 @@ export default function CampaignsPage() {
 
         // Load dependencies for form
         fetch("/api/blogs").then(r => r.json()).then(data => {
-            if (Array.isArray(data)) {
-                setBlogs(data);
-                if (data.length > 0) setBlogId(data[0].id);
-            }
+            const blogList = data.blogs || (Array.isArray(data) ? data : []);
+            setBlogs(blogList);
+            if (blogList.length > 0) setBlogId(blogList[0].id);
         });
         fetch("/api/brand-voices").then(r => r.json()).then(data => {
             if (Array.isArray(data)) setBrandProfiles(data);

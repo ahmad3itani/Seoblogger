@@ -42,3 +42,27 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Root junk files (SQL scripts, logs, temp files)
+*.sql
+*.log
+*.txt
+out.json
+test-output.json
+check.ts
+clear_cache.ts
+get_free_models.ts
+test-api.js
+test-api.ts
+*.bat
+*.ps1
+prisma-error.log
+prisma-push.log
+prisma-push2.log
+prisma_error.txt
+build-err.log
+ts_error.txt
+ts_errors.log
+errors.txt
+free.txt
+free_models.txt
