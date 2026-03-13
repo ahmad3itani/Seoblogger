@@ -24,25 +24,9 @@ export async function POST(request: Request) {
       // No body is fine
     }
 
-    // Get the free plan for default assignment - create if it doesn't exist
-    let freePlan = await prisma.plan.findUnique({
-      where: { name: "free" },
-    });
-
-    if (!freePlan) {
-      console.log("📋 Creating default free plan...");
-      freePlan = await prisma.plan.create({
-        data: {
-          name: "free",
-          displayName: "Free Plan",
-          price: 0,
-          articlesPerMonth: 10,
-          imagesPerMonth: 30,
-        },
-      });
-    }
-
     // Upsert user profile in our database
+    // NOTE: New users are created WITHOUT a plan (planId: null).
+    // They must explicitly choose a plan (even Free) before accessing the dashboard.
     const profile = await prisma.user.upsert({
       where: { id: user.id },
       update: {
@@ -59,7 +43,7 @@ export async function POST(request: Request) {
         name: user.user_metadata?.full_name || user.user_metadata?.name || null,
         avatarUrl: user.user_metadata?.avatar_url || null,
         role: "user",
-        planId: freePlan.id,
+        // planId intentionally left null — user must select a plan
         ...(googleAccessToken && { googleAccessToken }),
         ...(googleRefreshToken && { googleRefreshToken }),
         ...(googleAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),

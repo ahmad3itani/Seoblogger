@@ -5,7 +5,7 @@ export interface FeatureGate {
   route: string;
   requiredFeature: string | null; // null = available to all plans
   label: string;
-  minPlan: "free" | "pro" | "enterprise";
+  minPlan: "free" | "starter" | "pro" | "enterprise";
 }
 
 export const FEATURE_GATES: FeatureGate[] = [
@@ -18,11 +18,11 @@ export const FEATURE_GATES: FeatureGate[] = [
   { route: "/dashboard/settings", requiredFeature: null, label: "Settings", minPlan: "free" },
   { route: "/dashboard/profile", requiredFeature: null, label: "Profile", minPlan: "free" },
   { route: "/dashboard/analytics", requiredFeature: "hasAnalytics", label: "Analytics", minPlan: "pro" },
-  { route: "/dashboard/bulk", requiredFeature: "hasBulkGeneration", label: "Bulk Generator", minPlan: "pro" },
-  { route: "/dashboard/ideas", requiredFeature: "hasTrendIdeas", label: "Trend Ideas", minPlan: "pro" },
+  { route: "/dashboard/bulk", requiredFeature: "hasBulkGeneration", label: "Bulk Generator", minPlan: "starter" },
+  { route: "/dashboard/ideas", requiredFeature: "hasTrendIdeas", label: "Trend Ideas", minPlan: "starter" },
   { route: "/dashboard/clustering", requiredFeature: "hasAutoClustering", label: "Auto Clustering", minPlan: "pro" },
-  { route: "/dashboard/campaigns", requiredFeature: "hasScheduling", label: "Campaigns", minPlan: "pro" },
-  { route: "/dashboard/calendar", requiredFeature: "hasScheduling", label: "Calendar", minPlan: "pro" },
+  { route: "/dashboard/campaigns", requiredFeature: "hasScheduling", label: "Campaigns", minPlan: "starter" },
+  { route: "/dashboard/calendar", requiredFeature: "hasScheduling", label: "Calendar", minPlan: "starter" },
   { route: "/dashboard/refresh", requiredFeature: "hasContentRefresh", label: "Content Refresh", minPlan: "pro" },
   { route: "/dashboard/quality-pass", requiredFeature: "hasQualityPass", label: "Human Quality Pass", minPlan: "pro" },
 ];

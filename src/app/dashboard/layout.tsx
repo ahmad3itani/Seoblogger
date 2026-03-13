@@ -10,6 +10,16 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
     Sparkles,
     LayoutDashboard,
     PenTool,
@@ -19,6 +29,7 @@ import {
     Menu,
     X,
     ChevronRight,
+    CheckCircle2,
     Megaphone,
     RefreshCw,
     Layers,
@@ -75,7 +86,7 @@ const NAV_SECTIONS: NavSection[] = [
         items: [
             { href: "/dashboard/new", label: "New Article", icon: PenTool, feature: null },
             { href: "/dashboard/articles", label: "My Articles", icon: FileText, feature: null },
-            { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "pro" },
+            { href: "/dashboard/bulk", label: "Bulk Generator", icon: Layers, feature: "hasBulkGeneration", minPlan: "starter" },
             { href: "/dashboard/amazon", label: "Amazon Affiliate", icon: ShoppingCart, feature: null },
             { href: "/dashboard/brand-voice", label: "Brand Voices", icon: Megaphone, feature: null },
             { href: "/dashboard/quality-pass", label: "Quality Pass", icon: Sparkles, feature: "hasQualityPass", minPlan: "pro" },
@@ -85,7 +96,7 @@ const NAV_SECTIONS: NavSection[] = [
         title: "SEO Tools",
         items: [
             { href: "/dashboard/keywords", label: "Keyword Research", icon: TrendingUp, feature: null },
-            { href: "/dashboard/ideas", label: "Trend Ideas", icon: Lightbulb, feature: "hasTrendIdeas", minPlan: "pro" },
+            { href: "/dashboard/ideas", label: "Trend Ideas", icon: Lightbulb, feature: "hasTrendIdeas", minPlan: "starter" },
             { href: "/dashboard/clustering", label: "Keyword Clustering", icon: Network, feature: "hasAutoClustering", minPlan: "pro" },
             { href: "/dashboard/audit/full", label: "Site Audit", icon: Activity, feature: null },
             { href: "/dashboard/refresh", label: "Content Refresh", icon: RefreshCw, feature: "hasContentRefresh", minPlan: "pro" },
@@ -95,8 +106,8 @@ const NAV_SECTIONS: NavSection[] = [
     {
         title: "Scheduling",
         items: [
-            { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "pro" },
-            { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, feature: "hasScheduling", minPlan: "pro" },
+            { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "starter" },
+            { href: "/dashboard/calendar", label: "Calendar", icon: Calendar, feature: "hasScheduling", minPlan: "starter" },
         ],
     },
     {
@@ -123,8 +134,9 @@ export default function DashboardLayout({
     const [blogs, setBlogs] = useState<any[]>([]);
     const [activeBlog, setActiveBlog] = useState<any>(null);
     const [loadingBlogs, setLoadingBlogs] = useState(false);
+    const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
-    const currentPlan = profile?.plan?.name || "free";
+    const currentPlan = profile?.plan?.name || (profile?.planSelected ? "free" : "free");
 
     useEffect(() => {
         if (user) {
@@ -170,7 +182,8 @@ export default function DashboardLayout({
 
     const handleSignOut = async () => {
         await signOut();
-        router.push("/auth/login");
+        setShowSignOutDialog(false);
+        router.push("/");
     };
 
     // Check if current route is feature-gated and blocked
@@ -181,12 +194,85 @@ export default function DashboardLayout({
         ? !isFeatureAvailable(currentPlan, currentGate.requiredFeature)
         : false;
 
+    // Redirect unauthenticated users
+    useEffect(() => {
+        if (!loading && !user) {
+            router.push("/auth/login");
+        }
+    }, [loading, user, router]);
+
+    const handleSelectFreePlan = async () => {
+        try {
+            const res = await fetch("/api/user/select-plan", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ planName: "free" }),
+            });
+            if (res.ok) {
+                // Refresh profile to get updated plan
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error("Failed to select plan:", error);
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex h-screen items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-3">
                     <div className="w-8 h-8 border-2 border-[#FF6600] border-t-transparent rounded-full animate-spin" />
                     <p className="text-sm text-gray-600">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    // Plan selection wall — block dashboard until user explicitly chooses a plan
+    if (user && profile && !profile.planSelected) {
+        return (
+            <div className="flex h-screen items-center justify-center bg-[#F5F5F5]">
+                <div className="max-w-2xl mx-auto px-4 text-center">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-[#FF6600]/10 to-amber-100/30 flex items-center justify-center mx-auto mb-6 border border-[#FF6600]/20">
+                        <Crown className="w-8 h-8 text-[#FF6600]" />
+                    </div>
+                    <h1 className="text-2xl font-bold mb-2">Choose Your Plan</h1>
+                    <p className="text-sm text-muted-foreground mb-8 max-w-md mx-auto">
+                        Select a plan to get started. You can always upgrade or change your plan later.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto mb-6">
+                        {/* Free Plan */}
+                        <div className="bg-white rounded-xl p-5 border border-gray-200 text-left hover:border-[#FF6600]/40 transition-colors">
+                            <h3 className="font-semibold mb-1">Free</h3>
+                            <div className="text-2xl font-bold mb-2">$0<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
+                            <ul className="space-y-1.5 mb-4 text-xs text-muted-foreground">
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />5 articles/month</li>
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />1 blog connected</li>
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-green-400 shrink-0" />Basic SEO tools</li>
+                            </ul>
+                            <Button onClick={handleSelectFreePlan} variant="outline" className="w-full text-sm">
+                                Start Free
+                            </Button>
+                        </div>
+                        {/* Paid Plans CTA */}
+                        <div className="bg-white rounded-xl p-5 border-2 border-[#FF6600]/30 text-left relative">
+                            <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
+                                <Badge className="bg-[#FF6600] text-white border-0 text-[10px] px-2">Recommended</Badge>
+                            </div>
+                            <h3 className="font-semibold mb-1">Starter, Pro & More</h3>
+                            <div className="text-2xl font-bold mb-2">$12<span className="text-sm text-muted-foreground font-normal">+/mo</span></div>
+                            <ul className="space-y-1.5 mb-4 text-xs text-muted-foreground">
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-[#FF6600] shrink-0" />More articles & images</li>
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-[#FF6600] shrink-0" />Bulk generation & scheduling</li>
+                                <li className="flex items-center gap-1.5"><CheckCircle2 className="w-3 h-3 text-[#FF6600] shrink-0" />All Pro tools included</li>
+                            </ul>
+                            <Link href="/pricing">
+                                <Button className="w-full text-sm bg-[#FF6600] hover:bg-[#FF8533] text-white border-0">
+                                    View Plans
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
                 </div>
             </div>
         );
@@ -276,6 +362,29 @@ export default function DashboardLayout({
                     ))}
                 </nav>
 
+                {/* Credits display */}
+                {profile?.credits && (
+                    <div className="px-3 pb-2">
+                        <div className="p-3 rounded-lg bg-white border border-gray-200">
+                            <div className="flex items-center justify-between mb-1.5">
+                                <span className="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Credits</span>
+                                <span className="text-[10px] text-muted-foreground">
+                                    {profile.credits.remaining}/{profile.credits.total}
+                                </span>
+                            </div>
+                            <div className="w-full h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                                <div
+                                    className={`h-full rounded-full transition-all duration-500 ${
+                                        profile.credits.percentUsed > 80 ? "bg-red-500" :
+                                        profile.credits.percentUsed > 50 ? "bg-amber-500" : "bg-[#FF6600]"
+                                    }`}
+                                    style={{ width: `${Math.min(100, profile.credits.percentUsed)}%` }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Upgrade CTA for free users */}
                 {currentPlan === "free" && (
                     <div className="px-3 pb-2">
@@ -283,10 +392,10 @@ export default function DashboardLayout({
                             <div className="p-3 rounded-lg bg-gradient-to-br from-[#FF6600]/10 to-indigo-500/10 border border-[#FF6600]/20 hover:border-[#FF6600]/40 transition-colors cursor-pointer">
                                 <div className="flex items-center gap-2 mb-1">
                                     <Crown className="w-3.5 h-3.5 text-[#FF6600]" />
-                                    <span className="text-xs font-semibold text-[#FF6600]">Upgrade to Pro</span>
+                                    <span className="text-xs font-semibold text-[#FF6600]">Upgrade for more credits</span>
                                 </div>
                                 <p className="text-[10px] text-muted-foreground">
-                                    Unlock analytics, bulk gen, campaigns & more
+                                    Get 500+ credits, bulk gen, campaigns & more
                                 </p>
                             </div>
                         </Link>
@@ -314,8 +423,8 @@ export default function DashboardLayout({
                             </Badge>
                         </div>
                         <button
-                            onClick={handleSignOut}
-                            className="p-1 text-muted-foreground hover:text-foreground transition-colors"
+                            onClick={() => setShowSignOutDialog(true)}
+                            className="p-1 text-muted-foreground hover:text-red-500 transition-colors"
                             title="Sign out"
                         >
                             <LogOut className="w-3.5 h-3.5" />
@@ -419,7 +528,7 @@ export default function DashboardLayout({
                             <h2 className="text-xl font-bold mb-2">
                                 {currentGate?.label} requires{" "}
                                 <span className="gradient-text">
-                                    {currentGate?.minPlan === "enterprise" ? "Enterprise" : "Pro"}
+                                    {currentGate?.minPlan === "enterprise" ? "Enterprise" : currentGate?.minPlan === "starter" ? "Starter" : "Pro"}
                                 </span>
                             </h2>
                             <p className="text-sm text-muted-foreground mb-6">
@@ -437,6 +546,27 @@ export default function DashboardLayout({
                     )}
                 </main>
             </div>
+
+            {/* Sign-out confirmation dialog */}
+            <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Sign out?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            You will be signed out of your account. You&apos;ll need to sign in again to access the dashboard.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handleSignOut}
+                            className="bg-red-500 hover:bg-red-600 text-white"
+                        >
+                            Sign Out
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
 
             {/* Mobile sidebar overlay */}
             {sidebarOpen && (

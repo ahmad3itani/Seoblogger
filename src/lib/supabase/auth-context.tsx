@@ -14,10 +14,20 @@ interface UserProfile {
     name: string;
     displayName: string;
   } | null;
+  planSelected: boolean;
   usage: {
     articlesGenerated: number;
     imagesGenerated: number;
+    wordsGenerated?: number;
+    totalArticles?: number;
+    totalImages?: number;
   } | null;
+  credits?: {
+    total: number;
+    used: number;
+    remaining: number;
+    percentUsed: number;
+  };
   hasGoogleConnected?: boolean;
   createdAt?: string;
 }

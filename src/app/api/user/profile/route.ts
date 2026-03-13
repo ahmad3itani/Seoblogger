@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { getCreditBalance } from "@/lib/credits";
 
 export async function GET() {
   try {
@@ -33,7 +34,8 @@ export async function GET() {
         role: profile.role,
         plan: profile.plan
           ? { name: profile.plan.name, displayName: profile.plan.displayName }
-          : { name: "free", displayName: "Free Plan" },
+          : null,
+        planSelected: !!profile.planId,
         usage: profile.usage
           ? {
               articlesGenerated: profile.usage.articlesGenerated,
@@ -59,6 +61,11 @@ export async function GET() {
               projectsLimit: profile.plan.projectsLimit,
             }
           : { articlesPerMonth: 10, imagesPerMonth: 30, blogsLimit: 1, projectsLimit: 1 },
+        credits: (() => {
+          const planName = profile.plan?.name || "free";
+          const usage = profile.usage || { articlesGenerated: 0, imagesGenerated: 0, apiCallsCount: 0 };
+          return getCreditBalance(planName, usage);
+        })(),
         hasGoogleConnected: !!profile.googleAccessToken,
         createdAt: profile.createdAt,
       },

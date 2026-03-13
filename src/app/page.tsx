@@ -92,9 +92,9 @@ const TOOL_CATEGORIES = [
     title: "Content Creation",
     icon: PenTool,
     tools: [
-      { icon: PenTool, name: "AI Article Writer", desc: "Generate complete SEO-optimized articles from a single keyword — title, headings, FAQs, meta, and Blogger-ready HTML.", color: "from-[#FF6600] to-amber-500" },
+      { icon: PenTool, name: "Article Writer", desc: "Generate complete SEO-optimized articles from a single keyword — title, headings, FAQs, meta, and Blogger-ready HTML.", color: "from-[#FF6600] to-amber-500" },
       { icon: Layers, name: "Bulk Generator", desc: "Generate 10, 50, or 100 articles in one batch. Scale your content pipeline.", color: "from-purple-500 to-pink-500", pro: true },
-      { icon: Image, name: "AI Image Studio", desc: "Generate featured images and section visuals. Auto-generates SEO alt text.", color: "from-blue-500 to-indigo-500" },
+      { icon: Image, name: "Image Studio", desc: "Generate featured images and section visuals with SEO-optimized alt text.", color: "from-blue-500 to-indigo-500" },
       { icon: ShoppingCart, name: "Amazon Affiliate Writer", desc: "Product reviews with affiliate links, comparison tables, and buying guides.", color: "from-emerald-500 to-teal-500" },
       { icon: Megaphone, name: "Brand Voice Profiles", desc: "Save your brand tone, audience, and style. Every article matches your voice.", color: "from-rose-500 to-pink-500" },
     ],
@@ -105,9 +105,9 @@ const TOOL_CATEGORIES = [
     icon: Search,
     tools: [
       { icon: TrendingUp, name: "Keyword Research", desc: "Find high-opportunity keywords with search volume, difficulty, and suggestions.", color: "from-[#FF6600] to-red-500" },
-      { icon: Lightbulb, name: "Trend Ideas", desc: "AI discovers trending topics in your niche before your competitors.", color: "from-amber-500 to-yellow-500", pro: true },
+      { icon: Lightbulb, name: "Trend Ideas", desc: "Discover trending topics in your niche before your competitors.", color: "from-amber-500 to-yellow-500", pro: true },
       { icon: Network, name: "Keyword Clustering", desc: "Group keywords into topic clusters. Build topical authority.", color: "from-cyan-500 to-blue-500", pro: true },
-      { icon: Activity, name: "Full Site Audit", desc: "Deep-scan for 50+ SEO issues: technical, content, performance. AI fix suggestions.", color: "from-green-500 to-emerald-500" },
+      { icon: Activity, name: "Full Site Audit", desc: "Deep-scan for 50+ SEO issues: technical, content, performance. Smart fix suggestions.", color: "from-green-500 to-emerald-500" },
       { icon: LinkIcon, name: "Internal Linker", desc: "Smart internal link suggestions. Boost link equity and reduce orphan pages.", color: "from-violet-500 to-purple-500" },
     ],
   },
@@ -116,7 +116,7 @@ const TOOL_CATEGORIES = [
     title: "Optimize & Publish",
     icon: Rocket,
     tools: [
-      { icon: Sparkles, name: "Human Quality Pass", desc: "3-stage AI editorial engine: improves clarity, originality, helpfulness, and trust.", color: "from-[#FF6600] to-rose-500", pro: true },
+      { icon: Sparkles, name: "Quality Pass", desc: "3-stage editorial engine: improves clarity, originality, helpfulness, and trust.", color: "from-[#FF6600] to-rose-500", pro: true },
       { icon: RefreshCw, name: "Content Refresh", desc: "Find underperforming posts and rewrite with better structure and SEO.", color: "from-indigo-500 to-blue-500", pro: true },
       { icon: Send, name: "1-Click Publish", desc: "Publish to Blogger as draft or live. Labels, scheduling, post updates.", color: "from-green-500 to-teal-500" },
       { icon: Calendar, name: "Campaign Scheduler", desc: "Schedule content campaigns. Set keywords, frequency, publish on autopilot.", color: "from-orange-500 to-amber-500", pro: true },
@@ -126,7 +126,7 @@ const TOOL_CATEGORIES = [
 ];
 
 const STATS = [
-  { value: 15, suffix: "+", label: "AI-Powered Tools" },
+  { value: 15, suffix: "+", label: "Built-in Tools" },
   { value: 7, suffix: "", label: "Article Templates" },
   { value: 50, suffix: "+", label: "SEO Checks" },
   { value: 10, suffix: "x", label: "Faster Content" },
@@ -135,14 +135,14 @@ const STATS = [
 const STEPS = [
   { step: 1, title: "Connect Blogger", desc: "Sign in with Google and link your Blogger account in seconds.", icon: Globe },
   { step: 2, title: "Choose Your Tool", desc: "Write an article, run an audit, research keywords, or schedule a campaign.", icon: Search },
-  { step: 3, title: "AI Does the Work", desc: "Our AI generates, optimizes, and formats everything for Blogger.", icon: Sparkles },
+  { step: 3, title: "Generate & Optimize", desc: "Content is generated, optimized, and formatted — ready for Blogger.", icon: Sparkles },
   { step: 4, title: "Review & Publish", desc: "Preview, edit, polish with Quality Pass, and publish to your blog.", icon: Rocket },
 ];
 
 const REVIEWS = [
-  { name: "Sarah K.", role: "Travel Blogger", text: "BloggerSEO cut my content creation time from 8 hours to 30 minutes per article. The Quality Pass makes AI content read like an expert wrote it." },
+  { name: "Sarah K.", role: "Travel Blogger", text: "BloggerSEO cut my content creation time from 8 hours to 30 minutes per article. The Quality Pass makes every article read like an expert wrote it." },
   { name: "Ahmed R.", role: "Tech Reviewer", text: "The Amazon Affiliate writer is a game-changer. Product reviews with comparison tables in minutes. My revenue doubled." },
-  { name: "Maria L.", role: "Food Blogger", text: "The Site Audit found 23 SEO issues I had no idea about. AI fix suggestions saved me hours. Organic traffic up 40%." },
+  { name: "Maria L.", role: "Food Blogger", text: "The Site Audit found 23 SEO issues I had no idea about. Smart fix suggestions saved me hours. Organic traffic up 40%." },
   { name: "David C.", role: "Agency Owner", text: "We manage 12 Blogger sites. Bulk Generator and Campaign Scheduler let us publish 100+ articles per month on autopilot." },
 ];
 
@@ -232,7 +232,7 @@ export default function LandingPage() {
           <div className="animate-slide-up opacity-0 stagger-1">
             <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm glass-card border-[#FF6600]/20">
               <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2 animate-pulse-dot" />
-              15+ AI Tools for Blogger — Start Free
+              15+ Tools for Blogger — Start Free
             </Badge>
           </div>
 
@@ -242,11 +242,11 @@ export default function LandingPage() {
               {heroWords[heroWord]}
             </span>
             <br />
-            <span className="text-foreground/70 text-3xl sm:text-4xl md:text-5xl">for Blogger with AI</span>
+            <span className="text-foreground/70 text-3xl sm:text-4xl md:text-5xl">for Blogger — Faster</span>
           </h1>
 
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up opacity-0 stagger-3">
-            The all-in-one AI content platform built for Blogger. Write articles, audit SEO, research keywords,
+            The all-in-one content platform built for Blogger. Write articles, audit SEO, research keywords,
             refresh old content, and publish — all from one dashboard.
           </p>
 
@@ -296,12 +296,12 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <Reveal>
             <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">15+ Tools</Badge>
+              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">All Tools</Badge>
               <h2 className="text-3xl sm:text-4xl font-bold mb-4">
                 Every Tool You Need to <span className="gradient-text">Dominate Blogger</span>
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                From keyword research to published post — our AI handles every step of the content pipeline.
+                From keyword research to published post — every step of the content pipeline, handled.
               </p>
             </div>
           </Reveal>
@@ -402,7 +402,7 @@ export default function LandingPage() {
                 <span className="gradient-text">7 Article Templates</span> for Every Niche
               </h2>
               <p className="text-muted-foreground max-w-xl mx-auto">
-                Choose a template and the AI follows the perfect structure — from how-to guides to affiliate reviews.
+                Choose a template and the engine follows the perfect structure — from how-to guides to affiliate reviews.
               </p>
             </div>
           </Reveal>
@@ -466,13 +466,13 @@ export default function LandingPage() {
             </div>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
             {/* Free */}
             <Reveal delay={0}>
               <div className="glass-card rounded-xl p-6 h-full flex flex-col">
                 <h3 className="text-lg font-semibold mb-1">Free</h3>
                 <div className="text-3xl font-bold mb-4">$0<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2.5 mb-6 flex-1">
+                <ul className="space-y-2 mb-6 flex-1">
                   {["5 articles/month", "1 blog connected", "Keyword research", "Site audit", "Internal linker", "SEO optimization"].map(f => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />{f}
@@ -483,16 +483,32 @@ export default function LandingPage() {
               </div>
             </Reveal>
 
+            {/* Starter */}
+            <Reveal delay={80}>
+              <div className="glass-card rounded-xl p-6 h-full flex flex-col">
+                <h3 className="text-lg font-semibold mb-1">Starter</h3>
+                <div className="text-3xl font-bold mb-4">$12<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
+                <ul className="space-y-2 mb-6 flex-1">
+                  {["30 articles/month", "2 blogs connected", "10 images/month", "Bulk generation", "Scheduling", "Keyword clustering", "Brand voices", "Amazon affiliate writer"].map(f => (
+                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />{f}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/pricing"><Button variant="outline" className="w-full glass-card">Start Free Trial</Button></Link>
+              </div>
+            </Reveal>
+
             {/* Pro — highlighted */}
-            <Reveal delay={100}>
+            <Reveal delay={160}>
               <div className="relative glass-card rounded-xl p-6 h-full flex flex-col border-[#FF6600]/40 ring-1 ring-[#FF6600]/20">
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <Badge className="bg-[#FF6600] text-white border-0 px-3">Most Popular</Badge>
                 </div>
                 <h3 className="text-lg font-semibold mb-1">Pro</h3>
                 <div className="text-3xl font-bold mb-4">$39<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2.5 mb-6 flex-1">
-                  {["100 articles/month", "5 blogs connected", "50 AI images", "Human Quality Pass", "Content Refresh", "Bulk generation", "Campaign scheduler", "Analytics dashboard", "Priority support"].map(f => (
+                <ul className="space-y-2 mb-6 flex-1">
+                  {["100 articles/month", "5 blogs connected", "50 images", "Quality Pass", "Content Refresh", "Bulk generation", "Campaign scheduler", "Analytics dashboard", "Priority support"].map(f => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="w-4 h-4 text-[#FF6600] shrink-0" />{f}
                     </li>
@@ -503,12 +519,12 @@ export default function LandingPage() {
             </Reveal>
 
             {/* Enterprise */}
-            <Reveal delay={200}>
+            <Reveal delay={240}>
               <div className="glass-card rounded-xl p-6 h-full flex flex-col">
                 <h3 className="text-lg font-semibold mb-1">Enterprise</h3>
                 <div className="text-3xl font-bold mb-4">$99<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2.5 mb-6 flex-1">
-                  {["300 articles/month", "Unlimited blogs", "200 AI images", "Everything in Pro", "API access", "White-label", "Team access (3 seats)", "Dedicated support"].map(f => (
+                <ul className="space-y-2 mb-6 flex-1">
+                  {["300 articles/month", "Unlimited blogs", "200 images", "Everything in Pro", "API access", "White-label", "Team access (3 seats)", "Dedicated support"].map(f => (
                     <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />{f}
                     </li>
@@ -570,7 +586,7 @@ export default function LandingPage() {
                 Ready to Automate Your <span className="gradient-text">Blogger Content?</span>
               </h2>
               <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-                Join thousands of bloggers publishing SEO-optimized content 10x faster with AI. Free to start, no credit card required.
+                Join thousands of bloggers publishing SEO-optimized content 10x faster. Free to start, no credit card required.
               </p>
               <Link href={ctaHref}>
                 <Button size="lg" className="glow-button text-white border-0 px-10 h-12 group">
@@ -593,13 +609,13 @@ export default function LandingPage() {
                 <span className="text-sm font-bold gradient-text">BloggerSEO</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                The all-in-one AI content platform built exclusively for Blogger. Generate, optimize, and publish SEO content at scale.
+                The all-in-one content platform built exclusively for Blogger. Generate, optimize, and publish SEO content at scale.
               </p>
             </div>
             <div>
               <h4 className="text-sm font-semibold mb-3">Product</h4>
               <div className="space-y-2">
-                {[["AI Article Writer", "#tools"], ["Keyword Research", "#tools"], ["Site Audit", "/free-audit"], ["Quality Pass", "#tools"]].map(([l, h]) => (
+                {[["Article Writer", "#tools"], ["Keyword Research", "#tools"], ["Site Audit", "/free-audit"], ["Quality Pass", "#tools"]].map(([l, h]) => (
                   <a key={l} href={h} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a>
                 ))}
               </div>
