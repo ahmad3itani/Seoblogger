@@ -65,8 +65,8 @@ export default function SettingsPage() {
         } else if (urlParams.get('error')) {
             const errorType = urlParams.get('error');
             let errorMessage = "Failed to connect Blogger. ";
-            if (errorType === 'missing_credentials') {
-                errorMessage += "Please save your Google OAuth credentials first.";
+            if (errorType === 'missing_env_credentials') {
+                errorMessage += "Environment variables GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not set. Please add them to your hosting platform and redeploy.";
             } else if (errorType === 'not_authenticated') {
                 errorMessage += "Please log in again.";
             } else {
@@ -104,13 +104,6 @@ export default function SettingsPage() {
         // Clear any previous errors
         setSaveError("");
         setSaveSuccess("");
-        
-        // Verify credentials are saved before attempting connection
-        if (!credentialsSaved) {
-            setSaveError("Please save your Google OAuth credentials first.");
-            setTimeout(() => setSaveError(""), 5000);
-            return;
-        }
         
         // Redirect to dedicated Blogger OAuth endpoint
         window.location.href = "/api/auth/google";
@@ -210,56 +203,33 @@ export default function SettingsPage() {
                         </svg>
                     </div>
                     <div>
-                        <h2 className="font-semibold">Google OAuth Credentials</h2>
+                        <h2 className="font-semibold">Google OAuth Setup</h2>
                         <p className="text-xs text-muted-foreground">
-                            Enter your own Google OAuth Client ID and Secret to connect Blogger
+                            Enter your Google OAuth Client ID and Secret to connect Blogger
                         </p>
                     </div>
-                    {credentialsSaved && (
-                        <Badge variant="secondary" className="ml-auto text-[10px] bg-green-500/10 text-green-400 border-green-500/20">
-                            <Check className="w-3 h-3 mr-1" /> Saved
-                        </Badge>
-                    )}
                 </div>
 
                 <div className="space-y-4">
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-sm">
-                        <p className="font-semibold text-blue-400 mb-2">📋 How to get your credentials:</p>
-                        <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                        <p className="font-semibold text-blue-400 mb-3">📋 Setup Instructions:</p>
+                        <ol className="text-xs text-muted-foreground space-y-2 list-decimal list-inside">
                             <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Google Cloud Console</a></li>
                             <li>Create a new OAuth 2.0 Client ID (Web application)</li>
-                            <li className="break-all">Add authorized redirect URI: <code className="bg-black/20 px-1 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/google/callback</code></li>
+                            <li className="break-all">Add authorized redirect URI: <code className="bg-black/20 px-1.5 py-0.5 rounded text-[10px] font-mono">{typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/google/callback</code></li>
                             <li>Enable the <strong>Blogger API v3</strong> in your project (APIs & Services → Library)</li>
-                            <li>Copy your Client ID and Client Secret below</li>
+                            <li className="font-semibold text-blue-300">Add these environment variables to your hosting platform (Vercel/Netlify):
+                                <div className="mt-2 bg-black/30 p-2 rounded font-mono text-[10px] space-y-1">
+                                    <div>GOOGLE_CLIENT_ID=your_client_id_here</div>
+                                    <div>GOOGLE_CLIENT_SECRET=your_client_secret_here</div>
+                                </div>
+                            </li>
+                            <li>Redeploy your application after adding the environment variables</li>
                         </ol>
                         <p className="text-xs text-yellow-400 mt-3 flex items-start gap-1.5">
                             <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-                            <span>Important: The redirect URI must match exactly, including https:// and the domain</span>
+                            <span>Important: The redirect URI must match exactly, and environment variables must be set in your hosting platform</span>
                         </p>
-                    </div>
-
-                    <div>
-                        <Label htmlFor="google-client-id">Google Client ID</Label>
-                        <Input
-                            id="google-client-id"
-                            type="text"
-                            placeholder="123456789-abcdefg.apps.googleusercontent.com"
-                            value={googleClientId}
-                            onChange={(e) => setGoogleClientId(e.target.value)}
-                            className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
-                        />
-                    </div>
-
-                    <div>
-                        <Label htmlFor="google-client-secret">Google Client Secret</Label>
-                        <Input
-                            id="google-client-secret"
-                            type="password"
-                            placeholder="GOCSPX-xxxxxxxxxxxxx"
-                            value={googleClientSecret}
-                            onChange={(e) => setGoogleClientSecret(e.target.value)}
-                            className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
-                        />
                     </div>
 
                     {saveError && (
@@ -275,19 +245,6 @@ export default function SettingsPage() {
                             <span>{saveSuccess}</span>
                         </div>
                     )}
-
-                    <Button
-                        onClick={handleSaveCredentials}
-                        disabled={savingCredentials || !googleClientId.trim() || !googleClientSecret.trim()}
-                        className="w-full bg-[#FF6600] hover:bg-[#FF8533] text-white border-0"
-                    >
-                        {savingCredentials ? (
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        ) : (
-                            <Save className="w-4 h-4 mr-2" />
-                        )}
-                        {savingCredentials ? "Saving..." : credentialsSaved ? "Update Credentials" : "Save Credentials"}
-                    </Button>
                 </div>
             </section>
 
@@ -321,14 +278,14 @@ export default function SettingsPage() {
                         <Button
                             onClick={handleConnectBlogger}
                             className="w-full glow-button text-white border-0"
-                            disabled={loading && !!user || !credentialsSaved}
+                            disabled={loading && !!user}
                         >
                             {loading ? (
                                 <>
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                     Checking...
                                 </>
-                            ) : credentialsSaved ? (
+                            ) : (
                                 <>
                                     <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                                         <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
@@ -338,19 +295,8 @@ export default function SettingsPage() {
                                     </svg>
                                     Connect Blogger
                                 </>
-                            ) : (
-                                <>
-                                    <AlertCircle className="w-4 h-4 mr-2" />
-                                    Save OAuth Credentials First
-                                </>
                             )}
                         </Button>
-                        {!credentialsSaved && (
-                            <p className="text-xs text-yellow-600 dark:text-yellow-400 flex items-center gap-1.5">
-                                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                                Please save your Google OAuth credentials above before connecting Blogger
-                            </p>
-                        )}
                     </div>
                 ) : null}
                 {hasConnection && blogs.length === 0 && (

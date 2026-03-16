@@ -30,24 +30,19 @@ export async function GET(request: Request) {
     const userId = state;
     console.log("🔄 Exchanging code for Blogger tokens for user:", userId);
 
-    // Fetch user's Google OAuth credentials from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        googleClientId: true,
-        googleClientSecret: true,
-      },
-    });
+    // Use environment variables for OAuth credentials
+    const clientId = process.env.GOOGLE_CLIENT_ID;
+    const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
-    if (!dbUser?.googleClientId || !dbUser?.googleClientSecret) {
-      console.error("❌ User's Google OAuth credentials not found in database");
-      return NextResponse.redirect(`${origin}/dashboard/settings?error=missing_credentials`);
+    if (!clientId || !clientSecret) {
+      console.error("❌ Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET in environment variables");
+      return NextResponse.redirect(`${origin}/dashboard/settings?error=missing_env_credentials`);
     }
 
-    // Create OAuth client with user's credentials
+    // Create OAuth client with environment credentials
     const oauth2Client = new google.auth.OAuth2(
-      dbUser.googleClientId,
-      dbUser.googleClientSecret,
+      clientId,
+      clientSecret,
       `${origin}/api/auth/google/callback`
     );
 
