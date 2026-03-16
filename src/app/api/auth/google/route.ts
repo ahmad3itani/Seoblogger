@@ -23,16 +23,23 @@ export async function GET(request: Request) {
   const clientId = process.env.GOOGLE_CLIENT_ID;
   const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
+  console.log("🔍 Environment check:");
+  console.log("   - GOOGLE_CLIENT_ID exists:", !!clientId);
+  console.log("   - GOOGLE_CLIENT_SECRET exists:", !!clientSecret);
+
   if (!clientId || !clientSecret) {
     console.error("❌ Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET in environment variables");
+    console.error("   Please add these to your hosting platform (Vercel/Netlify) and redeploy");
     return NextResponse.redirect(`${origin}/dashboard/settings?error=missing_env_credentials`);
   }
 
   console.log("✅ Using OAuth credentials from environment variables");
-  console.log("   - Client ID:", clientId.substring(0, 20) + "...");
+  console.log("   - Client ID (first 30 chars):", clientId.substring(0, 30) + "...");
+  console.log("   - Client ID (last 20 chars): ..." + clientId.substring(clientId.length - 20));
 
   const redirectUri = `${origin}/api/auth/google/callback`;
-  console.log("🔄 Redirect URI:", redirectUri);
+  console.log("🔄 Redirect URI that will be sent to Google:", redirectUri);
+  console.log("   Make sure this EXACTLY matches the URI in Google Cloud Console");
 
   const oauth2Client = new google.auth.OAuth2(
     clientId,
