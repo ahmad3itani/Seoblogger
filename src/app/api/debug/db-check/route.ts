@@ -62,7 +62,31 @@ export async function GET() {
     length: process.env.GOOGLE_CLIENT_SECRET?.length || 0,
   };
 
-  // Try connecting to database
+  // Check password for special characters that need URL encoding
+  try {
+    const parsedUrl = new URL(dbUrl);
+    const rawPassword = parsedUrl.password;
+    const decodedPassword = decodeURIComponent(rawPassword);
+    const needsEncoding = /[^A-Za-z0-9\-._~]/.test(decodedPassword);
+    const specialChars = decodedPassword.split('').filter(c => /[^A-Za-z0-9]/.test(c));
+    
+    results.password_analysis = {
+      rawLength: rawPassword.length,
+      decodedLength: decodedPassword.length,
+      needsUrlEncoding: needsEncoding,
+      specialCharacters: specialChars,
+      isUrlEncoded: rawPassword !== decodedPassword,
+      firstChar: decodedPassword[0],
+      lastChar: decodedPassword[decodedPassword.length - 1],
+      hasSpaces: decodedPassword.includes(' '),
+      hasAtSign: decodedPassword.includes('@'),
+      hasHash: decodedPassword.includes('#'),
+    };
+  } catch (e: any) {
+    results.password_analysis = { error: e.message };
+  }
+
+  // Try connecting to database with current URL
   try {
     const { prisma } = await import("@/lib/prisma");
     const userCount = await prisma.user.count();
@@ -77,6 +101,50 @@ export async function GET() {
       errorCode: error.code,
       errorName: error.name,
     };
+  }
+
+  // Try connecting with manually URL-encoded password
+  try {
+    const parsedUrl = new URL(dbUrl);
+    const rawPassword = decodeURIComponent(parsedUrl.password);
+    const encodedPassword = encodeURIComponent(rawPassword);
+    
+    // Reconstruct URL with properly encoded password
+    const fixedUrl = dbUrl.replace(
+      `:${parsedUrl.password}@`,
+      `:${encodedPassword}@`
+    );
+    
+    const isAlreadyCorrect = fixedUrl === dbUrl;
+    results.url_encoding_fix = {
+      passwordWasAlreadyEncoded: isAlreadyCorrect,
+      wouldChangeUrl: !isAlreadyCorrect,
+    };
+    
+    if (!isAlreadyCorrect) {
+      // Try connecting with the fixed URL
+      const { PrismaClient } = await import("@prisma/client");
+      const testPrisma = new PrismaClient({
+        datasources: { db: { url: fixedUrl } },
+      });
+      try {
+        const count = await testPrisma.user.count();
+        results.fixed_url_connection = {
+          status: "SUCCESS",
+          userCount: count,
+          message: "URL encoding was the issue! The password needs to be URL-encoded.",
+        };
+      } catch (err: any) {
+        results.fixed_url_connection = {
+          status: "ALSO_FAILED",
+          error: err.message,
+        };
+      } finally {
+        await testPrisma.$disconnect();
+      }
+    }
+  } catch (e: any) {
+    results.url_encoding_fix = { error: e.message };
   }
 
   return NextResponse.json(results, { status: 200 });
