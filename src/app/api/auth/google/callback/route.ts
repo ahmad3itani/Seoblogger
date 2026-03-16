@@ -29,25 +29,35 @@ export async function GET(request: Request) {
   try {
     const userId = state;
     console.log("🔄 Exchanging code for Blogger tokens for user:", userId);
+    console.log("   - Authorization code (first 20 chars):", code.substring(0, 20) + "...");
 
     // Use environment variables for OAuth credentials
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+    console.log("🔍 Callback environment check:");
+    console.log("   - GOOGLE_CLIENT_ID exists:", !!clientId);
+    console.log("   - GOOGLE_CLIENT_SECRET exists:", !!clientSecret);
 
     if (!clientId || !clientSecret) {
       console.error("❌ Missing GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET in environment variables");
       return NextResponse.redirect(`${origin}/dashboard/settings?error=missing_env_credentials`);
     }
 
+    const redirectUri = `${origin}/api/auth/google/callback`;
+    console.log("   - Redirect URI for token exchange:", redirectUri);
+
     // Create OAuth client with environment credentials
     const oauth2Client = new google.auth.OAuth2(
       clientId,
       clientSecret,
-      `${origin}/api/auth/google/callback`
+      redirectUri
     );
 
+    console.log("🔄 Calling Google to exchange code for tokens...");
     // Exchange code for tokens
     const { tokens } = await oauth2Client.getToken(code);
+    console.log("✅ Token exchange successful");
     
     if (!tokens.access_token) {
       console.error("❌ No access token in response");
@@ -64,6 +74,7 @@ export async function GET(request: Request) {
       : new Date(Date.now() + 3600000); // Default 1 hour
 
     // Save tokens to database
+    console.log("💾 Saving tokens to database for user:", userId);
     await prisma.user.update({
       where: { id: userId },
       data: {
@@ -74,12 +85,19 @@ export async function GET(request: Request) {
     });
 
     console.log("✅ Blogger tokens saved successfully to database");
+    console.log("🔄 Redirecting to settings with success message");
 
     // Redirect back to settings with success
     return NextResponse.redirect(`${origin}/dashboard/settings?success=blogger_connected`);
   } catch (error: any) {
     console.error("❌ Blogger OAuth callback error:", error);
-    console.error("Error details:", error.message, error.stack);
-    return NextResponse.redirect(`${origin}/dashboard/settings?error=blogger_failed&details=${encodeURIComponent(error.message || 'unknown')}`);
+    console.error("   - Error message:", error.message);
+    console.error("   - Error name:", error.name);
+    console.error("   - Error code:", error.code);
+    console.error("   - Full error:", JSON.stringify(error, null, 2));
+    console.error("   - Stack trace:", error.stack);
+    
+    const errorMsg = error.message || error.code || 'unknown';
+    return NextResponse.redirect(`${origin}/dashboard/settings?error=callback_failed&msg=${encodeURIComponent(errorMsg)}`);
   }
 }

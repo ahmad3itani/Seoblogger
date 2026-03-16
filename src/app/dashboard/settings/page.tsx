@@ -64,16 +64,19 @@ export default function SettingsPage() {
             window.history.replaceState({}, '', '/dashboard/settings');
         } else if (urlParams.get('error')) {
             const errorType = urlParams.get('error');
+            const errorMsg = urlParams.get('msg');
             let errorMessage = "Failed to connect Blogger. ";
             if (errorType === 'missing_env_credentials') {
                 errorMessage += "Environment variables GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are not set. Please add them to your hosting platform and redeploy.";
             } else if (errorType === 'not_authenticated') {
                 errorMessage += "Please log in again.";
+            } else if (errorType === 'callback_failed') {
+                errorMessage += errorMsg ? `Error: ${decodeURIComponent(errorMsg)}` : "Callback failed. Please check server logs.";
             } else {
                 errorMessage += "Please try again.";
             }
             setSaveError(errorMessage);
-            setTimeout(() => setSaveError(""), 8000);
+            setTimeout(() => setSaveError(""), 10000);
             // Clean up URL
             window.history.replaceState({}, '', '/dashboard/settings');
         }
