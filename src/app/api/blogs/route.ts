@@ -25,11 +25,20 @@ export async function GET(req: Request) {
 
         // Only call Blogger API when explicitly requested (e.g. after connecting or clicking refresh)
         if (refresh) {
+            console.log("🔄 Refreshing blogs from Blogger API for user:", user.email);
             try {
                 const accessToken = await getValidAccessToken(user.id);
+                console.log("✅ Got valid access token");
+                
                 const blogs = await listBlogs(accessToken);
+                console.log("📝 Blogger API returned", blogs.length, "blogs");
+                
+                if (blogs.length === 0) {
+                    console.log("⚠️ No blogs found on Blogger account. User needs to create a blog at blogger.com");
+                }
 
                 for (const blog of blogs) {
+                    console.log("  - Saving blog:", blog.name, "("+blog.id+")");
                     await prisma.blog.upsert({
                         where: { blogId: blog.id },
                         update: {
@@ -47,12 +56,15 @@ export async function GET(req: Request) {
                     });
                 }
             } catch (error: any) {
+                console.error("❌ Error fetching blogs from Blogger API:", error.message);
                 if (error.message === "NEEDS_RECONNECT") {
                     return NextResponse.json({ error: "Session expired. Please reconnect Google Account." }, { status: 401 });
                 }
                 // Don't fail the whole request if Blogger API is down - just return cached blogs
                 console.error("Blogger API sync error (returning cached):", error.message);
             }
+        } else {
+            console.log("📋 Returning cached blogs (refresh=false)");
         }
 
         // Always return blogs from database (fast)
@@ -60,6 +72,8 @@ export async function GET(req: Request) {
             where: { userId: user.id },
             orderBy: { createdAt: 'desc' }
         });
+        
+        console.log("💾 Database has", userBlogs.length, "blogs for user");
 
         // If no default blog exists, set the first one as default
         if (userBlogs.length > 0 && !userBlogs.find((b: any) => b.isDefault)) {
@@ -72,9 +86,15 @@ export async function GET(req: Request) {
 
         // If no blogs and no Google connection, tell frontend
         if (userBlogs.length === 0 && !user.googleAccessToken) {
+            console.log("⚠️ No Google connection and no cached blogs");
             return NextResponse.json({ error: "Google account not connected", blogs: [] }, { status: 200 });
         }
+        
+        if (userBlogs.length === 0 && user.googleAccessToken) {
+            console.log("⚠️ User has Google connection but no blogs in database. They may need to create a blog on blogger.com");
+        }
 
+        console.log("✅ Returning", userBlogs.length, "blogs to frontend");
         return NextResponse.json({ blogs: userBlogs });
     } catch (error) {
         console.error("Blogs API error:", error);
