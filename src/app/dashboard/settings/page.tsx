@@ -31,6 +31,10 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [isMounted, setIsMounted] = useState(false);
     const [hasConnection, setHasConnection] = useState(false);
+    const [googleClientId, setGoogleClientId] = useState("");
+    const [googleClientSecret, setGoogleClientSecret] = useState("");
+    const [savingCredentials, setSavingCredentials] = useState(false);
+    const [credentialsSaved, setCredentialsSaved] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -39,6 +43,7 @@ export default function SettingsPage() {
     useEffect(() => {
         if (user) {
             fetchBlogs();
+            fetchGoogleCredentials();
         }
     }, [user]);
 
@@ -94,6 +99,51 @@ export default function SettingsPage() {
         }
     };
 
+    const fetchGoogleCredentials = async () => {
+        try {
+            const res = await fetch("/api/user/google-credentials");
+            const data = await res.json();
+            if (data.googleClientId) {
+                setGoogleClientId(data.googleClientId);
+                setCredentialsSaved(true);
+            }
+            if (data.googleClientSecret) {
+                setGoogleClientSecret(data.googleClientSecret);
+            }
+        } catch (error) {
+            console.error("Failed to fetch Google credentials:", error);
+        }
+    };
+
+    const handleSaveCredentials = async () => {
+        if (!googleClientId.trim() || !googleClientSecret.trim()) {
+            alert("Please enter both Client ID and Client Secret");
+            return;
+        }
+        
+        setSavingCredentials(true);
+        try {
+            const res = await fetch("/api/user/google-credentials", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ googleClientId, googleClientSecret }),
+            });
+            
+            if (res.ok) {
+                setCredentialsSaved(true);
+                alert("Google OAuth credentials saved successfully! You can now connect your Blogger account.");
+            } else {
+                const data = await res.json();
+                alert(data.error || "Failed to save credentials");
+            }
+        } catch (error) {
+            console.error("Failed to save credentials:", error);
+            alert("Failed to save credentials");
+        } finally {
+            setSavingCredentials(false);
+        }
+    };
+
     // Removed unused isConnected constant
 
     if (!isMounted) {
@@ -108,6 +158,79 @@ export default function SettingsPage() {
                     Configure your blog connection, brand voice, and default preferences.
                 </p>
             </div>
+
+            {/* Google OAuth Credentials */}
+            <section className="glass-card rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500 to-orange-500 flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z"/>
+                            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 className="font-semibold">Google OAuth Credentials</h2>
+                        <p className="text-xs text-muted-foreground">
+                            Enter your own Google OAuth Client ID and Secret to connect Blogger
+                        </p>
+                    </div>
+                    {credentialsSaved && (
+                        <Badge variant="secondary" className="ml-auto text-[10px] bg-green-500/10 text-green-400 border-green-500/20">
+                            <Check className="w-3 h-3 mr-1" /> Saved
+                        </Badge>
+                    )}
+                </div>
+
+                <div className="space-y-4">
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-sm">
+                        <p className="font-semibold text-blue-400 mb-2">📋 How to get your credentials:</p>
+                        <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
+                            <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" className="text-blue-400 hover:underline">Google Cloud Console</a></li>
+                            <li>Create a new OAuth 2.0 Client ID (Web application)</li>
+                            <li>Add authorized redirect URI: <code className="bg-black/20 px-1 rounded">{typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/google/callback</code></li>
+                            <li>Enable the Blogger API v3 in your project</li>
+                            <li>Copy your Client ID and Client Secret below</li>
+                        </ol>
+                    </div>
+
+                    <div>
+                        <Label htmlFor="google-client-id">Google Client ID</Label>
+                        <Input
+                            id="google-client-id"
+                            type="text"
+                            placeholder="123456789-abcdefg.apps.googleusercontent.com"
+                            value={googleClientId}
+                            onChange={(e) => setGoogleClientId(e.target.value)}
+                            className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
+                        />
+                    </div>
+
+                    <div>
+                        <Label htmlFor="google-client-secret">Google Client Secret</Label>
+                        <Input
+                            id="google-client-secret"
+                            type="password"
+                            placeholder="GOCSPX-xxxxxxxxxxxxx"
+                            value={googleClientSecret}
+                            onChange={(e) => setGoogleClientSecret(e.target.value)}
+                            className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
+                        />
+                    </div>
+
+                    <Button
+                        onClick={handleSaveCredentials}
+                        disabled={savingCredentials || !googleClientId.trim() || !googleClientSecret.trim()}
+                        className="w-full bg-[#FF6600] hover:bg-[#FF8533] text-white border-0"
+                    >
+                        <Save className="w-4 h-4 mr-2" />
+                        {savingCredentials ? "Saving..." : credentialsSaved ? "Update Credentials" : "Save Credentials"}
+                    </Button>
+                </div>
+            </section>
+
+            <Separator className="bg-border/30" />
 
             {/* Blog Connection */}
             <section className="glass-card rounded-xl p-6">
@@ -136,7 +259,7 @@ export default function SettingsPage() {
                     <Button
                         onClick={handleConnectBlogger}
                         className="glow-button text-white border-0"
-                        disabled={loading && !!user}
+                        disabled={loading && !!user || !credentialsSaved}
                     >
                         <svg className="w-4 h-4 mr-2" viewBox="0 0 24 24">
                             <path
@@ -156,14 +279,21 @@ export default function SettingsPage() {
                                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             />
                         </svg>
-                        {loading ? "Checking..." : "Connect Blogger"}
+                        {loading ? "Checking..." : credentialsSaved ? "Connect Blogger" : "Save OAuth Credentials First"}
                     </Button>
-                ) : blogs.length === 0 ? (
+                ) : null}
+                {!hasConnection && !credentialsSaved && (
+                    <p className="text-xs text-yellow-600 dark:text-yellow-400 mt-2">
+                        ⚠️ Please save your Google OAuth credentials above before connecting Blogger
+                    </p>
+                )}
+                {hasConnection && blogs.length === 0 && (
                     <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg text-sm text-yellow-600 dark:text-yellow-400">
                         <p className="font-semibold mb-1">Google Account Connected!</p>
                         <p>However, no blogs were found on your Blogger account. Please go to <a href="https://www.blogger.com" target="_blank" rel="noreferrer" className="underline font-medium hover:text-yellow-500">Blogger.com</a> to create a blog first, then refresh this page.</p>
                     </div>
-                ) : (
+                )}
+                {hasConnection && blogs.length > 0 && (
                     <div className="space-y-3">
                         {blogs.map((blog) => (
                             <div key={blog.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${blog.isDefault ? "bg-[#FF6600]/5 border-[#FF6600]/30 shadow-sm" : "bg-card border-border/50 hover:border-[#FF6600]/20"}`}>

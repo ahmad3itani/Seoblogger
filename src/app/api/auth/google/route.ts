@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 import { createClient } from "@/lib/supabase/server";
+import { prisma } from "@/lib/prisma";
 
 export async function GET(request: Request) {
   const { origin } = new URL(request.url);
@@ -13,9 +14,22 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/auth/login?error=not_authenticated`);
   }
 
+  // Fetch user's Google OAuth credentials from database
+  const dbUser = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      googleClientId: true,
+      googleClientSecret: true,
+    },
+  });
+
+  if (!dbUser?.googleClientId || !dbUser?.googleClientSecret) {
+    return NextResponse.redirect(`${origin}/dashboard/settings?error=missing_credentials`);
+  }
+
   const oauth2Client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
+    dbUser.googleClientId,
+    dbUser.googleClientSecret,
     `${origin}/api/auth/google/callback`
   );
 

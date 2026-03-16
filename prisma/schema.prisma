@@ -38,6 +38,10 @@ model User {
   googleAccessToken  String?
   googleRefreshToken String?
   googleTokenExpiry  DateTime?
+  
+  // User's own Google OAuth credentials (for Blogger API)
+  googleClientId     String?
+  googleClientSecret String?
 
   // Relations
   blogs         Blog[]
