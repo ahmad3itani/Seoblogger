@@ -123,6 +123,7 @@ const PLANS = [
 export default function PricingPage() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [checkingOut, setCheckingOut] = useState<string | null>(null);
   const router = useRouter();
 
@@ -130,6 +131,10 @@ export default function PricingPage() {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
       setIsLoggedIn(!!user);
+      setCheckingAuth(false);
+    }).catch(() => {
+      setIsLoggedIn(false);
+      setCheckingAuth(false);
     });
   }, []);
 
@@ -299,17 +304,27 @@ export default function PricingPage() {
 
               <Button
                 onClick={() => handlePlanClick(plan.name, plan.price)}
-                disabled={checkingOut === plan.name}
+                disabled={checkingOut === plan.name || checkingAuth}
                 className={`w-full ${plan.popular
                     ? "glow-button text-white border-0"
                     : ""
                   }`}
                 variant={plan.popular ? "default" : "outline"}
               >
-                {checkingOut === plan.name ? (
+                {checkingAuth ? (
+                  <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Loading...</>
+                ) : checkingOut === plan.name ? (
                   <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Processing...</>
                 ) : (
-                  <>{plan.price === 0 ? "Get Started Free" : (isLoggedIn ? "Subscribe Now" : "Start Free Trial")}<ArrowRight className="w-4 h-4 ml-1" /></>
+                  <>
+                    {plan.price === 0 
+                      ? "Get Started Free" 
+                      : isLoggedIn 
+                        ? "Subscribe Now" 
+                        : "Sign Up & Subscribe"
+                    }
+                    <ArrowRight className="w-4 h-4 ml-1" />
+                  </>
                 )}
               </Button>
             </div>
