@@ -53,11 +53,27 @@ export default function SettingsPage() {
     }, [user]);
 
     useEffect(() => {
-        // Check for success parameter from OAuth callback
+        // Check for success/error parameters from OAuth callback or API
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'blogger_connected') {
             // Refresh blogs from Blogger API after successful connection
             fetchBlogs(true);
+            setSaveSuccess("Blogger connected successfully!");
+            setTimeout(() => setSaveSuccess(""), 5000);
+            // Clean up URL
+            window.history.replaceState({}, '', '/dashboard/settings');
+        } else if (urlParams.get('error')) {
+            const errorType = urlParams.get('error');
+            let errorMessage = "Failed to connect Blogger. ";
+            if (errorType === 'missing_credentials') {
+                errorMessage += "Please save your Google OAuth credentials first.";
+            } else if (errorType === 'not_authenticated') {
+                errorMessage += "Please log in again.";
+            } else {
+                errorMessage += "Please try again.";
+            }
+            setSaveError(errorMessage);
+            setTimeout(() => setSaveError(""), 8000);
             // Clean up URL
             window.history.replaceState({}, '', '/dashboard/settings');
         }
@@ -85,6 +101,17 @@ export default function SettingsPage() {
     };
 
     const handleConnectBlogger = async () => {
+        // Clear any previous errors
+        setSaveError("");
+        setSaveSuccess("");
+        
+        // Verify credentials are saved before attempting connection
+        if (!credentialsSaved) {
+            setSaveError("Please save your Google OAuth credentials first.");
+            setTimeout(() => setSaveError(""), 5000);
+            return;
+        }
+        
         // Redirect to dedicated Blogger OAuth endpoint
         window.location.href = "/api/auth/google";
     };
@@ -199,12 +226,16 @@ export default function SettingsPage() {
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 text-sm">
                         <p className="font-semibold text-blue-400 mb-2">📋 How to get your credentials:</p>
                         <ol className="text-xs text-muted-foreground space-y-1 list-decimal list-inside">
-                            <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" className="text-blue-400 hover:underline">Google Cloud Console</a></li>
+                            <li>Go to <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">Google Cloud Console</a></li>
                             <li>Create a new OAuth 2.0 Client ID (Web application)</li>
-                            <li>Add authorized redirect URI: <code className="bg-black/20 px-1 rounded">{typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/google/callback</code></li>
-                            <li>Enable the Blogger API v3 in your project</li>
+                            <li className="break-all">Add authorized redirect URI: <code className="bg-black/20 px-1 rounded text-[10px]">{typeof window !== 'undefined' ? window.location.origin : ''}/api/auth/google/callback</code></li>
+                            <li>Enable the <strong>Blogger API v3</strong> in your project (APIs & Services → Library)</li>
                             <li>Copy your Client ID and Client Secret below</li>
                         </ol>
+                        <p className="text-xs text-yellow-400 mt-3 flex items-start gap-1.5">
+                            <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                            <span>Important: The redirect URI must match exactly, including https:// and the domain</span>
+                        </p>
                     </div>
 
                     <div>
