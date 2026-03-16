@@ -65,7 +65,7 @@ export default function ClusteringPage() {
             <div>
                 <h1 className="text-3xl font-bold tracking-tight">Keyword Clustering</h1>
                 <p className="text-muted-foreground mt-1">
-                    Paste a massive list of raw keywords. The AI will group them into relevant hub-and-spoke topical clusters.
+                    Paste a massive list of raw keywords. They'll be grouped into relevant hub-and-spoke topical clusters.
                 </p>
             </div>
 

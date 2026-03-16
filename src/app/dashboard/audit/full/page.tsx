@@ -834,13 +834,13 @@ export default function AdvancedAuditPage() {
                 </div>
             )}
 
-            {/* ═══ AI Fix Panel (Slide-out) ═══ */}
+            {/* ═══ Smart Fix Panel (Slide-out) ═══ */}
             {selectedIssue && (
                 <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-end">
                     <div className="w-[520px] h-full bg-background p-6 shadow-2xl border-l animate-in slide-in-from-right overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold flex items-center gap-2">
-                                <Wand2 className="w-5 h-5 text-[#FF6600]" /> AI Auto-Fix
+                                <Wand2 className="w-5 h-5 text-[#FF6600]" /> Smart Auto-Fix
                             </h3>
                             <Button variant="ghost" size="icon" onClick={() => setSelectedIssue(null)}>✕</Button>
                         </div>
@@ -888,7 +888,7 @@ export default function AdvancedAuditPage() {
                                     <div className="bg-green-500/10 p-4 rounded-xl border border-green-500/20">
                                         <div className="flex items-center justify-between mb-2">
                                             <p className="text-xs text-green-600 uppercase font-semibold flex items-center gap-1">
-                                                <CheckCircle2 className="w-3 h-3" /> AI SEO Recommendation
+                                                <CheckCircle2 className="w-3 h-3" /> SEO Recommendation
                                             </p>
                                             <span className="text-[10px] text-muted-foreground uppercase">Editable</span>
                                         </div>

@@ -527,7 +527,7 @@ export default function ContentRefreshPage() {
                     <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#FF6600]/20">
                         <div>
                             <h3 className="font-semibold">Ready to create a refresh plan?</h3>
-                            <p className="text-xs text-muted-foreground mt-1">AI will analyze the full content and propose what to add, expand, and rewrite.</p>
+                            <p className="text-xs text-muted-foreground mt-1">We'll analyze the full content and propose what to add, expand, and rewrite.</p>
                         </div>
                         <Button onClick={handleGeneratePlan} disabled={isGeneratingPlan} className="glow-button text-white border-0 shrink-0">
                             {isGeneratingPlan ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}

@@ -17,27 +17,27 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL('https://bloggerseo.ai'),
   title: {
-    default: "BloggerSEO - AI Content Automation for Blogger Platform | Auto-Generate SEO Articles",
+    default: "BloggerSEO - Content Automation for Blogger Platform | Auto-Generate SEO Articles",
     template: "%s | BloggerSEO - Blogger Automation Tool"
   },
   description:
-    "Automate your Blogger content creation with AI. Generate SEO-optimized articles, images, and publish directly to Blogger. Save 10+ hours per week. Perfect for Blogger users who want to scale content production effortlessly.",
+    "Automate your Blogger content creation. Generate SEO-optimized articles, images, and publish directly to Blogger. Save 10+ hours per week. Perfect for Blogger users who want to scale content production effortlessly.",
   keywords: [
     "blogger automation",
-    "blogger ai writer",
+    "blogger content writer",
     "auto post to blogger",
     "blogger content generator",
     "blogger seo tool",
-    "ai blogger automation",
+    "blogger auto post",
     "automatic blogger posting",
     "blogger article generator",
     "blogger autopilot",
     "blogger content automation",
-    "ai content for blogger",
+    "content automation for blogger",
     "blogger seo automation",
     "bulk blogger posts",
     "blogger scheduling tool",
-    "blogger ai assistant"
+    "blogger writing assistant"
   ],
   authors: [{ name: "BloggerSEO Team" }],
   creator: "BloggerSEO",
@@ -52,21 +52,21 @@ export const metadata: Metadata = {
     locale: "en_US",
     url: "https://bloggerseo.ai",
     siteName: "BloggerSEO",
-    title: "BloggerSEO - AI Content Automation for Blogger Platform",
-    description: "Automate your Blogger content with AI. Generate SEO articles, images, and publish automatically. Save 10+ hours/week.",
+    title: "BloggerSEO - Content Automation for Blogger Platform",
+    description: "Automate your Blogger content. Generate SEO articles, images, and publish automatically. Save 10+ hours/week.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "BloggerSEO - AI Blogger Automation Tool",
+        alt: "BloggerSEO - Blogger Automation Tool",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "BloggerSEO - AI Content Automation for Blogger",
-    description: "Automate Blogger content creation with AI. Generate SEO articles & publish automatically.",
+    title: "BloggerSEO - Content Automation for Blogger",
+    description: "Automate Blogger content creation. Generate SEO articles & publish automatically.",
     images: ["/og-image.png"],
     creator: "@bloggerseo",
   },
@@ -106,7 +106,7 @@ export default function RootLayout({
       "priceCurrency": "USD",
       "description": "Free plan available"
     },
-    "description": "AI-powered content automation tool for Blogger platform. Generate SEO-optimized articles and publish automatically.",
+    "description": "Content automation tool for Blogger platform. Generate SEO-optimized articles and publish automatically.",
     "url": "https://bloggerseo.ai",
     "screenshot": "https://bloggerseo.ai/screenshot.png",
     "aggregateRating": {
@@ -115,7 +115,7 @@ export default function RootLayout({
       "ratingCount": "127"
     },
     "featureList": [
-      "AI Article Generation",
+      "Article Generation",
       "SEO Optimization",
       "Auto-Publishing to Blogger",
       "Bulk Content Creation",

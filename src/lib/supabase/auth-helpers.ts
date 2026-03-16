@@ -32,7 +32,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
       id: dbUser.id,
       email: dbUser.email,
       role: dbUser.role,
-      planName: dbUser.plan?.name || "free",
+      planName: dbUser.plan?.name || (dbUser.planId ? "free" : "none"),
       planId: dbUser.planId,
     };
   } catch {

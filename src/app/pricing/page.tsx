@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Sparkles, Check, X, Crown, Zap, Building2, ArrowRight,
+  Sparkles, Check, X, Crown, Zap, Building2, ArrowRight, Loader2,
 } from "lucide-react";
 
 const PLANS = [
@@ -120,6 +122,66 @@ const PLANS = [
 
 export default function PricingPage() {
   const [billing, setBilling] = useState<"monthly" | "yearly">("monthly");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [checkingOut, setCheckingOut] = useState<string | null>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsLoggedIn(!!user);
+    });
+  }, []);
+
+  const handlePlanClick = async (planName: string, price: number) => {
+    if (price === 0) {
+      // Free plan
+      if (isLoggedIn) {
+        // Select free plan and go to dashboard
+        try {
+          await fetch("/api/user/select-plan", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ planName: "free" }),
+          });
+          router.push("/dashboard");
+        } catch {
+          router.push("/dashboard");
+        }
+      } else {
+        router.push("/auth/register");
+      }
+      return;
+    }
+
+    // Paid plan
+    if (!isLoggedIn) {
+      // Register first, then redirect to pricing to complete checkout
+      router.push(`/auth/register?plan=${planName}`);
+      return;
+    }
+
+    // User is logged in — initiate Stripe checkout
+    setCheckingOut(planName);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planName, billing }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("Checkout error:", data.error);
+        alert(data.error || "Failed to start checkout. Please try again.");
+        setCheckingOut(null);
+      }
+    } catch (err) {
+      console.error("Checkout failed:", err);
+      setCheckingOut(null);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -235,18 +297,21 @@ export default function PricingPage() {
                 ))}
               </ul>
 
-              <Link href={plan.price === 0 ? "/auth/register" : "/auth/register"}>
-                <Button
-                  className={`w-full ${plan.popular
-                      ? "glow-button text-white border-0"
-                      : ""
-                    }`}
-                  variant={plan.popular ? "default" : "outline"}
-                >
-                  {plan.price === 0 ? "Get Started Free" : "Start Free Trial"}
-                  <ArrowRight className="w-4 h-4 ml-1" />
-                </Button>
-              </Link>
+              <Button
+                onClick={() => handlePlanClick(plan.name, plan.price)}
+                disabled={checkingOut === plan.name}
+                className={`w-full ${plan.popular
+                    ? "glow-button text-white border-0"
+                    : ""
+                  }`}
+                variant={plan.popular ? "default" : "outline"}
+              >
+                {checkingOut === plan.name ? (
+                  <><Loader2 className="w-4 h-4 mr-1 animate-spin" /> Processing...</>
+                ) : (
+                  <>{plan.price === 0 ? "Get Started Free" : (isLoggedIn ? "Subscribe Now" : "Start Free Trial")}<ArrowRight className="w-4 h-4 ml-1" /></>
+                )}
+              </Button>
             </div>
           ))}
         </div>

@@ -469,7 +469,7 @@ export default function QualityPassPage() {
                     <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#FF6600]/20">
                         <div>
                             <h3 className="font-semibold">Ready to improve this article?</h3>
-                            <p className="text-xs text-muted-foreground mt-1">AI will fix the issues above, improve clarity, specificity, and flow while preserving your content structure.</p>
+                            <p className="text-xs text-muted-foreground mt-1">This will fix the issues above, improve clarity, specificity, and flow while preserving your content structure.</p>
                         </div>
                         <Button onClick={handleRewrite} className="glow-button text-white border-0 shrink-0">
                             <Sparkles className="w-4 h-4 mr-2" /> Run Quality Rewrite

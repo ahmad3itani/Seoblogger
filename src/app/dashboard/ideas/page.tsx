@@ -80,7 +80,7 @@ export default function IdeasPage() {
             <Card className="glass-card border-amber-500/20 shadow-lg shadow-amber-500/5">
                 <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                     <div className="space-y-2 lg:col-span-2">
-                        <Label>Niche / Core Topic (e.g. AI SaaS, Vegan Baking, Ultralight Backpacking)</Label>
+                        <Label>Niche / Core Topic (e.g. Tech SaaS, Vegan Baking, Ultralight Backpacking)</Label>
                         <Input
                             value={niche}
                             onChange={(e) => setNiche(e.target.value)}

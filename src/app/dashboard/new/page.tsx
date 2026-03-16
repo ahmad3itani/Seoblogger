@@ -508,7 +508,7 @@ function NewArticleContent() {
                                         <SelectValue placeholder="Select a voice..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">None (Default AI)</SelectItem>
+                                        <SelectItem value="none">None (Default Style)</SelectItem>
                                         {brandProfiles.map((p) => (
                                             <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                         ))}
@@ -564,7 +564,7 @@ function NewArticleContent() {
                                         Affiliate Links / Products
                                     </Label>
                                     <p className="text-xs text-muted-foreground">
-                                        One per line. The AI will embed them naturally.
+                                        One per line. They'll be embedded naturally in your article.
                                     </p>
                                     <Textarea
                                         placeholder={"https://amazon.com/dp/B08XJG8KVG\nhttps://shareasale.com/r.cfm?b=123\nProduct Name"}
@@ -931,7 +931,7 @@ function NewArticleContent() {
                                 ) : (
                                     <Sparkles className="w-4 h-4 mr-2 text-[#FF6600]" />
                                 )}
-                                Generate Sections with AI
+                                Generate Sections
                             </Button>
                         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/lib/supabase/auth-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -69,10 +70,10 @@ const QUICK_ACTIONS = [
 ];
 
 const TOOL_SHORTCUTS = [
-    { icon: PenTool, title: "Write Article", description: "AI article from keyword", href: "/dashboard/new", color: "from-[#FF6600] to-amber-500" },
+    { icon: PenTool, title: "Write Article", description: "Article from keyword", href: "/dashboard/new", color: "from-[#FF6600] to-amber-500" },
     { icon: Search, title: "Keywords", description: "Research & analyze", href: "/dashboard/keywords", color: "from-blue-500 to-cyan-500" },
     { icon: Activity, title: "Site Audit", description: "50+ SEO checks", href: "/dashboard/audit", color: "from-green-500 to-emerald-500" },
-    { icon: Lightbulb, title: "Trend Ideas", description: "AI topic discovery", href: "/dashboard/ideas", color: "from-amber-500 to-yellow-500" },
+    { icon: Lightbulb, title: "Trend Ideas", description: "Topic discovery", href: "/dashboard/ideas", color: "from-amber-500 to-yellow-500" },
     { icon: ShoppingCart, title: "Amazon Writer", description: "Affiliate reviews", href: "/dashboard/amazon", color: "from-emerald-500 to-teal-500" },
     { icon: LinkIcon, title: "Internal Linker", description: "Smart link suggestions", href: "/dashboard/linker", color: "from-violet-500 to-purple-500" },
     { icon: Network, title: "Clustering", description: "Topic clusters", href: "/dashboard/clustering", color: "from-cyan-500 to-blue-500" },
@@ -80,6 +81,7 @@ const TOOL_SHORTCUTS = [
 ];
 
 export default function DashboardPage() {
+    const { profile } = useAuth();
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -145,7 +147,11 @@ export default function DashboardPage() {
             {/* Welcome */}
             <div>
                 <h1 className="text-2xl font-bold mb-1">
-                    Welcome to <span className="gradient-text">BloggerSEO</span>
+                    {profile?.name ? (
+                        <>Welcome back, <span className="gradient-text">{profile.name.split(" ")[0]}</span></>
+                    ) : (
+                        <>Welcome to <span className="gradient-text">BloggerSEO</span></>
+                    )}
                 </h1>
                 <p className="text-muted-foreground text-sm">
                     Generate, format, and publish SEO-optimized blog posts to Blogger.
@@ -399,7 +405,7 @@ export default function DashboardPage() {
                                     🚀 Getting Started
                                 </h3>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    Follow these 3 steps to publish your first AI-generated article:
+                                    Follow these 3 steps to publish your first article:
                                 </p>
                                 <ol className="space-y-2">
                                     {[

@@ -197,7 +197,7 @@ export default function DashboardLayout({
     // Redirect unauthenticated users
     useEffect(() => {
         if (!loading && !user) {
-            router.push("/auth/login");
+            router.replace("/auth/login");
         }
     }, [loading, user, router]);
 
@@ -217,7 +217,7 @@ export default function DashboardLayout({
         }
     };
 
-    if (loading) {
+    if (loading || !user) {
         return (
             <div className="flex h-screen items-center justify-center bg-white">
                 <div className="flex flex-col items-center gap-3">
@@ -229,7 +229,7 @@ export default function DashboardLayout({
     }
 
     // Plan selection wall — block dashboard until user explicitly chooses a plan
-    if (user && profile && !profile.planSelected) {
+    if (profile && !profile.planSelected) {
         return (
             <div className="flex h-screen items-center justify-center bg-[#F5F5F5]">
                 <div className="max-w-2xl mx-auto px-4 text-center">

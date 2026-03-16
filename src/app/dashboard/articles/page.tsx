@@ -312,7 +312,7 @@ export default function ArticlesPage() {
                         <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
                         <h3 className="font-semibold mb-2">No articles yet</h3>
                         <p className="text-sm text-muted-foreground mb-4">
-                            Create your first AI-generated article to get started.
+                            Create your first article to get started.
                         </p>
                         <Link href="/dashboard/new">
                             <Button className="glow-button text-white border-0">

@@ -262,7 +262,7 @@ export default function AuditPage() {
                                                     <Link href={`/dashboard/refresh?post=${issue.postId}`}>
                                                         <Button variant="outline" size="sm" className="bg-[#FF6600]/10 text-[#FF6600] hover:bg-[#FF6600] border-0 hover:text-white transition-colors w-full sm:w-auto">
                                                             <TrendingUp className="w-4 h-4 mr-2" />
-                                                            Fix with AI
+                                                            Smart Fix
                                                         </Button>
                                                     </Link>
                                                 </div>

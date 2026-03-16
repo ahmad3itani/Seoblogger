@@ -95,7 +95,7 @@ function LoginContent() {
             Sign in to your account to continue
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            ✨ Trusted by <span className="font-semibold text-[#FF6600]">500+ bloggers</span> growing with AI
+            ✨ Trusted by <span className="font-semibold text-[#FF6600]">500+ bloggers</span> growing organically
           </p>
         </div>
 

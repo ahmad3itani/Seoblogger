@@ -144,7 +144,7 @@ export default function BrandVoicePage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Brand Voices</h1>
                     <p className="text-muted-foreground mt-1">
-                        Define distinct writing styles, tones, and instructions for your AI content.
+                        Define distinct writing styles, tones, and instructions for your content.
                     </p>
                 </div>
                 <Button onClick={handleOpenCreate} className="bg-[#FF6600] hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
@@ -164,7 +164,7 @@ export default function BrandVoicePage() {
                     </div>
                     <h3 className="text-lg font-semibold mb-2">No brand voices yet</h3>
                     <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-                        Create a brand voice to ensure your AI-generated articles perfectly match your blog's unique style and guidelines.
+                        Create a brand voice to ensure your generated articles perfectly match your blog's unique style and guidelines.
                     </p>
                     <Button onClick={handleOpenCreate} variant="outline" className="border-[#FF6600]/30 text-violet-300">
                         Create your first Brand Voice
@@ -314,7 +314,7 @@ export default function BrandVoicePage() {
                                 <Sparkles className="w-3.5 h-3.5 text-[#FF6600]" />
                             </Label>
                             <p className="text-[10px] text-muted-foreground">
-                                These exact instructions will be injected into the system prompt for AI generation. Use this to enforce specific formatting, banned words, or exact stylistic guidelines.
+                                These exact instructions will be used during content generation. Use this to enforce specific formatting, banned words, or exact stylistic guidelines.
                             </p>
                             <Textarea
                                 id="instructions"

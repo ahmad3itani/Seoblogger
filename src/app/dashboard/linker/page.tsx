@@ -257,7 +257,7 @@ export default function LinkerPage() {
                         Internal Linking Engine
                     </h1>
                     <p className="text-sm text-muted-foreground max-w-xl">
-                        Scans your entire Blogger site, builds an internal link graph, detects pages needing support, and uses AI to generate natural link insertions.
+                        Scans your entire Blogger site, builds an internal link graph, detects pages needing support, and generates natural link insertions.
                     </p>
                 </div>
                 <Button
@@ -420,7 +420,7 @@ export default function LinkerPage() {
                                     {[
                                         { step: "1", title: "Graph Analysis", desc: "Fetches all posts, parses HTML, maps every internal link between pages" },
                                         { step: "2", title: "Opportunity Detection", desc: "Finds pages with low support, matches relevant source pages by topic overlap" },
-                                        { step: "3", title: "AI Suggestion", desc: "AI picks the best anchor text and minimally rewrites one paragraph to insert the link" },
+                                        { step: "3", title: "Smart Suggestion", desc: "Picks the best anchor text and minimally rewrites one paragraph to insert the link" },
                                         { step: "4", title: "Safe Apply", desc: "Re-fetches latest content, validates the edit, and writes it back via Blogger API" },
                                     ].map((s) => (
                                         <div key={s.step} className="flex gap-2">
@@ -503,7 +503,7 @@ export default function LinkerPage() {
                                                     </div>
                                                 </div>
 
-                                                {/* AI Suggestion */}
+                                                {/* Smart Suggestion */}
                                                 {!opp.suggestion && opp.applyStatus !== "applied" && (
                                                     <Button
                                                         size="sm"
@@ -516,14 +516,14 @@ export default function LinkerPage() {
                                                         ) : (
                                                             <Sparkles className="w-3 h-3 mr-1.5" />
                                                         )}
-                                                        {opp.suggestLoading ? "Generating..." : "Get AI Suggestion"}
+                                                        {opp.suggestLoading ? "Generating..." : "Get Suggestion"}
                                                     </Button>
                                                 )}
 
                                                 {opp.suggestion && (
                                                     <div className="space-y-3">
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-[10px] uppercase font-bold text-[#FF6600]">AI Suggested Edit</p>
+                                                            <p className="text-[10px] uppercase font-bold text-[#FF6600]">Suggested Edit</p>
                                                             <Badge className="bg-[#FF6600]/10 text-[#FF6600] text-[10px]">
                                                                 {Math.round(opp.suggestion.confidence * 100)}% confidence
                                                             </Badge>
@@ -678,7 +678,7 @@ export default function LinkerPage() {
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20">
                             <Sparkles className="w-5 h-5 text-[#FF6600] mb-1" />
-                            <span className="font-medium text-foreground">AI Insert</span>
+                            <span className="font-medium text-foreground">Smart Insert</span>
                             <span>Natural link placement</span>
                         </div>
                     </div>

@@ -9,23 +9,29 @@ export async function POST(req: Request) {
     if (authResult instanceof NextResponse) return authResult;
     const { user: authUser } = authResult;
 
-    const { priceId, planName } = await req.json();
+    const { priceId: rawPriceId, planName, billing } = await req.json();
 
-    if (!priceId || !planName) {
+    if (!planName) {
       return NextResponse.json(
-        { error: "Price ID and plan name are required" },
+        { error: "Plan name is required" },
         { status: 400 }
       );
     }
 
-    // Validate the price ID matches our plans
-    const validPlan = Object.entries(STRIPE_PLANS).find(
-      ([name, config]) => name === planName && config.priceId === priceId
-    );
-
-    if (!validPlan) {
+    // Look up the plan config
+    const planConfig = STRIPE_PLANS[planName as keyof typeof STRIPE_PLANS];
+    if (!planConfig || planConfig.price === 0) {
       return NextResponse.json(
-        { error: "Invalid plan or price ID" },
+        { error: "Invalid plan or free plans don't need checkout" },
+        { status: 400 }
+      );
+    }
+
+    // Use provided priceId or look it up from config
+    const priceId = rawPriceId || planConfig.priceId;
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Stripe price ID not configured for ${planName} plan. Please contact support.` },
         { status: 400 }
       );
     }

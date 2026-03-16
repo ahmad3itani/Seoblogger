@@ -96,7 +96,7 @@ export default function FreeAuditPage() {
                     </Badge>
                     <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6">
                         Audit Your Blogger Site <br/>
-                        <span className="gradient-text">Fix SEO with AI</span>
+                        <span className="gradient-text">Fix SEO Issues Fast</span>
                     </h1>
                     <p className="text-lg text-muted-foreground mb-8">
                         Enter your Blogspot URL below. We'll instantly crawl your site, detect technical SEO errors, and show you exactly what needs fixing.
@@ -165,7 +165,7 @@ export default function FreeAuditPage() {
                                 <Link href="/auth/register">
                                     <Button className="w-full glow-button text-white border-0 shadow-indigo-500/25">
                                         <Wand2 className="w-4 h-4 mr-2" />
-                                        Unlock AI Auto-Fix
+                                        Unlock Smart Auto-Fix
                                     </Button>
                                 </Link>
                             </div>
@@ -200,7 +200,7 @@ export default function FreeAuditPage() {
                                                 {issue.fixable ? (
                                                     <Link href="/auth/register" className="w-full">
                                                         <Button className="w-full bg-[#FF6600]/10 text-[#FF6600] border border-[#FF6600]/20 hover:bg-[#FF6600] hover:text-white transition-all group">
-                                                            <Lock className="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" /> Unlock AI Fix
+                                                            <Lock className="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" /> Unlock Smart Fix
                                                         </Button>
                                                     </Link>
                                                 ) : (

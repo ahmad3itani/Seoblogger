@@ -209,7 +209,7 @@ export default function BulkGeneratePage() {
                                         <SelectValue placeholder="Select a voice..." />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">None (Default AI)</SelectItem>
+                                        <SelectItem value="none">None (Default Style)</SelectItem>
                                         {brandProfiles.map((p) => (
                                             <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                                         ))}
@@ -285,7 +285,7 @@ export default function BulkGeneratePage() {
                                         }`}
                                 >
                                     <Check className={`w-4 h-4 ${includeImages ? "opacity-100" : "opacity-0"}`} />
-                                    Generate AI Images
+                                    Generate Images
                                 </button>
 
                                 <button

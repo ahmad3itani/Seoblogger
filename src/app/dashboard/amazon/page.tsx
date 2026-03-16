@@ -286,12 +286,12 @@ export default function AmazonAffiliatePage() {
                                 className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
                             />
                             <p className="text-[11px] text-muted-foreground mt-1">
-                                Paste an Amazon product URL to write a deep review about that specific product. Leave empty to let AI research products.
+                                Paste an Amazon product URL to write a deep review about that specific product. Leave empty to auto-research products.
                             </p>
                             {productUrl.trim() && (
                                 <div className="mt-2 flex items-center gap-2 text-xs text-[#FF9900] bg-[#FF9900]/5 px-3 py-1.5 rounded-lg border border-[#FF9900]/20">
                                     <Link2 className="w-3 h-3 shrink-0" />
-                                    <span>Deep single-product review mode — AI will analyze this specific product + competitors</span>
+                                    <span>Deep single-product review mode — will analyze this specific product + competitors</span>
                                 </div>
                             )}
                         </div>
@@ -440,7 +440,7 @@ export default function AmazonAffiliatePage() {
                         <div className="space-y-3 text-xs text-muted-foreground">
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">1</span>
-                                <span>AI researches real Amazon products for your niche</span>
+                                <span>Researches real Amazon products for your niche</span>
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">2</span>
@@ -448,7 +448,7 @@ export default function AmazonAffiliatePage() {
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">3</span>
-                                <span>AI creates product images via Cloudflare Workers AI</span>
+                                <span>Creates product images automatically</span>
                             </div>
                             <div className="flex gap-2">
                                 <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">4</span>
@@ -471,7 +471,7 @@ export default function AmazonAffiliatePage() {
                             </div>
                             <h2 className="text-2xl font-bold mb-3">Ready to Generate</h2>
                             <p className="text-muted-foreground max-w-md">
-                                Configure your settings and click generate. The AI will create a complete affiliate article with embedded Amazon links using your store ID.
+                                Configure your settings and click generate. A complete affiliate article will be created with embedded Amazon links using your store ID.
                             </p>
                         </div>
                     )}
@@ -494,7 +494,7 @@ export default function AmazonAffiliatePage() {
                                     "✍️ Writing full article with affiliate links...",
                                     "❓ Generating FAQ section...",
                                     "🔖 Creating meta description...",
-                                    "🖼️ Generating AI product images...",
+                                    "🖼️ Generating product images...",
                                     "🎨 Formatting for Blogger...",
                                 ].map((step, i) => (
                                     <div key={i} className="flex items-center gap-3 text-muted-foreground animate-in fade-in" style={{ animationDelay: `${i * 3}s`, animationFillMode: 'backwards' }}>

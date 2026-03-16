@@ -121,7 +121,7 @@ export default function CampaignsPage() {
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">Auto-Publishing Campaigns</h1>
                     <p className="text-muted-foreground mt-1">
-                        Set up a drip schedule to let the AI write and publish content hands-free.
+                        Set up a drip schedule to automatically write and publish content hands-free.
                     </p>
                 </div>
                 <Button onClick={() => setShowForm(!showForm)} className="bg-[#FF6600] hover:bg-violet-700 text-white">

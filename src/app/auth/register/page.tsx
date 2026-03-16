@@ -1,13 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Sparkles, Mail, Lock, Eye, EyeOff, Chrome, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#FF6600] border-t-transparent rounded-full animate-spin" /></div>}>
+      <RegisterContent />
+    </Suspense>
+  );
+}
+
+function RegisterContent() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,6 +25,8 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const planParam = searchParams.get("plan");
   const supabase = createClient();
 
   const handleRegister = async (e: React.FormEvent) => {
@@ -56,10 +66,13 @@ export default function RegisterPage() {
     setGoogleLoading(true);
     setError("");
 
+    // If a plan was specified, redirect to pricing after auth to complete checkout
+    const redirectAfterAuth = planParam ? `/pricing?plan=${planParam}` : "/dashboard";
+
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectAfterAuth)}`,
         scopes: "openid email profile https://www.googleapis.com/auth/blogger https://www.googleapis.com/auth/webmasters.readonly",
         queryParams: {
           access_type: "offline",
