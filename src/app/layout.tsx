@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -94,39 +95,84 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "BloggerSEO",
-    "applicationCategory": "BusinessApplication",
-    "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD",
-      "description": "Free plan available"
+  const jsonLd = [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "BloggerSEO",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "offers": [
+        {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD",
+          "description": "Free plan - 5 articles/month"
+        },
+        {
+          "@type": "Offer",
+          "price": "19",
+          "priceCurrency": "USD",
+          "description": "Pro plan - Unlimited articles",
+          "priceValidUntil": "2026-12-31"
+        }
+      ],
+      "description": "AI content automation platform for Google Blogger. Generate SEO-optimized articles, images, and auto-publish to Blogger.",
+      "url": "https://bloggerseo.ai",
+      "screenshot": "https://bloggerseo.ai/og-image.png",
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "127",
+        "bestRating": "5"
+      },
+      "featureList": [
+        "AI Article Generation",
+        "SEO Optimization",
+        "Auto-Publishing to Blogger",
+        "Bulk Content Creation",
+        "AI Image Generation",
+        "Content Scheduling",
+        "Keyword Research",
+        "Internal Linking",
+        "Content Refresh",
+        "SEO Site Audit",
+        "Quality Pass Humanizer"
+      ]
     },
-    "description": "Content automation tool for Blogger platform. Generate SEO-optimized articles and publish automatically.",
-    "url": "https://bloggerseo.ai",
-    "screenshot": "https://bloggerseo.ai/screenshot.png",
-    "aggregateRating": {
-      "@type": "AggregateRating",
-      "ratingValue": "4.8",
-      "ratingCount": "127"
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "BloggerSEO",
+      "url": "https://bloggerseo.ai",
+      "logo": "https://bloggerseo.ai/icon.png",
+      "description": "The #1 AI content automation platform built exclusively for Google Blogger users.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@bloggerseo.ai",
+        "contactType": "customer support",
+        "availableLanguage": "English"
+      },
+      "sameAs": []
     },
-    "featureList": [
-      "Article Generation",
-      "SEO Optimization",
-      "Auto-Publishing to Blogger",
-      "Bulk Content Creation",
-      "Image Generation",
-      "Content Scheduling"
-    ]
-  };
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "BloggerSEO",
+      "url": "https://bloggerseo.ai",
+      "description": "AI content automation for Blogger. Generate SEO articles, images, and publish automatically.",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://bloggerseo.ai/dashboard/keywords?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ];
 
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

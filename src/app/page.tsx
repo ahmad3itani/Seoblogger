@@ -623,7 +623,7 @@ export default function LandingPage() {
             <div>
               <h4 className="text-sm font-semibold mb-3">Resources</h4>
               <div className="space-y-2">
-                {[["Pricing", "/pricing"], ["Free SEO Audit", "/free-audit"], ["Templates", "#tools"]].map(([l, h]) => (
+                {[["How It Works", "/how-it-works"], ["Pricing", "/pricing"], ["Free SEO Audit", "/free-audit"], ["About Us", "/about"], ["Contact", "/contact"]].map(([l, h]) => (
                   <a key={l} href={h} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a>
                 ))}
               </div>
@@ -639,10 +639,11 @@ export default function LandingPage() {
           </div>
           <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} BloggerSEO. All rights reserved.</span>
-            <div className="flex items-center gap-4">
-              <a href="#tools" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#pricing" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-              <Link href="/free-audit" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Free Audit</Link>
+            <div className="flex items-center gap-4 flex-wrap justify-center">
+              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
+              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
+              <Link href="/disclaimer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Disclaimer</Link>
+              <Link href="/refund-policy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Refund Policy</Link>
             </div>
           </div>
         </div>
