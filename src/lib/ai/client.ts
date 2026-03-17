@@ -1,13 +1,27 @@
 import OpenAI from "openai";
 import { prisma } from "@/lib/prisma";
 
-// Shared OpenAI client via OpenRouter
-export const openai = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY,
-    defaultHeaders: {
-        "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000",
-        "X-Title": "BloggerSEO",
+// Lazy-initialized OpenAI client via OpenRouter (avoids build-time crash when env vars missing)
+let _openai: OpenAI | null = null;
+
+export function getOpenAIClient(): OpenAI {
+    if (!_openai) {
+        _openai = new OpenAI({
+            baseURL: "https://openrouter.ai/api/v1",
+            apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || "missing-key",
+            defaultHeaders: {
+                "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000",
+                "X-Title": "BloggerSEO",
+            }
+        });
+    }
+    return _openai;
+}
+
+// Backward-compatible export (lazy getter)
+export const openai = new Proxy({} as OpenAI, {
+    get(_target, prop) {
+        return (getOpenAIClient() as any)[prop];
     }
 });
 
