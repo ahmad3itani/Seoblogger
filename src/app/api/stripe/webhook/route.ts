@@ -101,6 +101,14 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     where: { name: planName || "free" },
   });
 
+  // Check if user has existing subscription record (for first-time tracking)
+  const existingSubscription = await prisma.subscription.findUnique({
+    where: { userId },
+  });
+
+  const isFirstSubscription = !existingSubscription;
+  const now = new Date();
+
   // Update user with subscription info
   await prisma.user.update({
     where: { id: userId },
@@ -114,7 +122,33 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     },
   });
 
-  console.log(`✅ User ${userId} subscribed to ${planName}`);
+  // Create or update Subscription record for tracking
+  await prisma.subscription.upsert({
+    where: { userId },
+    create: {
+      userId,
+      planId: plan?.id || "",
+      status: subscription.status,
+      billingCycle: subscription.items.data[0]?.price.recurring?.interval === "year" ? "yearly" : "monthly",
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      stripeCustomerId: session.customer as string,
+      stripeSubscriptionId: subscriptionId,
+      isFirstSubscription: true,
+      firstPaymentAt: now,
+    },
+    update: {
+      planId: plan?.id || "",
+      status: subscription.status,
+      currentPeriodStart: new Date((subscription as any).current_period_start * 1000),
+      currentPeriodEnd: new Date((subscription as any).current_period_end * 1000),
+      stripeSubscriptionId: subscriptionId,
+      // Only update firstPaymentAt if this is truly the first payment
+      ...(isFirstSubscription ? { firstPaymentAt: now, isFirstSubscription: true } : {}),
+    },
+  });
+
+  console.log(`✅ User ${userId} subscribed to ${planName} (First subscription: ${isFirstSubscription})`);
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
@@ -167,7 +201,7 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     where: { name: "free" },
   });
 
-  // Downgrade to free plan
+  // Downgrade user to free plan (retains all data)
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -179,7 +213,17 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
     },
   });
 
-  console.log(`✅ Subscription canceled for user ${user.id}`);
+  // Update Subscription record
+  await prisma.subscription.update({
+    where: { userId: user.id },
+    data: {
+      status: "canceled",
+      canceledAt: new Date(),
+      planId: freePlan?.id || "",
+    },
+  });
+
+  console.log(`✅ Subscription canceled for user ${user.id} - Downgraded to free plan (data retained)`);
 }
 
 async function handleInvoicePaymentSucceeded(invoice: Stripe.Invoice) {

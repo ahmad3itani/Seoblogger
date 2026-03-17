@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/supabase/auth-context";
-import { isFeatureAvailable, FEATURE_GATES } from "@/lib/supabase/plan-gates";
+import { isFeatureAvailable, FEATURE_GATES, getFeatureGate } from "@/lib/supabase/plan-gates";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,8 @@ import {
     Activity,
     Link as LinkIcon,
     ShoppingCart,
+    Zap,
+    Bot,
 } from "lucide-react";
 
 import {
@@ -101,6 +103,13 @@ const NAV_SECTIONS: NavSection[] = [
             { href: "/dashboard/audit/full", label: "Site Audit", icon: Activity, feature: null },
             { href: "/dashboard/refresh", label: "Content Refresh", icon: RefreshCw, feature: "hasContentRefresh", minPlan: "pro" },
             { href: "/dashboard/linker", label: "Internal Linker", icon: LinkIcon, feature: null },
+        ],
+    },
+    {
+        title: "Marketing Agents",
+        items: [
+            { href: "/dashboard/marketing", label: "Marketing Hub", icon: Bot, feature: null },
+            { href: "/dashboard/marketing/quick-audit", label: "Quick Audit", icon: Zap, feature: null },
         ],
     },
     {
@@ -186,10 +195,8 @@ export default function DashboardLayout({
         router.push("/");
     };
 
-    // Check if current route is feature-gated and blocked
-    const currentGate = FEATURE_GATES.find(
-        (g) => pathname === g.route || (g.route !== "/dashboard" && pathname.startsWith(g.route + "/"))
-    );
+    // Check if current route is feature-gated and blocked (uses longest-match logic)
+    const currentGate = getFeatureGate(pathname);
     const isCurrentRouteBlocked = currentGate?.requiredFeature
         ? !isFeatureAvailable(currentPlan, currentGate.requiredFeature)
         : false;

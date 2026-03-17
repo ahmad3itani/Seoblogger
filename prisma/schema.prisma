@@ -51,6 +51,9 @@ model User {
   articles      Article[]
   fixHistory    FixHistory[]
   scanReports   ScanReport[]
+  agentRuns     AgentRun[]
+  articleDrafts ArticleDraft[]
+  styleGuides   WritingStyleGuide[]
   
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -131,9 +134,84 @@ model Subscription {
   // Cancellation
   cancelAtPeriodEnd Boolean  @default(false)
   canceledAt        DateTime?
+  cancelReason      String?
+  
+  // First subscription tracking (for 7-day guarantee)
+  isFirstSubscription Boolean  @default(true)
+  firstPaymentAt      DateTime?
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// ─── REFUND & BILLING DISPUTES ──────────────────────────────────
+model RefundRequest {
+  id                String   @id @default(cuid())
+  userId            String   @db.Uuid
+  userEmail         String
+  
+  // Subscription info
+  stripeSubscriptionId String?
+  stripeCustomerId     String?
+  planName             String
+  amountPaid           Float
+  currency             String  @default("USD")
+  
+  // Request details
+  reason               String  @db.Text
+  requestedAt          DateTime @default(now())
+  
+  // Eligibility check
+  isEligible           Boolean @default(false)
+  eligibilityReason    String? @db.Text
+  withinGuarantee      Boolean @default(false)
+  isFirstSubscriber    Boolean @default(false)
+  daysSincePayment     Int?
+  
+  // Processing
+  status               String  @default("pending") // pending, approved, rejected, processed, failed
+  processedBy          String? @db.Uuid
+  processedAt          DateTime?
+  stripeRefundId       String?
+  
+  // Admin notes
+  adminNotes           String? @db.Text
+  rejectionReason      String? @db.Text
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
+}
+
+model BillingDispute {
+  id                   String   @id @default(cuid())
+  userId               String   @db.Uuid
+  userEmail            String
+  
+  // Dispute details
+  disputeType          String   // unauthorized_charge, incorrect_amount, duplicate_charge, service_not_received, other
+  stripeChargeId       String?
+  stripeInvoiceId      String?
+  amount               Float
+  currency             String   @default("USD")
+  description          String   @db.Text
+  
+  // Resolution
+  status               String   @default("open") // open, investigating, resolved, closed
+  resolution           String?  @db.Text
+  resolvedBy           String?  @db.Uuid
+  resolvedAt           DateTime?
+  
+  // Stripe dispute (if escalated)
+  stripeDisputeId      String?
+  
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+  
+  @@index([userId])
+  @@index([status])
 }
 
 model Usage {
@@ -295,6 +373,115 @@ model Campaign {
   status        String   @default("active")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// ─── ARTICLE WRITER WORKFLOW ─────────────────────────────────
+
+model WritingStyleGuide {
+  id             String   @id @default(cuid())
+  userId         String   @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  name           String
+  description    String?
+
+  // Voice (0-10 sliders)
+  voiceTone      Int      @default(5)  // 0=casual, 10=professional
+  voiceHumor     Int      @default(3)  // 0=serious, 10=playful
+  voiceOpinion   Int      @default(5)  // 0=balanced, 10=opinionated
+  voiceTechnical Int      @default(5)  // 0=less, 10=more
+
+  // Formatting
+  fmtEmojis      Int      @default(0)  // 0-10
+  fmtEmDashes    Int      @default(2)  // 0-10
+  fmtBlockquotes String   @default("occasional") // never, rare, occasional, frequent
+
+  // Structure
+  structOpening     String   @default("direct")      // direct, contextual, narrative, tension (comma-separated for multi)
+  structClosing     String   @default("call_to_action") // summary, call_to_action, open_question, callback, provocation, key_takeaways
+  structVisualBreaks String  @default("moderate")     // minimal, moderate, generous
+  structExamples    String   @default("some")         // none, some, many
+  structExampleTypes String? // lists, tables, diagrams, code_snippets, quotes, case_studies (comma-separated)
+
+  // Context
+  authorRole     String?  // e.g. "SEO Expert", "Tech Blogger"
+  authorKnowledge Int     @default(7)  // 0-10
+  audienceRole   String?  // e.g. "Small business owners"
+  audienceKnowledge Int   @default(3)  // 0-10
+  authorRelationship Int  @default(7)  // 0=peer, 10=expert
+
+  isDefault      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  drafts         ArticleDraft[]
+
+  @@index([userId])
+}
+
+model ArticleDraft {
+  id             String   @id @default(cuid())
+  userId         String   @db.Uuid
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Current phase in the workflow
+  phase          String   @default("ideation") // ideation, research, style, thesis, outline, sections, writing, approval, editor, metadata, export, finished
+
+  // Topic Ideation
+  initialIdea    String?  @db.Text   // Raw user input
+  refinedTopic   String?  @db.Text   // After AI brainstorming
+  exploratoryResearch Json? // { searchesPerformed: [], sourcesReviewed: [], date }
+
+  // Research
+  researchDepth  String   @default("none") // none, light, medium, heavy
+  includeCitations Boolean @default(false)
+  citationStyle  String   @default("footnotes")
+  approvedSources Json?   // Array of { url, title, author, date, domain, required, relevance, excerpt, accessed }
+  citationsUsed  Json?    // Array of { sourceUrl, citationCount, citedInSections[] }
+
+  // Style
+  styleGuideId   String?
+  styleGuide     WritingStyleGuide? @relation(fields: [styleGuideId], references: [id])
+
+  // Title & Thesis
+  title          String?
+  thesis         String?  @db.Text
+
+  // Outline
+  outline        Json?    // Array of { heading, type: opening|closing|null, status: pending|in_progress|complete }
+
+  // Writing
+  writingMode    String?  // section, full
+  sections       Json?    // { "section-slug": "written content with citations [^1]" }
+  draftContent   String?  @db.Text // Working draft markdown
+
+  // Editor Pass
+  editorContent  String?  @db.Text // After editor pass
+  editorSuggestions Json? // { examplesAdded: [], blockquotesAdded: [] }
+
+  // Metadata
+  metaTitle      String?
+  metaDescription String? @db.Text
+  metaKeywords   Json?    // Array of keywords
+
+  // Export
+  filename       String?
+  exportedContent String? @db.Text // Final markdown
+  exportedArticleId String? // Link to Article model after publish
+
+  // Existing article generation settings (kept for compatibility)
+  language       String   @default("en")
+  keyword        String?
+  niche          String?
+  articleType    String   @default("blog-post")
+  wordCount      Int      @default(2000)
+  blogId         String?
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId])
+  @@index([phase])
 }
 
 model BrandProfile {
@@ -635,6 +822,36 @@ model FixHistory {
   verificationNote String?
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
+}
+
+// ─── MARKETING AGENTS ───────────────────────────────────────────
+
+model AgentRun {
+  id            String    @id @default(cuid())
+  userId        String    @db.Uuid
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  agentType     String    // marketing-audit, quick-audit, copywriting, email-sequences, social-calendar, ad-creatives, funnel-analysis, competitor-intel, landing-cro, product-launch, brand-voice, seo-audit, marketing-report
+  status        String    @default("pending") // pending, running, completed, failed
+
+  // Input
+  input         Json?     // { url, topic, keyword, niche, etc. }
+
+  // Output
+  scores        Json?     // { overall, grade, dimensions[] }
+  report        String?   @db.Text // Full markdown report
+  summary       String?   @db.Text // Executive summary
+  metadata      Json?     // { businessType, pagesAnalyzed, model, etc. }
+
+  // Performance
+  durationMs    Int       @default(0)
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([agentType])
+  @@index([createdAt])
 }
 
 // ─── SCAN REPORTS (HISTORY & TRENDS) ─────────────────────────

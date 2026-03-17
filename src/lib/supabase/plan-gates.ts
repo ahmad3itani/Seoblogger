@@ -25,12 +25,34 @@ export const FEATURE_GATES: FeatureGate[] = [
   { route: "/dashboard/calendar", requiredFeature: "hasScheduling", label: "Calendar", minPlan: "starter" },
   { route: "/dashboard/refresh", requiredFeature: "hasContentRefresh", label: "Content Refresh", minPlan: "pro" },
   { route: "/dashboard/quality-pass", requiredFeature: "hasQualityPass", label: "Human Quality Pass", minPlan: "pro" },
+  // Marketing Agents
+  { route: "/dashboard/marketing", requiredFeature: null, label: "Marketing Hub", minPlan: "free" },
+  { route: "/dashboard/marketing/quick-audit", requiredFeature: null, label: "Quick Audit", minPlan: "free" },
+  { route: "/dashboard/marketing/seo-audit", requiredFeature: null, label: "SEO Audit", minPlan: "free" },
+  { route: "/dashboard/marketing/copywriting", requiredFeature: "hasMarketingAgents", label: "Copywriting", minPlan: "starter" },
+  { route: "/dashboard/marketing/email-sequences", requiredFeature: "hasMarketingAgents", label: "Email Sequences", minPlan: "starter" },
+  { route: "/dashboard/marketing/social-calendar", requiredFeature: "hasMarketingAgents", label: "Social Calendar", minPlan: "starter" },
+  { route: "/dashboard/marketing/brand-voice", requiredFeature: "hasMarketingAgents", label: "Brand Analyzer", minPlan: "starter" },
+  { route: "/dashboard/marketing/marketing-audit", requiredFeature: "hasAdvancedAgents", label: "Marketing Audit", minPlan: "pro" },
+  { route: "/dashboard/marketing/ad-creatives", requiredFeature: "hasAdvancedAgents", label: "Ad Creatives", minPlan: "pro" },
+  { route: "/dashboard/marketing/funnel-analysis", requiredFeature: "hasAdvancedAgents", label: "Funnel Analysis", minPlan: "pro" },
+  { route: "/dashboard/marketing/competitor-intel", requiredFeature: "hasAdvancedAgents", label: "Competitor Intel", minPlan: "pro" },
+  { route: "/dashboard/marketing/landing-cro", requiredFeature: "hasAdvancedAgents", label: "Landing CRO", minPlan: "pro" },
+  { route: "/dashboard/marketing/product-launch", requiredFeature: "hasAdvancedAgents", label: "Product Launch", minPlan: "pro" },
+  { route: "/dashboard/marketing/marketing-report", requiredFeature: "hasAdvancedAgents", label: "Marketing Report", minPlan: "pro" },
 ];
 
 export function getFeatureGate(pathname: string): FeatureGate | undefined {
-  return FEATURE_GATES.find(
-    (gate) => pathname === gate.route || pathname.startsWith(gate.route + "/")
-  );
+  // Find the most specific (longest) matching route to avoid parent routes overriding child gates
+  let bestMatch: FeatureGate | undefined;
+  for (const gate of FEATURE_GATES) {
+    if (pathname === gate.route || pathname.startsWith(gate.route + "/")) {
+      if (!bestMatch || gate.route.length > bestMatch.route.length) {
+        bestMatch = gate;
+      }
+    }
+  }
+  return bestMatch;
 }
 
 export function isFeatureAvailable(planName: string | undefined, feature: string | null): boolean {
@@ -43,6 +65,7 @@ export function isFeatureAvailable(planName: string | undefined, feature: string
       "hasScheduling",
       "hasBulkGeneration",
       "hasTrendIdeas",
+      "hasMarketingAgents",
     ],
     pro: [
       "hasAutoPublish",
@@ -57,6 +80,8 @@ export function isFeatureAvailable(planName: string | undefined, feature: string
       "hasAdvancedAI",
       "hasCompetitorAnalysis",
       "hasCustomPrompts",
+      "hasMarketingAgents",
+      "hasAdvancedAgents",
     ],
     enterprise: [
       "hasAutoPublish",
@@ -74,6 +99,8 @@ export function isFeatureAvailable(planName: string | undefined, feature: string
       "hasAdvancedAI",
       "hasCompetitorAnalysis",
       "hasCustomPrompts",
+      "hasMarketingAgents",
+      "hasAdvancedAgents",
     ],
   };
 
