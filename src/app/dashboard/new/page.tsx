@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,18 +33,15 @@ import {
   ChevronUp,
   ChevronDown,
   Search,
-  BookOpen,
   Palette,
   Type,
   Layout,
   CheckCircle2,
   Edit3,
   Tags,
-  Download,
   GripVertical,
   Clock,
   Globe,
-  Sliders,
 } from "lucide-react";
 
 // ─── CONSTANTS ──────────────────────────────────────────────────────
@@ -433,6 +430,12 @@ function ArticleWriterContent() {
     try {
       const data = await api("write-section", { draftId, sectionIndex: idx });
       setDraftContent((prev) => prev + "\n\n" + (data.content || ""));
+      // Update outline status client-side so UI shows section as complete
+      setOutline((prev) => {
+        const updated = [...prev];
+        updated[idx] = { ...updated[idx], status: "complete" };
+        return updated;
+      });
       if (data.allComplete) setPhase("approval");
       else setCurrentWritingSection(idx + 1);
     } catch (e: any) {
@@ -463,8 +466,10 @@ function ArticleWriterContent() {
       if (!skip) {
         setEditorContent(data.editedContent || draftContent);
         setEditorChanges(data.changes || null);
+        // Don't auto-advance — let user review changes first
+      } else {
+        setPhase("metadata");
       }
-      setPhase("metadata");
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -1240,26 +1245,42 @@ function ArticleWriterContent() {
             </div>
 
             {editorChanges && (
-              <div className="rounded-lg bg-green-500/10 border border-green-500/30 p-4 space-y-2">
-                <h3 className="text-sm font-semibold text-green-400">Editor Pass Complete</h3>
-                {editorChanges.aiTellsRemoved?.length > 0 && (
-                  <p className="text-xs">AI patterns removed: {editorChanges.aiTellsRemoved.length}</p>
-                )}
-                {editorChanges.proseTightened?.length > 0 && (
-                  <p className="text-xs">Prose improvements: {editorChanges.proseTightened.length}</p>
-                )}
+              <div className="space-y-4">
+                <div className="rounded-lg bg-green-500/10 border border-green-500/30 p-4 space-y-2">
+                  <h3 className="text-sm font-semibold text-green-400">Editor Pass Complete</h3>
+                  {editorChanges.aiTellsRemoved?.length > 0 && (
+                    <p className="text-xs">AI patterns removed: {editorChanges.aiTellsRemoved.length}</p>
+                  )}
+                  {editorChanges.proseTightened?.length > 0 && (
+                    <p className="text-xs">Prose improvements: {editorChanges.proseTightened.length}</p>
+                  )}
+                  {editorChanges.emphasisAdded?.length > 0 && (
+                    <p className="text-xs">Emphasis additions: {editorChanges.emphasisAdded.length}</p>
+                  )}
+                  {editorChanges.structuralChanges?.length > 0 && (
+                    <p className="text-xs">Structural changes: {editorChanges.structuralChanges.length}</p>
+                  )}
+                </div>
+                <div className="rounded-lg bg-muted/10 border border-border/30 p-4 max-h-[400px] overflow-y-auto text-sm prose prose-invert prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: editorContent }}
+                />
+                <Button onClick={() => setPhase("metadata")} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+                  <ArrowRight className="w-4 h-4 mr-2" /> Continue to Metadata
+                </Button>
               </div>
             )}
 
-            <div className="flex gap-2">
-              <Button onClick={() => handleEditorPass(true)} disabled={loading} variant="outline" className="flex-1">
-                Skip Editor
-              </Button>
-              <Button onClick={() => handleEditorPass(false)} disabled={loading} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
-                {loading ? "Running Editor Pass..." : "Run Editor Pass"}
-              </Button>
-            </div>
+            {!editorChanges && (
+              <div className="flex gap-2">
+                <Button onClick={() => handleEditorPass(true)} disabled={loading} variant="outline" className="flex-1">
+                  Skip Editor
+                </Button>
+                <Button onClick={() => handleEditorPass(false)} disabled={loading} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
+                  {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
+                  {loading ? "Running Editor Pass..." : "Run Editor Pass"}
+                </Button>
+              </div>
+            )}
           </div>
         )}
 

@@ -24,10 +24,9 @@ import {
   executeMetadata,
   confirmMetadata,
   finalizeDraft,
-  dbStyleToSettings,
 } from "@/lib/ai/article-writer";
 import { prisma } from "@/lib/prisma";
-import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
+import { formatForBlogger, countWords } from "@/lib/formatter";
 
 export async function POST(req: Request) {
   try {

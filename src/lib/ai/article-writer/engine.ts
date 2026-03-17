@@ -132,6 +132,12 @@ export async function updateDraft(
   userId: string,
   data: Record<string, any>
 ) {
+  // Verify ownership first to prevent cross-user modification
+  const existing = await prisma.articleDraft.findFirst({
+    where: { id: draftId, userId },
+  });
+  if (!existing) throw new Error("Draft not found or access denied");
+
   return prisma.articleDraft.update({
     where: { id: draftId },
     data: { ...data, updatedAt: new Date() },
