@@ -15,6 +15,8 @@
  */
 
 import { openai, getModelForUser } from "@/lib/ai/client";
+import { SYSTEM_PROMPTS } from "@/lib/ai/prompts";
+import { humanizeArticle } from "@/lib/ai/generate";
 import type { QualityFlag } from "./deterministic";
 
 export interface RewriteInput {
@@ -55,70 +57,103 @@ export async function runQualityRewrite(
 
     const userContextBlock = buildUserContext(input.userContext);
 
-    const systemPrompt = `You are a professional editorial writer. Your job is to improve an existing article draft for clarity, specificity, originality, helpfulness, and natural reading flow.
+    // Use the same high-quality system prompt as article generation
+    const systemPrompt = SYSTEM_PROMPTS.ARTICLE_WRITER;
 
-Critical rules:
-- Output clean HTML suitable for Blogger (no <html>, <head>, <body> tags — just the post content)
-- Do NOT wrap output in markdown code blocks
-- Use H2 for main sections, H3 for subsections
-- Preserve existing images, embeds, and media by keeping their HTML tags intact
-- Do NOT invent personal experience, fake case studies, or made-up statistics
-- Do NOT keyword-stuff or use manipulative SEO phrasing
-- Do NOT add empty filler or generic padding
-- Write helpful, people-first content
-- Maintain the same core topic and factual claims
-- Fix awkward phrasing, repetitive wording, weak transitions, and robotic rhythm
-- Make vague statements more concrete and specific
-- Remove commodity/generic language and add useful angle
-- Ensure the intro answers the reader's likely question quickly
-- Preserve HTML structure, links, and formatting
-- Keep the same language as the original unless told otherwise
-- Every paragraph should deliver value — no throat-clearing
-
-What you must NOT do:
-- Do not add fake expertise or authority
-- Do not add unsupported statistics
-- Do not over-promise or use guarantee language
-- Do not change the factual meaning of any claim
-- Do not remove existing links unless they're clearly broken
-- Do not add "In today's digital landscape" or similar filler`;
-
-    const userPrompt = `Improve this article based on the specific issues identified below.
+    const userPrompt = `ENHANCE AND OPTIMIZE this article to premium SEO standards:
 
 CURRENT TITLE: ${input.articleTitle}
+PRIMARY KEYWORD: ${input.articleTitle.split(' ').slice(0, 3).join(' ')} (extract from title)
 TARGET AUDIENCE: ${input.targetAudience || "general readers"}
 BRAND VOICE: ${input.brandVoice || "clear, practical, trustworthy"}
-LANGUAGE: ${input.language || "same as original"}
+LANGUAGE: ${input.language || "English"}
 
-SPECIFIC IMPROVEMENTS NEEDED:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+QUALITY ISSUES TO FIX
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ${improvements}
 
 ${userContextBlock}
 
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ENHANCEMENT REQUIREMENTS (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. FIX ALL IDENTIFIED ISSUES ABOVE
+
+2. ENHANCE SEO OPTIMIZATION:
+   - Ensure primary keyword appears 10-15 times naturally throughout
+   - Add 3-5 external links to authoritative sources (Wikipedia, .gov, .edu, official sites)
+   - Format: <a href="URL" target="_blank" rel="noopener noreferrer">descriptive anchor text</a>
+   - Strengthen first 100 words with keyword and value proposition
+
+3. IMPROVE CONTENT QUALITY:
+   - Write in FULL, RICH PARAGRAPHS (4-6 sentences, 80-120 words each)
+   - NEVER use bullet points in main content sections (only for lists/steps if specifically needed)
+   - Add specific examples, data, and actionable insights
+   - Use natural, conversational tone with contractions
+   - Vary sentence length dramatically for better readability
+   - Remove all robotic AI patterns ("In today's world", "It's important to note", etc.)
+
+4. MAINTAIN STRUCTURE:
+   - Keep all existing H2/H3 headings unless they're generic
+   - Preserve all HTML formatting, tables, and existing links
+   - Keep images and media intact
+   - Improve heading quality if needed (make them compelling and keyword-optimized)
+
+5. E-E-A-T SIGNALS:
+   - Add authoritative external references
+   - Include specific, verifiable information
+   - Show expertise through detailed explanations
+   - Be honest about limitations where appropriate
+
 CURRENT ARTICLE HTML:
 ${input.articleHtml}
 
-Generate the complete improved article HTML. Also suggest an improved title if the current one is weak or generic.
-
-After the HTML, add a line "---CHANGES---" followed by a brief summary of what you changed and why.`;
+OUTPUT:
+- Return the complete enhanced HTML article body
+- Then add "---CHANGES---" followed by a summary of improvements
+- No markdown wrapping, ready for Blogger
+- Must be comprehensive, valuable, and SEO-optimized`;
 
     let output = "";
     try {
+        // Step 1: Generate enhanced content with full SEO optimization
+        const inputCharCount = input.articleHtml.length;
+        const estimatedTokens = Math.ceil(inputCharCount / 4);
+        const maxTokens = Math.min(estimatedTokens * 3, 16000);
+        
+        console.log(`📝 Quality Pass: Enhancing ${inputCharCount} chars, MaxTokens=${maxTokens}`);
+        
         const response = await openai.chat.completions.create({
             model,
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt },
             ],
-            temperature: 0.6,
-            max_tokens: 8000,
+            temperature: 0.7,
+            max_tokens: maxTokens,
         });
 
-        output = response.choices[0]?.message?.content || "";
+        let rawOutput = response.choices[0]?.message?.content || "";
         
-        if (!output) {
+        if (!rawOutput) {
             throw new Error("AI model returned empty response. Please try again.");
         }
+        
+        // Clean markdown wrapping
+        rawOutput = rawOutput.replace(/^```html?\s*/i, "").replace(/```\s*$/i, "").trim();
+        
+        // Step 2: Run humanizer pass to make it sound natural
+        console.log("🧠 Running humanizer on quality-pass content...");
+        const keyword = input.articleTitle.split(' ').slice(0, 3).join(' ');
+        output = await humanizeArticle(rawOutput, {
+            keyword,
+            articleType: "blog post",
+            tone: input.brandVoice || "professional, conversational",
+            language: input.language,
+        });
+        
     } catch (error: any) {
         console.error("AI rewrite API error:", error);
         throw new Error(
@@ -126,9 +161,6 @@ After the HTML, add a line "---CHANGES---" followed by a brief summary of what y
             "AI rewrite failed. This could be due to rate limits or API issues. Please try again in a moment."
         );
     }
-
-    // Clean markdown wrapping
-    output = output.replace(/^```html?\s*/i, "").replace(/```\s*$/i, "").trim();
 
     // Split HTML and change summary
     let newHtml = output;

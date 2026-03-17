@@ -2,6 +2,8 @@
 // Analyzes and updates existing articles with fresh content
 
 import { openai, getModelForPlan } from "./client";
+import { SYSTEM_PROMPTS } from "./prompts";
+import { humanizeArticle } from "./generate";
 
 export interface RefreshAnalysis {
     needsUpdate: boolean;
@@ -114,40 +116,86 @@ Consider:
 export async function refreshArticleContent(options: RefreshOptions): Promise<RefreshedContent> {
     const currentYear = new Date().getFullYear();
     
-    const prompt = `Update this article to be current and accurate for ${currentYear}:
+    // Use the same high-quality system prompt as article generation
+    const systemPrompt = SYSTEM_PROMPTS.ARTICLE_WRITER;
+    
+    const prompt = `REFRESH AND ENHANCE this existing article to ${currentYear} standards with FULL SEO optimization:
 
 Title: ${options.title}
-Keyword: ${options.keyword}
+Primary Keyword: ${options.keyword}
+Current Year: ${currentYear}
 
-Original Content:
+ORIGINAL CONTENT:
 ${options.content}
 
-Instructions:
-1. Update all date references to ${currentYear}
-2. Replace outdated statistics with current estimates
-3. Add new relevant information and trends
-4. Update product/technology references
-5. Maintain the original structure and tone
-6. Keep all HTML formatting intact
-7. Add new sections if important topics are missing
-8. Update examples to be current
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+REFRESH REQUIREMENTS (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Return ONLY the updated HTML content, no explanations.`;
+1. UPDATE ALL DATES & STATISTICS:
+   - Change all year references to ${currentYear}
+   - Update statistics with current data or estimates
+   - Refresh product/technology references
+   - Add recent developments and trends
+
+2. ENHANCE SEO OPTIMIZATION:
+   - Ensure keyword "${options.keyword}" appears 10-15 times naturally
+   - Add 3-5 external links to authoritative sources (Wikipedia, .gov, .edu, official sites)
+   - Format: <a href="URL" target="_blank" rel="noopener noreferrer">descriptive anchor text</a>
+   - Strengthen meta-relevant content in first 100 words
+
+3. IMPROVE CONTENT QUALITY:
+   - Write in FULL, RICH PARAGRAPHS (4-6 sentences, 80-120 words each)
+   - NEVER use bullet points in main content sections (only for lists/steps if needed)
+   - Add specific examples, data, and actionable insights
+   - Use natural, conversational tone with contractions
+   - Vary sentence length for better readability
+
+4. MAINTAIN STRUCTURE:
+   - Keep all existing H2/H3 headings (update content within sections)
+   - Preserve all HTML formatting, tables, and existing links
+   - Keep the same overall article flow and organization
+   - Add new subsections only if critical topics are missing
+
+5. E-E-A-T SIGNALS:
+   - Add authoritative external references
+   - Include specific, verifiable information
+   - Show expertise through detailed explanations
+   - Be honest about limitations where appropriate
+
+OUTPUT:
+- Return ONLY the complete refreshed HTML article body
+- No markdown, no explanations, no comments
+- Ready to paste into Blogger
+- Must be comprehensive and valuable, not a quick refresh`;
 
     try {
+        // Step 1: Generate refreshed content with full SEO optimization
         const response = await openai.chat.completions.create({
             model: getModelForPlan(),
             messages: [
-                {
-                    role: "system",
-                    content: "You are a content refresh specialist. Update articles with current information while maintaining quality and structure. Return only HTML content."
-                },
+                { role: "system", content: systemPrompt },
                 { role: "user", content: prompt }
             ],
-            temperature: 0.5,
+            temperature: 0.7,
+            max_tokens: 8000,
         });
 
-        const updatedContent = response.choices[0]?.message?.content || options.content;
+        let rawRefreshed = response.choices[0]?.message?.content || options.content;
+        
+        // Clean markdown artifacts
+        rawRefreshed = rawRefreshed
+            .replace(/^```html?\s*/i, "")
+            .replace(/\s*```\s*$/i, "")
+            .trim();
+        
+        // Step 2: Run humanizer pass to make it sound natural
+        console.log("🧠 Running humanizer on refreshed content...");
+        const updatedContent = await humanizeArticle(rawRefreshed, {
+            keyword: options.keyword,
+            articleType: "blog post",
+            tone: "professional, conversational",
+        });
         
         // Analyze changes
         const changes = detectChanges(options.content, updatedContent);
