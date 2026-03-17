@@ -375,11 +375,17 @@ CRITICAL REMINDERS:
 
     const model = getModelForPlan(options.userPlan);
     
-    // Use slightly more tokens than the input to allow for expansion
+    // Calculate tokens generously to ensure complete output
+    // HTML adds significant overhead, so we need more than just word count * 1.5
     const inputWordCount = articleHtml.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w.length > 0).length;
-    const maxTokens = Math.ceil(inputWordCount * 1.5 * 1.5);
+    const inputCharCount = articleHtml.length;
     
-    console.log(`🧠 Humanizer: Processing ${inputWordCount} words, MaxTokens=${maxTokens}, Model=${model}`);
+    // Use character-based estimation for better accuracy with HTML
+    // Average: 4 chars per token, but give 3x buffer for safety
+    const estimatedTokens = Math.ceil(inputCharCount / 4);
+    const maxTokens = Math.min(estimatedTokens * 3, 16000); // Cap at 16k for safety
+    
+    console.log(`🧠 Humanizer: Processing ${inputWordCount} words (${inputCharCount} chars), MaxTokens=${maxTokens}, Model=${model}`);
     
     try {
         const response = await openai.chat.completions.create({
@@ -400,8 +406,16 @@ CRITICAL REMINDERS:
             .replace(/\s*```\s*$/i, "")
             .trim();
         
-        if (!humanized || humanized.length < articleHtml.length * 0.5) {
-            console.warn("⚠️ Humanizer returned insufficient content, using original article");
+        // Check if humanizer completed the article (allow for slight compression)
+        if (!humanized || humanized.length < articleHtml.length * 0.7) {
+            console.warn(`⚠️ Humanizer returned insufficient content (${humanized.length} vs ${articleHtml.length} chars), using original article`);
+            return articleHtml;
+        }
+        
+        // Check if article was truncated (ends abruptly without closing tags)
+        const hasProperEnding = humanized.includes('</div>') || humanized.includes('</p>') || humanized.includes('</h2>');
+        if (!hasProperEnding) {
+            console.warn("⚠️ Humanizer output appears truncated (no closing tags), using original article");
             return articleHtml;
         }
         
