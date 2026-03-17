@@ -149,11 +149,63 @@ export async function POST(req: Request) {
                 // Smart internal linking: find relevant existing posts by keyword similarity (if enabled)
                 if (includeInternalLinks && activeBlogId) {
                     try {
-                        const cachedPosts = await prisma.cachedPost.findMany({
+                        let cachedPosts = await prisma.cachedPost.findMany({
                             where: { blogId: activeBlogId },
                             orderBy: { publishedAt: 'desc' },
                             take: 100
                         });
+
+                        // If no cached posts, try to fetch from Blogger API and cache them
+                        if (cachedPosts.length === 0 && currentUser?.googleAccessToken) {
+                            console.log("🔗 No cached posts found, fetching from Blogger API for internal linking...");
+                            try {
+                                const { getValidAccessToken } = await import("@/lib/google");
+                                const { listPosts } = await import("@/lib/blogger");
+                                const blog = currentUser.blogs?.find((b: any) => b.id === activeBlogId);
+                                if (blog) {
+                                    const accessToken = await getValidAccessToken(currentUser.id);
+                                    const postsData = await listPosts((blog as any).blogId, accessToken, 50);
+                                    const posts = postsData.items || [];
+                                    console.log(`📝 Fetched ${posts.length} posts from Blogger API for caching`);
+                                    
+                                    // Cache them for future use
+                                    for (const post of posts) {
+                                        try {
+                                            await prisma.cachedPost.upsert({
+                                                where: { 
+                                                    blogId_postId: {
+                                                        blogId: activeBlogId,
+                                                        postId: post.id || '',
+                                                    }
+                                                },
+                                                update: {
+                                                    title: post.title,
+                                                    url: post.url || '',
+                                                },
+                                                create: {
+                                                    postId: post.id || '',
+                                                    title: post.title,
+                                                    url: post.url || '',
+                                                    blogId: activeBlogId,
+                                                    publishedAt: post.published ? new Date(post.published) : new Date(),
+                                                },
+                                            });
+                                        } catch (upsertErr) {
+                                            // Skip individual upsert errors
+                                        }
+                                    }
+                                    
+                                    // Re-fetch cached posts
+                                    cachedPosts = await prisma.cachedPost.findMany({
+                                        where: { blogId: activeBlogId },
+                                        orderBy: { publishedAt: 'desc' },
+                                        take: 100
+                                    });
+                                }
+                            } catch (bloggerErr) {
+                                console.error("Failed to fetch posts from Blogger API for interlinking:", bloggerErr);
+                            }
+                        }
 
                         if (cachedPosts.length > 0) {
                             const relevantLinks = findRelevantInternalLinks(
@@ -169,6 +221,8 @@ export async function POST(req: Request) {
                             } else {
                                 console.log(`🔗 Smart interlink: No relevant posts found for "${keyword}"`);
                             }
+                        } else {
+                            console.log("🔗 No posts available for internal linking (new blog or no posts yet)");
                         }
                     } catch (err) {
                         console.error("Failed to fetch cached posts for smart interlinking", err);

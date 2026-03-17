@@ -366,8 +366,8 @@ SEO OPTIMIZATION (CRITICAL)
   * At least 2-3 H2 headings (use outline headings as-is)
   * Conclusion paragraph
   * Naturally within body paragraphs
-- **INTERNAL LINKING**: When mentioning related topics, use descriptive anchor text (not "click here")
-- **EXTERNAL AUTHORITY**: Reference credible sources when making claims (use <a> tags)
+- **INTERNAL LINKING**: When internal links are provided, you MUST include them naturally with descriptive anchor text (not "click here")
+- **EXTERNAL AUTHORITY**: You MUST include 3-5 external links to authoritative sources (Wikipedia, .gov, .edu, official brand sites, Forbes, NYT, etc.) using <a href="URL" target="_blank" rel="noopener noreferrer">descriptive anchor text</a>. Spread them across different sections. This is MANDATORY for SEO credibility.
 
 -------------------------------------
 ENGAGEMENT & READABILITY
