@@ -177,6 +177,8 @@ function ArticleWriterContent() {
   const [niche, setNiche] = useState("");
   const [articleType, setArticleType] = useState("blog-post");
   const [wordCount, setWordCount] = useState("2000");
+  const [includeImages, setIncludeImages] = useState(false);
+  const [numImages, setNumImages] = useState("3");
   const [ideationResult, setIdeationResult] = useState<any>(null);
 
   // Phase 2: Research
@@ -739,6 +741,45 @@ function ArticleWriterContent() {
                     onChange={(e) => setNiche(e.target.value)}
                   />
                 </div>
+              </div>
+
+              {/* Image Generation Options */}
+              <div className="border border-border/50 rounded-lg p-4 bg-muted/20 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-medium">Generate AI Images</Label>
+                    <p className="text-xs text-muted-foreground mt-0.5">Add featured image and inline images to your article</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIncludeImages(!includeImages)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                      includeImages ? 'bg-[#FF6600]' : 'bg-muted-foreground/30'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        includeImages ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
+                </div>
+                {includeImages && (
+                  <div>
+                    <Label className="text-xs">Number of Inline Images</Label>
+                    <Select value={numImages} onValueChange={(v) => v && setNumImages(v)}>
+                      <SelectTrigger className="mt-1 bg-muted/30 border-border/50 h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {["1", "2", "3", "4", "5"].map((n) => (
+                          <SelectItem key={n} value={n}>{n} {n === "1" ? "image" : "images"}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground mt-1.5">1 featured image + {numImages} inline images = {parseInt(numImages) + 1} total</p>
+                  </div>
+                )}
               </div>
             </div>
 
