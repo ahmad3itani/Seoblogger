@@ -1,151 +1,121 @@
 import { NextResponse } from "next/server";
+import { prisma, testDatabaseConnection } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const results: Record<string, any> = {};
+  const results: Record<string, any> = {
+    timestamp: new Date().toISOString(),
+    status: "checking",
+  };
   
-  // Check DATABASE_URL
   const dbUrl = process.env.DATABASE_URL || "";
   const directUrl = process.env.DIRECT_URL || "";
-  
-  // Mask password in URL for safe display
-  const maskUrl = (url: string) => {
+
+  // ─── 1. Check env vars exist ─────────────────────────────
+  results.env = {
+    DATABASE_URL: dbUrl ? "SET" : "MISSING",
+    DIRECT_URL: directUrl ? "SET" : "MISSING",
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "MISSING",
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "SET" : "MISSING",
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID ? "SET" : "MISSING",
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET ? "SET" : "MISSING",
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY ? "SET" : "MISSING",
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ? "SET" : "MISSING",
+  };
+
+  // ─── 2. Parse DATABASE_URL ───────────────────────────────
+  if (dbUrl) {
     try {
-      const parsed = new URL(url);
-      if (parsed.password) {
-        const passLength = parsed.password.length;
-        parsed.password = parsed.password[0] + "*".repeat(passLength - 2) + parsed.password[passLength - 1];
+      const parsed = new URL(dbUrl);
+      results.database_url = {
+        valid: true,
+        host: parsed.hostname,
+        port: parsed.port || "5432",
+        username: parsed.username,
+        passwordLength: parsed.password.length,
+        database: parsed.pathname.replace("/", ""),
+        hasPooler: dbUrl.includes("pgbouncer=true") || dbUrl.includes("pooler"),
+        isSupabase: parsed.hostname.includes("supabase.com"),
+      };
+
+      // Supabase-specific check: username must be "postgres.PROJECT_REF"
+      if (parsed.hostname.includes("pooler.supabase.com") && !parsed.username.includes(".")) {
+        results.database_url.WARNING = "Username should be 'postgres.PROJECT_REF' for Supabase pooler. Your username is just '" + parsed.username + "'. Get the correct URL from: Supabase Dashboard → Settings → Database → Connection string (URI, Transaction mode).";
       }
-      return parsed.toString();
-    } catch {
-      return url ? "INVALID_URL_FORMAT: " + url.substring(0, 30) + "..." : "NOT_SET";
+    } catch (e: any) {
+      results.database_url = {
+        valid: false,
+        error: "DATABASE_URL is not a valid URL: " + e.message,
+        fix: "Go to Supabase Dashboard → Settings → Database → Connection string and copy the Transaction mode URI.",
+      };
     }
-  };
-
-  results.DATABASE_URL = {
-    exists: !!dbUrl,
-    masked: maskUrl(dbUrl),
-    length: dbUrl.length,
-    startsWithPostgresql: dbUrl.startsWith("postgresql://") || dbUrl.startsWith("postgres://"),
-    containsBrackets: dbUrl.includes("[") || dbUrl.includes("]"),
-    host: (() => {
-      try { return new URL(dbUrl).hostname; } catch { return "PARSE_ERROR"; }
-    })(),
-    port: (() => {
-      try { return new URL(dbUrl).port; } catch { return "PARSE_ERROR"; }
-    })(),
-    username: (() => {
-      try { return new URL(dbUrl).username; } catch { return "PARSE_ERROR"; }
-    })(),
-    passwordLength: (() => {
-      try { return new URL(dbUrl).password.length; } catch { return 0; }
-    })(),
-    hasQueryParams: dbUrl.includes("?"),
-  };
-
-  results.DIRECT_URL = {
-    exists: !!directUrl,
-    masked: maskUrl(directUrl),
-    length: directUrl.length,
-  };
-
-  // Check other critical env vars
-  results.GOOGLE_CLIENT_ID = {
-    exists: !!process.env.GOOGLE_CLIENT_ID,
-    length: process.env.GOOGLE_CLIENT_ID?.length || 0,
-    preview: process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.substring(0, 20) + "..." : "NOT_SET",
-  };
-  
-  results.GOOGLE_CLIENT_SECRET = {
-    exists: !!process.env.GOOGLE_CLIENT_SECRET,
-    length: process.env.GOOGLE_CLIENT_SECRET?.length || 0,
-  };
-
-  // Check password for special characters that need URL encoding
-  try {
-    const parsedUrl = new URL(dbUrl);
-    const rawPassword = parsedUrl.password;
-    const decodedPassword = decodeURIComponent(rawPassword);
-    const needsEncoding = /[^A-Za-z0-9\-._~]/.test(decodedPassword);
-    const specialChars = decodedPassword.split('').filter(c => /[^A-Za-z0-9]/.test(c));
-    
-    results.password_analysis = {
-      rawLength: rawPassword.length,
-      decodedLength: decodedPassword.length,
-      needsUrlEncoding: needsEncoding,
-      specialCharacters: specialChars,
-      isUrlEncoded: rawPassword !== decodedPassword,
-      firstChar: decodedPassword[0],
-      lastChar: decodedPassword[decodedPassword.length - 1],
-      hasSpaces: decodedPassword.includes(' '),
-      hasAtSign: decodedPassword.includes('@'),
-      hasHash: decodedPassword.includes('#'),
-    };
-  } catch (e: any) {
-    results.password_analysis = { error: e.message };
   }
 
-  // Try connecting to database with current URL
-  try {
-    const { prisma } = await import("@/lib/prisma");
-    const userCount = await prisma.user.count();
-    results.database_connection = {
-      status: "SUCCESS",
-      userCount,
-    };
-  } catch (error: any) {
-    results.database_connection = {
+  // ─── 3. Test actual database connection ──────────────────
+  const dbError = await testDatabaseConnection();
+  if (dbError) {
+    results.connection = {
       status: "FAILED",
-      error: error.message,
-      errorCode: error.code,
-      errorName: error.name,
+      error: dbError,
     };
-  }
 
-  // Try connecting with manually URL-encoded password
-  try {
-    const parsedUrl = new URL(dbUrl);
-    const rawPassword = decodeURIComponent(parsedUrl.password);
-    const encodedPassword = encodeURIComponent(rawPassword);
-    
-    // Reconstruct URL with properly encoded password
-    const fixedUrl = dbUrl.replace(
-      `:${parsedUrl.password}@`,
-      `:${encodedPassword}@`
-    );
-    
-    const isAlreadyCorrect = fixedUrl === dbUrl;
-    results.url_encoding_fix = {
-      passwordWasAlreadyEncoded: isAlreadyCorrect,
-      wouldChangeUrl: !isAlreadyCorrect,
-    };
-    
-    if (!isAlreadyCorrect) {
-      // Try connecting with the fixed URL
-      const { PrismaClient } = await import("@prisma/client");
-      const testPrisma = new PrismaClient({
-        datasources: { db: { url: fixedUrl } },
-      });
-      try {
-        const count = await testPrisma.user.count();
-        results.fixed_url_connection = {
-          status: "SUCCESS",
-          userCount: count,
-          message: "URL encoding was the issue! The password needs to be URL-encoded.",
-        };
-      } catch (err: any) {
-        results.fixed_url_connection = {
-          status: "ALSO_FAILED",
-          error: err.message,
-        };
-      } finally {
-        await testPrisma.$disconnect();
-      }
+    // Provide specific fix guidance based on error
+    if (dbError.includes("Tenant or user not found")) {
+      results.connection.diagnosis = "The DATABASE_URL has the wrong project reference or credentials.";
+      results.connection.fix = [
+        "1. Go to Supabase Dashboard → Settings → Database",
+        "2. Scroll to 'Connection string' section",
+        "3. Select 'URI' tab and 'Transaction' mode",
+        "4. Copy the full connection string",
+        "5. Paste it as DATABASE_URL in Vercel → Settings → Environment Variables",
+        "6. Also copy 'Session' mode URI as DIRECT_URL",
+        "7. Redeploy the application",
+      ];
+    } else if (dbError.includes("password authentication failed")) {
+      results.connection.diagnosis = "Wrong password in DATABASE_URL.";
+      results.connection.fix = [
+        "1. Go to Supabase Dashboard → Settings → Database",
+        "2. Reset the database password if needed",
+        "3. Copy the fresh connection string",
+        "4. Update DATABASE_URL and DIRECT_URL in Vercel",
+      ];
+    } else if (dbError.includes("ENOTFOUND") || dbError.includes("ECONNREFUSED")) {
+      results.connection.diagnosis = "Cannot reach the database server. Host or port is wrong.";
+      results.connection.fix = [
+        "1. Verify DATABASE_URL host matches your Supabase project",
+        "2. Use port 6543 for pooled (Transaction) mode",
+        "3. Use port 5432 for direct (Session) mode",
+      ];
     }
-  } catch (e: any) {
-    results.url_encoding_fix = { error: e.message };
+
+    results.status = "FAILED";
+  } else {
+    results.connection = { status: "SUCCESS" };
+
+    // ─── 4. Check data integrity ────────────────────────────
+    try {
+      const userCount = await prisma.user.count();
+      const planCount = await prisma.plan.count();
+      const blogCount = await prisma.blog.count();
+
+      results.data = {
+        users: userCount,
+        plans: planCount,
+        blogs: blogCount,
+      };
+
+      if (planCount === 0) {
+        results.data.WARNING = "No plans in database! Run: npx prisma db seed";
+      }
+    } catch (e: any) {
+      results.data = { error: e.message };
+    }
+
+    results.status = "OK";
   }
 
-  return NextResponse.json(results, { status: 200 });
+  return NextResponse.json(results, {
+    status: results.status === "OK" ? 200 : 500,
+  });
 }

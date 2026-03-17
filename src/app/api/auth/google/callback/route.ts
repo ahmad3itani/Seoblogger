@@ -75,14 +75,41 @@ export async function GET(request: Request) {
 
     // Save tokens to database
     console.log("💾 Saving tokens to database for user:", userId);
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        googleAccessToken: tokens.access_token,
-        googleRefreshToken: tokens.refresh_token || undefined,
-        googleTokenExpiry: expiryDate,
-      },
-    });
+    try {
+      // First check if user exists in database
+      const existingUser = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+
+      if (existingUser) {
+        await prisma.user.update({
+          where: { id: userId },
+          data: {
+            googleAccessToken: tokens.access_token,
+            googleRefreshToken: tokens.refresh_token || undefined,
+            googleTokenExpiry: expiryDate,
+          },
+        });
+      } else {
+        // User not in our DB yet — create them with tokens
+        console.log("⚠️ User not found in database, creating with tokens...");
+        await prisma.user.create({
+          data: {
+            id: userId,
+            email: "", // Will be updated on next sync
+            googleAccessToken: tokens.access_token,
+            googleRefreshToken: tokens.refresh_token || undefined,
+            googleTokenExpiry: expiryDate,
+          },
+        });
+      }
+    } catch (dbError: any) {
+      console.error("❌ Database error saving tokens:", dbError.message);
+      if (dbError.message?.includes("Tenant or user not found") || dbError.message?.includes("FATAL")) {
+        return NextResponse.redirect(`${origin}/dashboard/settings?error=callback_failed&msg=${encodeURIComponent("Database connection failed. Check DATABASE_URL in Vercel environment variables. Error: " + dbError.message)}`);
+      }
+      throw dbError;
+    }
 
     console.log("✅ Blogger tokens saved successfully to database");
     console.log("🔄 Redirecting to settings with success message");

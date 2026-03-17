@@ -69,6 +69,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ profile });
   } catch (error: any) {
     console.error("❌ User sync error:", error.message, error.stack);
+    
+    // Provide actionable error for DB connection issues
+    if (error.message?.includes("Tenant or user not found") || error.message?.includes("FATAL")) {
+      return NextResponse.json(
+        { 
+          error: "Database connection failed", 
+          details: "DATABASE_URL is misconfigured. Visit /api/debug/db-check for diagnostics.",
+          dbError: error.message,
+        },
+        { status: 503 }
+      );
+    }
+    
     return NextResponse.json(
       { error: "Failed to sync user", details: error.message },
       { status: 500 }
