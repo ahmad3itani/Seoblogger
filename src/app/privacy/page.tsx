@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Privacy Policy - BloggerSEO",
     description: "How BloggerSEO collects, uses, and protects your personal data.",
-    url: "https://bloggerseo.ai/privacy",
+    url: "https://bloggerseowriting.com/privacy",
   },
-  alternates: { canonical: "https://bloggerseo.ai/privacy" },
+  alternates: { canonical: "https://bloggerseowriting.com/privacy" },
 };
 
 export default function PrivacyPage() {

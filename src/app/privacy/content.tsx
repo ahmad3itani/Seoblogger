@@ -6,7 +6,7 @@ export default function PrivacyContent() {
   return (
     <LegalPageLayout title="Privacy Policy" lastUpdated="March 17, 2026">
       <p>
-        At BloggerSEO (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website at <strong>bloggerseo.ai</strong> and use our services.
+        At BloggerSEO (&quot;we,&quot; &quot;us,&quot; or &quot;our&quot;), we take your privacy seriously. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website at <strong>bloggerseowriting.com</strong> and use our services.
       </p>
 
       <h2>1. Information We Collect</h2>
@@ -83,7 +83,7 @@ export default function PrivacyContent() {
         <li>Lodge a complaint with a supervisory authority</li>
       </ul>
       <p>
-        To exercise any of these rights, contact us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a>.
+        To exercise any of these rights, contact us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a>.
       </p>
 
       <h2>7. Data Retention</h2>
@@ -111,8 +111,8 @@ export default function PrivacyContent() {
         If you have questions about this Privacy Policy or our data practices, contact us at:
       </p>
       <ul>
-        <li><strong>Email:</strong> <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a></li>
-        <li><strong>Website:</strong> <a href="https://bloggerseo.ai">bloggerseo.ai</a></li>
+        <li><strong>Email:</strong> <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a></li>
+        <li><strong>Website:</strong> <a href="https://bloggerseowriting.com">bloggerseowriting.com</a></li>
       </ul>
     </LegalPageLayout>
   );

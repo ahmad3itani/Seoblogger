@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bloggerseo.ai'),
+  metadataBase: new URL('https://bloggerseowriting.com'),
   title: {
     default: "BloggerSEO - Content Automation for Blogger Platform | Auto-Generate SEO Articles",
     template: "%s | BloggerSEO - Blogger Automation Tool"
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://bloggerseo.ai",
+    url: "https://bloggerseowriting.com",
     siteName: "BloggerSEO",
     title: "BloggerSEO - Content Automation for Blogger Platform",
     description: "Automate your Blogger content. Generate SEO articles, images, and publish automatically. Save 10+ hours/week.",
@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     google: "your-google-verification-code",
   },
   alternates: {
-    canonical: "https://bloggerseo.ai",
+    canonical: "https://bloggerseowriting.com",
   },
 };
 
@@ -118,8 +118,8 @@ export default function RootLayout({
         }
       ],
       "description": "AI content automation platform for Google Blogger. Generate SEO-optimized articles, images, and auto-publish to Blogger.",
-      "url": "https://bloggerseo.ai",
-      "screenshot": "https://bloggerseo.ai/og-image.png",
+      "url": "https://bloggerseowriting.com",
+      "screenshot": "https://bloggerseowriting.com/og-image.png",
       "aggregateRating": {
         "@type": "AggregateRating",
         "ratingValue": "4.8",
@@ -144,12 +144,12 @@ export default function RootLayout({
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "BloggerSEO",
-      "url": "https://bloggerseo.ai",
-      "logo": "https://bloggerseo.ai/icon.png",
+      "url": "https://bloggerseowriting.com",
+      "logo": "https://bloggerseowriting.com/icon.png",
       "description": "The #1 AI content automation platform built exclusively for Google Blogger users.",
       "contactPoint": {
         "@type": "ContactPoint",
-        "email": "support@bloggerseo.ai",
+        "email": "support@bloggerseowriting.com",
         "contactType": "customer support",
         "availableLanguage": "English"
       },
@@ -159,11 +159,11 @@ export default function RootLayout({
       "@context": "https://schema.org",
       "@type": "WebSite",
       "name": "BloggerSEO",
-      "url": "https://bloggerseo.ai",
+      "url": "https://bloggerseowriting.com",
       "description": "AI content automation for Blogger. Generate SEO articles, images, and publish automatically.",
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://bloggerseo.ai/dashboard/keywords?q={search_term_string}",
+        "target": "https://bloggerseowriting.com/dashboard/keywords?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
     }

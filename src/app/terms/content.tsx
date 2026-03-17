@@ -106,7 +106,7 @@ export default function TermsContent() {
 
       <h2>14. Contact</h2>
       <p>
-        For questions about these Terms, contact us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a>.
+        For questions about these Terms, contact us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a>.
       </p>
     </LegalPageLayout>
   );

@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Terms of Service - BloggerSEO",
     description: "Terms and conditions for using BloggerSEO.",
-    url: "https://bloggerseo.ai/terms",
+    url: "https://bloggerseowriting.com/terms",
   },
-  alternates: { canonical: "https://bloggerseo.ai/terms" },
+  alternates: { canonical: "https://bloggerseowriting.com/terms" },
 };
 
 export default function TermsPage() {

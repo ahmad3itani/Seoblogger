@@ -45,7 +45,7 @@ export default function RefundContent() {
 
       <h3>3.3 How to Request a Refund</h3>
       <p>
-        To request a refund, email us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a> with your account email and the reason for your refund request. We will process eligible refunds within 5-10 business days.
+        To request a refund, email us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a> with your account email and the reason for your refund request. We will process eligible refunds within 5-10 business days.
       </p>
 
       <h3>3.4 Non-Refundable Situations</h3>
@@ -70,7 +70,7 @@ export default function RefundContent() {
 
       <h2>5. Billing Disputes</h2>
       <p>
-        If you notice an unauthorized or incorrect charge, please contact us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a> within 30 days. We will investigate and resolve the issue promptly. We ask that you contact us before initiating a chargeback with your bank, as we can usually resolve issues faster directly.
+        If you notice an unauthorized or incorrect charge, please contact us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a> within 30 days. We will investigate and resolve the issue promptly. We ask that you contact us before initiating a chargeback with your bank, as we can usually resolve issues faster directly.
       </p>
 
       <h2>6. Changes to This Policy</h2>
@@ -80,7 +80,7 @@ export default function RefundContent() {
 
       <h2>7. Contact</h2>
       <p>
-        For any billing, cancellation, or refund questions, contact us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a>.
+        For any billing, cancellation, or refund questions, contact us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a>.
       </p>
     </LegalPageLayout>
   );

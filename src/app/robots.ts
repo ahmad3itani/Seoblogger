@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/dashboard/', '/auth/'],
       },
     ],
-    sitemap: 'https://bloggerseo.ai/sitemap.xml',
+    sitemap: 'https://bloggerseowriting.com/sitemap.xml',
   }
 }

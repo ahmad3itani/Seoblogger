@@ -14,9 +14,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact BloggerSEO - Get Help & Support",
     description: "Reach out to the BloggerSEO team for support, feedback, or inquiries.",
-    url: "https://bloggerseo.ai/contact",
+    url: "https://bloggerseowriting.com/contact",
   },
-  alternates: { canonical: "https://bloggerseo.ai/contact" },
+  alternates: { canonical: "https://bloggerseowriting.com/contact" },
 };
 
 export default function ContactPage() {

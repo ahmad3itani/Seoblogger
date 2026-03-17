@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "How BloggerSEO Works - AI Content Automation for Blogger",
     description: "Generate SEO-optimized articles and auto-publish to Blogger in 3 simple steps.",
-    url: "https://bloggerseo.ai/how-it-works",
+    url: "https://bloggerseowriting.com/how-it-works",
   },
-  alternates: { canonical: "https://bloggerseo.ai/how-it-works" },
+  alternates: { canonical: "https://bloggerseowriting.com/how-it-works" },
 };
 
 export default function HowItWorksPage() {

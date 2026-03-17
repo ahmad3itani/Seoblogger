@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Refund & Cancellation Policy - BloggerSEO",
     description: "Subscription cancellation and refund information for BloggerSEO.",
-    url: "https://bloggerseo.ai/refund-policy",
+    url: "https://bloggerseowriting.com/refund-policy",
   },
-  alternates: { canonical: "https://bloggerseo.ai/refund-policy" },
+  alternates: { canonical: "https://bloggerseowriting.com/refund-policy" },
 };
 
 export default function RefundPage() {

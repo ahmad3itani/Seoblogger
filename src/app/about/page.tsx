@@ -15,9 +15,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About BloggerSEO - AI Content Automation for Blogger",
     description: "The most powerful content automation platform built exclusively for Blogger users.",
-    url: "https://bloggerseo.ai/about",
+    url: "https://bloggerseowriting.com/about",
   },
-  alternates: { canonical: "https://bloggerseo.ai/about" },
+  alternates: { canonical: "https://bloggerseowriting.com/about" },
 };
 
 export default function AboutPage() {

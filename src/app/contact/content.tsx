@@ -9,24 +9,24 @@ const contactMethods = [
     icon: Mail,
     title: "Email Support",
     description: "For general questions, account issues, or feature requests.",
-    action: "support@bloggerseo.ai",
-    href: "mailto:support@bloggerseo.ai",
+    action: "support@bloggerseowriting.com",
+    href: "mailto:support@bloggerseowriting.com",
     buttonText: "Send Email",
   },
   {
     icon: Bug,
     title: "Report a Bug",
     description: "Found something not working? Let us know so we can fix it quickly.",
-    action: "bugs@bloggerseo.ai",
-    href: "mailto:bugs@bloggerseo.ai",
+    action: "bugs@bloggerseowriting.com",
+    href: "mailto:bugs@bloggerseowriting.com",
     buttonText: "Report Bug",
   },
   {
     icon: Briefcase,
     title: "Business Inquiries",
     description: "For partnerships, enterprise plans, or press inquiries.",
-    action: "business@bloggerseo.ai",
-    href: "mailto:business@bloggerseo.ai",
+    action: "business@bloggerseowriting.com",
+    href: "mailto:business@bloggerseowriting.com",
     buttonText: "Get in Touch",
   },
 ];
@@ -34,7 +34,7 @@ const contactMethods = [
 const faqs = [
   { q: "How fast do you respond to support emails?", a: "We typically respond within 24 hours on business days. Urgent issues are prioritized." },
   { q: "Do you offer live chat support?", a: "Currently we provide email support. We're working on adding live chat for Pro and Enterprise users." },
-  { q: "Can I request a feature?", a: "Absolutely! Send your feature request to support@bloggerseo.ai. We review every suggestion and prioritize based on user demand." },
+  { q: "Can I request a feature?", a: "Absolutely! Send your feature request to support@bloggerseowriting.com. We review every suggestion and prioritize based on user demand." },
   { q: "How do I cancel my subscription?", a: "You can cancel anytime from your Dashboard → Settings. See our Refund Policy for details." },
 ];
 

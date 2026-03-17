@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Disclaimer - BloggerSEO",
     description: "Important disclaimers about using BloggerSEO's AI content automation platform.",
-    url: "https://bloggerseo.ai/disclaimer",
+    url: "https://bloggerseowriting.com/disclaimer",
   },
-  alternates: { canonical: "https://bloggerseo.ai/disclaimer" },
+  alternates: { canonical: "https://bloggerseowriting.com/disclaimer" },
 };
 
 export default function DisclaimerPage() {

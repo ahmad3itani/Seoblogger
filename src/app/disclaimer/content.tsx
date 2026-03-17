@@ -70,7 +70,7 @@ export default function DisclaimerContent() {
 
       <h2>11. Contact</h2>
       <p>
-        If you have questions about this Disclaimer, contact us at <a href="mailto:support@bloggerseo.ai">support@bloggerseo.ai</a>.
+        If you have questions about this Disclaimer, contact us at <a href="mailto:support@bloggerseowriting.com">support@bloggerseowriting.com</a>.
       </p>
     </LegalPageLayout>
   );
