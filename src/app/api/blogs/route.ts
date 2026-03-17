@@ -23,9 +23,17 @@ export async function GET(req: Request) {
             return NextResponse.json({ error: "User not found" }, { status: 404 });
         }
 
-        // Only call Blogger API when explicitly requested (e.g. after connecting or clicking refresh)
-        if (refresh) {
-            console.log("🔄 Refreshing blogs from Blogger API for user:", user.email);
+        // Check if we have cached blogs
+        const cachedBlogs = await prisma.blog.findMany({
+            where: { userId: user.id },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        // Auto-refresh if: explicitly requested OR (user has Google token AND no cached blogs)
+        const shouldRefresh = refresh || (user.googleAccessToken && cachedBlogs.length === 0);
+
+        if (shouldRefresh && user.googleAccessToken) {
+            console.log("🔄 Refreshing blogs from Blogger API for user:", user.email, "(refresh="+refresh+", cached="+cachedBlogs.length+")");
             try {
                 const accessToken = await getValidAccessToken(user.id);
                 console.log("✅ Got valid access token");
@@ -35,39 +43,43 @@ export async function GET(req: Request) {
                 
                 if (blogs.length === 0) {
                     console.log("⚠️ No blogs found on Blogger account. User needs to create a blog at blogger.com");
-                }
-
-                for (const blog of blogs) {
-                    console.log("  - Saving blog:", blog.name, "("+blog.id+")");
-                    await prisma.blog.upsert({
-                        where: { blogId: blog.id },
-                        update: {
-                            name: blog.name,
-                            url: blog.url,
-                            description: blog.description || null,
-                        },
-                        create: {
-                            blogId: blog.id,
-                            name: blog.name,
-                            url: blog.url,
-                            description: blog.description || null,
-                            userId: user.id,
-                        },
-                    });
+                } else {
+                    for (const blog of blogs) {
+                        console.log("  - Saving blog:", blog.name, "("+blog.id+") for userId:", user.id);
+                        await prisma.blog.upsert({
+                            where: { blogId: blog.id },
+                            update: {
+                                name: blog.name,
+                                url: blog.url,
+                                description: blog.description || null,
+                                userId: user.id, // Ensure userId is set on update too
+                            },
+                            create: {
+                                blogId: blog.id,
+                                name: blog.name,
+                                url: blog.url,
+                                description: blog.description || null,
+                                userId: user.id,
+                            },
+                        });
+                    }
+                    console.log("✅ Successfully saved", blogs.length, "blogs to database");
                 }
             } catch (error: any) {
-                console.error("❌ Error fetching blogs from Blogger API:", error.message);
+                console.error("❌ Error fetching blogs from Blogger API:", error.message, error.stack);
                 if (error.message === "NEEDS_RECONNECT") {
                     return NextResponse.json({ error: "Session expired. Please reconnect Google Account." }, { status: 401 });
                 }
                 // Don't fail the whole request if Blogger API is down - just return cached blogs
                 console.error("Blogger API sync error (returning cached):", error.message);
             }
+        } else if (!user.googleAccessToken) {
+            console.log("⚠️ No Google token - cannot refresh blogs");
         } else {
-            console.log("📋 Returning cached blogs (refresh=false)");
+            console.log("📋 Returning cached blogs (refresh=false, cached="+cachedBlogs.length+")");
         }
 
-        // Always return blogs from database (fast)
+        // Re-fetch blogs from database after potential refresh
         const userBlogs = await prisma.blog.findMany({
             where: { userId: user.id },
             orderBy: { createdAt: 'desc' }

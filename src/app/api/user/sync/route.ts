@@ -12,6 +12,7 @@ export async function POST(request: Request) {
     }
 
     console.log("🔄 Syncing user:", user.email);
+    console.log("📋 User metadata:", JSON.stringify(user.user_metadata));
 
     // Parse optional body (Google tokens from OAuth callback)
     let googleAccessToken: string | undefined;
@@ -24,6 +25,12 @@ export async function POST(request: Request) {
       // No body is fine
     }
 
+    // Extract name from metadata or email
+    const metadataName = user.user_metadata?.full_name || user.user_metadata?.name;
+    const fallbackName = metadataName || (user.email ? user.email.split('@')[0] : null);
+    
+    console.log("👤 Name resolution: metadata=", metadataName, "fallback=", fallbackName);
+
     // Upsert user profile in our database
     // NOTE: New users are created WITHOUT a plan (planId: null).
     // They must explicitly choose a plan (even Free) before accessing the dashboard.
@@ -31,8 +38,8 @@ export async function POST(request: Request) {
       where: { id: user.id },
       update: {
         email: user.email || "",
-        name: user.user_metadata?.full_name || user.user_metadata?.name || null,
-        avatarUrl: user.user_metadata?.avatar_url || null,
+        name: fallbackName,
+        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
         ...(googleAccessToken && { googleAccessToken }),
         ...(googleRefreshToken && { googleRefreshToken }),
         ...(googleAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
@@ -40,8 +47,8 @@ export async function POST(request: Request) {
       create: {
         id: user.id,
         email: user.email || "",
-        name: user.user_metadata?.full_name || user.user_metadata?.name || null,
-        avatarUrl: user.user_metadata?.avatar_url || null,
+        name: fallbackName,
+        avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
         role: "user",
         // planId intentionally left null — user must select a plan
         ...(googleAccessToken && { googleAccessToken }),
