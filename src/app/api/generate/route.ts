@@ -4,6 +4,7 @@ import {
     generateTitles,
     generateOutline,
     generateArticle,
+    humanizeArticle,
     generateFAQ,
     generateMeta,
     generateFeaturedImage,
@@ -229,7 +230,19 @@ export async function POST(req: Request) {
                     }
                 }
 
-                const article = await generateArticle(selectedTitle, outline, options);
+                const rawArticle = await generateArticle(selectedTitle, outline, options);
+
+                // ─── HUMANIZER PASS ─────────────────────────────────────────
+                // Always run the humanizer to make content undetectable as AI
+                console.log("🧠 Running humanizer pass...");
+                const article = await humanizeArticle(rawArticle, {
+                    keyword,
+                    articleType,
+                    niche,
+                    tone,
+                    language,
+                    userPlan: options.userPlan,
+                });
 
                 // Generate FAQs if requested
                 let faqs: Array<{ question: string; answer: string }> = [];

@@ -244,7 +244,19 @@ Tone: ${options.tone || "informational"}
 Niche: ${options.niche || "general"}
 Article Type: ${options.articleType || "blog post"}
 ${options.brandVoice ? `Brand Voice Instructions: ${options.brandVoice}` : ""}
-${options.existingPostsList ? `\nInternal Linking: Where natural and relevant, insert 2-3 HTML anchor (<a>) links pointing to these existing posts:\n${options.existingPostsList}` : ""}
+${options.existingPostsList ? `\n━━━ INTERNAL LINKING — MANDATORY ━━━
+You MUST insert 2-3 internal links to these existing blog posts throughout the article:
+${options.existingPostsList}
+
+RULES FOR INTERNAL LINKS:
+- Insert links NATURALLY within paragraph text (not in headings)
+- Use DESCRIPTIVE anchor text (2-5 words) that matches the linked post's topic
+- Format: <a href="URL">descriptive anchor text</a>
+- Spread links across different sections (first half, middle, last half)
+- Example: "For more details on this topic, check out our guide on <a href="URL">keyword optimization strategies</a>."
+- NEVER use generic anchors like "click here" or "this post"
+- This is MANDATORY - articles without internal links when provided will be REJECTED.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` : ""}
 ${options.affiliateLinks && options.affiliateLinks.length > 0 ? `\nAffiliate Links: Naturally integrate these links as contextual text links or recommendation sections:\n- ${options.affiliateLinks.join("\n- ")}\n` : ""}
 ${options.includeExternalLinks === false ? `\nIMPORTANT: Do NOT include any external links to other websites. Only use internal links if provided above.` : `\nEXTERNAL LINKS — MANDATORY:
 You MUST include 3-5 relevant external links to authoritative sources throughout the article.
@@ -265,14 +277,26 @@ ${contentTypeInstructions}
 OUTLINE TO FOLLOW:
 ${JSON.stringify(outline, null, 2)}
 
-REMEMBER:
+REMEMBER — CRITICAL REQUIREMENTS:
 - Start with a TLDR paragraph, then the first <h2>
 - No <h1> tags (Blogger uses the title field)
 - Clean HTML only: <p>, <h2>, <h3>, <h4>, <ul>, <ol>, <li>, <table>, <strong>, <em>, <a>, <blockquote>
 - Use the keyword 10-15 times naturally
-- Every paragraph max 3 sentences
-- CRITICAL: You MUST write EXACTLY ${options.wordCount || 2000} words. This is a strict requirement. Do not write less.
+
+PARAGRAPH REQUIREMENTS (MANDATORY):
+- Write in FULL, RICH PARAGRAPHS (4-6 sentences, 80-120 words each)
+- NEVER use bullet points (<ul>, <ol>) in main content sections UNLESS specifically requested (e.g., recipe ingredients, step-by-step instructions, pros/cons lists)
+- Each paragraph should provide DEPTH, DETAIL, and VALUE
+- Users should feel they're reading a comprehensive article, NOT a quick list
+- BANNED: Short, choppy, bullet-point style writing
+- REQUIRED: Flowing, informative, paragraph-based content
+
+WORD COUNT (STRICT):
+- You MUST write EXACTLY ${options.wordCount || 2000} words. This is a strict requirement. Do not write less.
 - If the target is 4000 words, write 4000 words. If 2000, write 2000. Match the exact target.
+- Expand sections with detailed explanations, examples, and insights to reach the target
+
+OUTPUT:
 - Return ONLY the HTML article body. No markdown. No explanations.`;
 
     const model = getModelForPlan(options.userPlan);
@@ -312,6 +336,92 @@ REMEMBER:
     }
 
     return article;
+}
+
+// ─── HUMANIZE ARTICLE ────────────────────────────────────────────────────────
+export async function humanizeArticle(
+    articleHtml: string,
+    options: {
+        keyword: string;
+        articleType?: string;
+        niche?: string;
+        tone?: string;
+        language?: string;
+        userPlan?: string;
+    }
+): Promise<string> {
+    const systemPrompt = SYSTEM_PROMPTS.ARTICLE_HUMANIZER;
+    
+    const userPrompt = `Humanize and polish this article. Make it read like a real human expert wrote it — not AI.
+
+PRIMARY KEYWORD: ${options.keyword}
+ARTICLE TYPE: ${options.articleType || "blog post"}
+NICHE: ${options.niche || "general"}
+TONE: ${options.tone || "professional, conversational"}
+LANGUAGE: ${options.language || "English"}
+
+ARTICLE TO HUMANIZE:
+${articleHtml}
+
+CRITICAL REMINDERS:
+- Preserve ALL links (<a> tags) exactly as they are — do not remove or modify any href
+- Preserve ALL tables, blockquotes, and structural HTML
+- Keep H2/H3 heading text intact (SEO headings must not change)
+- Vary sentence lengths dramatically — mix short and long
+- Use contractions, rhetorical questions, and natural transitions
+- Eliminate robotic AI patterns and corporate speak
+- Make every paragraph feel like it was written by someone who actually knows the topic
+- Output ONLY clean HTML — no markdown, no explanations`;
+
+    const model = getModelForPlan(options.userPlan);
+    
+    // Use slightly more tokens than the input to allow for expansion
+    const inputWordCount = articleHtml.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w.length > 0).length;
+    const maxTokens = Math.ceil(inputWordCount * 1.5 * 1.5);
+    
+    console.log(`🧠 Humanizer: Processing ${inputWordCount} words, MaxTokens=${maxTokens}, Model=${model}`);
+    
+    try {
+        const response = await openai.chat.completions.create({
+            model,
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userPrompt },
+            ],
+            temperature: 0.85,
+            max_tokens: maxTokens,
+        });
+
+        let humanized = response.choices[0]?.message?.content || "";
+        
+        // Clean markdown artifacts
+        humanized = humanized
+            .replace(/^```html?\s*/i, "")
+            .replace(/\s*```\s*$/i, "")
+            .trim();
+        
+        if (!humanized || humanized.length < articleHtml.length * 0.5) {
+            console.warn("⚠️ Humanizer returned insufficient content, using original article");
+            return articleHtml;
+        }
+        
+        const humanizedWordCount = humanized.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w.length > 0).length;
+        const ratio = Math.round((humanizedWordCount / inputWordCount) * 100);
+        console.log(`✅ Humanizer complete: ${humanizedWordCount} words (${ratio}% of original ${inputWordCount})`);
+        
+        // Verify links were preserved
+        const originalLinkCount = (articleHtml.match(/<a\s/gi) || []).length;
+        const humanizedLinkCount = (humanized.match(/<a\s/gi) || []).length;
+        if (originalLinkCount > 0 && humanizedLinkCount < originalLinkCount * 0.5) {
+            console.warn(`⚠️ Humanizer dropped too many links (${originalLinkCount} → ${humanizedLinkCount}), using original`);
+            return articleHtml;
+        }
+        
+        return humanized;
+    } catch (error) {
+        console.error("❌ Humanizer failed, using original article:", error);
+        return articleHtml;
+    }
 }
 
 // ─── GENERATE FAQs ───────────────────────────────────────────────────────────

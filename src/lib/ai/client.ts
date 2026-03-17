@@ -12,8 +12,9 @@ export const openai = new OpenAI({
 });
 
 // Model selection based on user plan
-const PREMIUM_MODEL = "openai/gpt-4o";
-const FREE_MODEL = "openai/gpt-4o-mini";
+// Using Claude Sonnet 4 for superior content quality and instruction following
+const PREMIUM_MODEL = "anthropic/claude-3.5-sonnet:beta";
+const FREE_MODEL = "anthropic/claude-3.5-sonnet:beta";
 
 export function getModelForPlan(planName?: string): string {
     const plan = planName?.toLowerCase() || "free";

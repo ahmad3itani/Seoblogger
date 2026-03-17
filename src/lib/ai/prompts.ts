@@ -301,13 +301,16 @@ KEYWORD PLACEMENT for {{PRIMARY_KEYWORD}}:
    - Naturally integrate throughout the article
    - Use in H3 headings where appropriate
 
-5. PARAGRAPH STRUCTURE:
-   - Every paragraph MUST be maximum 3 sentences (50-75 words)
-   - First sentence: main point
-   - Second sentence: supporting detail or example
-   - Third sentence: transition or actionable insight
+5. PARAGRAPH STRUCTURE (CRITICAL - NO BULLET POINTS):
+   - EVERY section MUST be written in FULL PARAGRAPHS ONLY
+   - Each paragraph should be 4-6 sentences (80-120 words) for rich, valuable content
+   - NEVER use bullet points (<ul>, <ol>) in main content sections unless specifically requested (e.g., recipe ingredients, step-by-step guides)
+   - First sentence: introduce the main point
+   - Middle sentences: provide detailed explanations, examples, data, or insights
+   - Final sentence: transition to next idea or provide actionable takeaway
    - Use active voice, conversational tone
    - Address reader directly: "you", "your"
+   - BANNED: Short, choppy paragraphs. REQUIRED: Rich, detailed, informative paragraphs that provide real value
 
 E-E-A-T SIGNALS (Google's ranking criteria):
 - EXPERIENCE: Share first-hand knowledge, "In my experience...", "After testing..."
@@ -373,14 +376,16 @@ SEO OPTIMIZATION (CRITICAL)
 ENGAGEMENT & READABILITY
 -------------------------------------
 - Write at 8th-grade reading level
-- Short paragraphs: 2-3 sentences max (50-75 words)
-- Short sentences: 15-20 words average
+- RICH PARAGRAPHS: 4-6 sentences (80-120 words) - provide DEPTH and VALUE
+- NEVER write in bullet-point style in main content sections
+- Sentences: 15-25 words average (vary for rhythm)
 - Address reader directly: "you", "your"
 - Use transitional phrases between sections
 - Include "Pro Tip:" callouts in <blockquote> tags
 - Use <strong> to bold key terms and important phrases (especially keyword variations)
 - Add specific examples: "For example,", "Here's what that looks like:"
-- Include practical, actionable advice (not generic fluff)
+- Include practical, actionable advice with detailed explanations
+- CRITICAL: Users should feel they're reading a comprehensive, valuable article, NOT a quick list
 
 -------------------------------------
 OUTPUT RULES
@@ -519,6 +524,88 @@ Return a single detailed prompt string (100-150 words).`,
   IMAGE_PROCESS: `close-up detailed photograph of {{PRIMARY_KEYWORD}} in use or context, dynamic angle, professional photography showing texture and detail, clean modern environment with softly blurred background, bright natural window lighting, shot on Canon EOS R5 with 70-200mm f/2.8 lens, ultra sharp subject with creamy bokeh, photorealistic, commercial editorial quality, 8k resolution, magazine-worthy composition`,
 
   IMAGE_PROCESS_NEGATIVE: `blurry subject, out of focus, messy background, dirty, cluttered, dark lighting, amateur, ugly, watermarks, text, logos`,
+
+  // ─── 11. ARTICLE HUMANIZER ──────────────────────────────────────────────────
+  ARTICLE_HUMANIZER: `You are an expert human editor, SEO strategist, and content polisher.
+
+Your job is to take an AI-generated article and rewrite it so it reads like it was written by a knowledgeable human writer with real expertise. The goal is to make the content UNDETECTABLE as AI-generated while improving quality.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+HUMANIZATION RULES (CRITICAL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+WRITING STYLE — WRITE LIKE A REAL HUMAN:
+- Vary sentence length dramatically: mix short punchy sentences (5-8 words) with longer detailed ones (20-30 words)
+- Use contractions naturally: "you'll", "it's", "don't", "won't", "that's", "here's"
+- Start some sentences with "And", "But", "So", "Now", "Look," — the way real writers do
+- Use occasional parenthetical asides (like this one) for a natural feel
+- Add rhetorical questions: "So what does this actually mean for you?"
+- Use first-person sparingly but naturally: "I've found that...", "In my experience..."
+- Include colloquial transitions: "Here's the thing.", "The bottom line?", "Let's be real."
+- Occasionally address the reader directly mid-paragraph: "— and yes, that includes you"
+- Use em-dashes for emphasis — they make writing feel more editorial
+- Avoid perfectly parallel sentence structures (AI loves parallelism, humans don't)
+
+PATTERNS TO ELIMINATE (AI TELLS):
+- NEVER use: "In today's world", "In today's digital landscape", "In the realm of"
+- NEVER use: "It's important to note that", "It's worth mentioning"
+- NEVER use: "This comprehensive guide", "In this article, we will explore"
+- NEVER use: "Whether you're a beginner or expert"
+- NEVER use: "Let's dive in", "Without further ado"
+- NEVER use: "In conclusion" as a section starter
+- NEVER use: "game-changer", "revolutionize", "cutting-edge", "leverage" (overused AI words)
+- NEVER use: "robust", "streamline", "foster", "facilitate", "utilize" (corporate AI speak)
+- NEVER use: "Navigate the landscape", "Navigate the complexities"
+- NEVER use: "Unlock the potential", "Unlock the power"
+- NEVER use: "Delve into", "Dive deep into"
+- NEVER start 3+ consecutive paragraphs with the same word
+- NEVER use the exact same sentence structure in consecutive paragraphs
+- NEVER use more than 2 sentences with the same opening pattern in a section
+
+PARAGRAPH STRUCTURE — BREAK THE AI PATTERN:
+- AI writes: uniform 3-sentence paragraphs. YOU write: varied lengths (2-6 sentences)
+- AI writes: Topic sentence → Explanation → Conclusion. YOU write: mix it up — sometimes start with an example, a question, or a bold claim
+- AI writes: every paragraph has the same rhythm. YOU write: create natural rhythm variety
+- Include occasional one-sentence paragraphs for emphasis
+- Some paragraphs should flow into the next without a clear "conclusion sentence"
+
+SPECIFICITY & VALUE:
+- Replace vague claims with concrete details
+- Instead of "many experts agree" → name a specific source or say "according to recent research"
+- Instead of "this can save time" → "this typically cuts the process from 3 hours to about 45 minutes"
+- Add practical "here's what that actually looks like" examples
+- Include "watch out for" or "one thing people miss" insights
+- Make each paragraph earn its place — no filler, no throat-clearing
+
+ENGAGEMENT & TRUST:
+- Write like you're explaining to a smart friend, not lecturing
+- Show genuine knowledge through specific details, not generic overviews
+- Be willing to say "this isn't for everyone" or "the downside is..."
+- Acknowledge complexity where it exists — don't oversimplify everything
+- Use specific numbers, timeframes, and examples wherever possible
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STRICT CONSTRAINTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+- Do NOT remove or change any links (internal or external)
+- Do NOT remove or change CTA blocks or buttons
+- Do NOT invent personal experiences or fake testing claims
+- Do NOT add fake statistics or unsupported claims
+- Do NOT change factual content or product information
+- Do NOT remove important sections (FAQ, comparison tables, etc.)
+- Do NOT break the HTML structure
+- Do NOT change H2/H3 heading text (keep SEO headings intact)
+- Do NOT reduce word count significantly (stay within 90-110% of original)
+- Do NOT add markdown — output clean HTML only
+- Preserve all <a> tags, <table> tags, <blockquote> tags exactly as they are
+- Keep the same language as the original article
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OUTPUT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Return ONLY the improved HTML article body.
+No explanations, no markdown wrapping, no comments.
+The output should be ready to paste directly into Blogger.`,
 };
 
 // Image generation settings per type
