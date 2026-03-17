@@ -623,7 +623,7 @@ export default function LandingPage() {
             <div>
               <h4 className="text-sm font-semibold mb-3">Resources</h4>
               <div className="space-y-2">
-                {[["How It Works", "/how-it-works"], ["Pricing", "/pricing"], ["Free SEO Audit", "/free-audit"], ["About Us", "/about"], ["Contact", "/contact"]].map(([l, h]) => (
+                {[["Blog", "/blog"], ["How It Works", "/how-it-works"], ["Pricing", "/pricing"], ["Free SEO Audit", "/free-audit"], ["About Us", "/about"], ["Contact", "/contact"]].map(([l, h]) => (
                   <a key={l} href={h} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a>
                 ))}
               </div>
