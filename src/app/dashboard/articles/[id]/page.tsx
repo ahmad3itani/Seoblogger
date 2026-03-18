@@ -183,7 +183,7 @@ export default function ArticleDetailPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
             </div>
         );
     }
@@ -239,7 +239,7 @@ export default function ArticleDetailPage() {
                             size="sm"
                             onClick={handleSave}
                             disabled={isSaving}
-                            className="bg-[#FF6600] hover:bg-[#FF6600]/90 text-white"
+                            className="bg-[#F97316] hover:bg-[#F97316]/90 text-white"
                         >
                             {isSaving ? (
                                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -269,7 +269,7 @@ export default function ArticleDetailPage() {
                             <Button
                                 size="sm"
                                 variant="outline"
-                                className="border-[#FF6600]/30 text-[#FF6600] hover:bg-[#FF6600]/5"
+                                className="border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316]/5"
                             >
                                 <Sparkles className="w-4 h-4 mr-2" /> Quality Pass
                             </Button>
@@ -381,7 +381,7 @@ export default function ArticleDetailPage() {
                                     <Badge
                                         key={label}
                                         variant="secondary"
-                                        className="text-[10px] bg-[#FF6600]/10 text-[#FF6600] border-[#FF6600]/20"
+                                        className="text-[10px] bg-[#F97316]/10 text-[#F97316] border-[#F97316]/20"
                                     >
                                         {label.trim()}
                                     </Badge>
@@ -399,7 +399,7 @@ export default function ArticleDetailPage() {
                 </CardHeader>
                 <CardContent>
                     <div
-                        className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-[#FF6600] prose-strong:text-foreground"
+                        className="prose prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-[#F97316] prose-strong:text-foreground"
                         dangerouslySetInnerHTML={{ __html: article.content }}
                     />
                 </CardContent>

@@ -98,9 +98,9 @@ const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string }> = {
     free:       { bg: "rgba(255,255,255,0.06)", text: "#8B9BB4",   border: "rgba(255,255,255,0.10)" },
-    starter:    { bg: "rgba(79,142,255,0.10)",  text: "#4F8EFF",   border: "rgba(79,142,255,0.25)"  },
-    pro:        { bg: "rgba(255,107,53,0.12)",  text: "#FF6B35",   border: "rgba(255,107,53,0.25)"  },
-    enterprise: { bg: "rgba(124,58,237,0.12)",  text: "#7C3AED",   border: "rgba(124,58,237,0.25)"  },
+    starter:    { bg: "rgba(59,130,246,0.10)",  text: "#3B82F6",   border: "rgba(59,130,246,0.25)"  },
+    pro:        { bg: "rgba(249,115,22,0.12)",  text: "#F97316",   border: "rgba(249,115,22,0.25)"  },
+    enterprise: { bg: "rgba(139,92,246,0.12)",  text: "#8B5CF6",   border: "rgba(139,92,246,0.25)"  },
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -185,7 +185,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="max-w-2xl mx-auto px-4 text-center">
                     <div
                         className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
-                        style={{ background: "rgba(255,107,53,0.10)", border: "1px solid rgba(255,107,53,0.25)" }}
+                        style={{ background: "rgba(249,115,22,0.10)", border: "1px solid rgba(249,115,22,0.25)" }}
                     >
                         <Crown className="w-8 h-8" style={{ color: "var(--brand-orange)" }} />
                     </div>
@@ -217,7 +217,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
                         <div
                             className="rounded-xl p-5 text-left relative"
-                            style={{ background: "var(--bg-card)", border: "1px solid rgba(255,107,53,0.35)", boxShadow: "0 0 30px rgba(255,107,53,0.08)" }}
+                            style={{ background: "var(--bg-card)", border: "1px solid rgba(249,115,22,0.35)", boxShadow: "0 0 30px rgba(249,115,22,0.08)" }}
                         >
                             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                                 <span className="text-[10px] font-bold px-3 py-1 rounded-full" style={{ background: "var(--brand-orange)", color: "#fff" }}>
@@ -290,7 +290,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 group"
                                             style={
                                                 isActive
-                                                    ? { background: "rgba(255,107,53,0.12)", color: "var(--brand-orange)", borderLeft: "2px solid var(--brand-orange)" }
+                                                    ? { background: "rgba(249,115,22,0.12)", color: "var(--brand-orange)", borderLeft: "2px solid var(--brand-orange)" }
                                                     : isLocked
                                                         ? { color: "var(--text-muted)", paddingLeft: "14px" }
                                                         : { color: "var(--text-secondary)", paddingLeft: "14px" }
@@ -304,7 +304,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             />
                                             <span className={isLocked ? "opacity-50" : ""}>{item.label}</span>
                                             {isLocked ? (
-                                                <Lock className="w-2.5 h-2.5 ml-auto" style={{ color: "#7C3AED", opacity: 0.6 }} />
+                                                <Lock className="w-2.5 h-2.5 ml-auto" style={{ color: "#8B5CF6", opacity: 0.6 }} />
                                             ) : isActive ? (
                                                 <ChevronRight className="w-3 h-3 ml-auto" style={{ color: "var(--brand-orange)" }} />
                                             ) : null}
@@ -331,7 +331,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     className="progress-bar-fill"
                                     style={{
                                         width: `${Math.min(100, profile.credits.percentUsed)}%`,
-                                        background: profile.credits.percentUsed > 80 ? "#ef4444" : profile.credits.percentUsed > 50 ? "#f59e0b" : "linear-gradient(90deg,#FF6B35,#FF8C5A)",
+                                        background: profile.credits.percentUsed > 80 ? "#ef4444" : profile.credits.percentUsed > 50 ? "#f59e0b" : "linear-gradient(90deg,#F97316,#FB923C)",
                                     }}
                                 />
                             </div>
@@ -345,7 +345,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link href="/pricing">
                             <div
                                 className="p-3 rounded-xl cursor-pointer transition-all hover:brightness-110"
-                                style={{ background: "rgba(255,107,53,0.07)", border: "1px solid rgba(255,107,53,0.18)" }}
+                                style={{ background: "rgba(249,115,22,0.07)", border: "1px solid rgba(249,115,22,0.18)" }}
                             >
                                 <div className="flex items-center gap-1.5 mb-1">
                                     <Crown className="w-3 h-3" style={{ color: "var(--brand-orange)" }} />
@@ -372,7 +372,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <Avatar className="w-7 h-7 cursor-pointer">
                                 <AvatarFallback
                                     className="text-white text-xs font-semibold"
-                                    style={{ background: "linear-gradient(135deg, #FF6B35, #7C3AED)", fontSize: "11px" }}
+                                    style={{ background: "linear-gradient(135deg, #F97316, #8B5CF6)", fontSize: "11px" }}
                                 >
                                     {userInitial}
                                 </AvatarFallback>
@@ -477,7 +477,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </div>
                         ) : (
                             <Link href="/dashboard/settings">
-                                <button className="text-xs font-medium px-3 h-8 rounded-lg transition-colors" style={{ color: "var(--brand-orange)", background: "rgba(255,107,53,0.08)", border: "1px solid rgba(255,107,53,0.20)" }}>
+                                <button className="text-xs font-medium px-3 h-8 rounded-lg transition-colors" style={{ color: "var(--brand-orange)", background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.20)" }}>
                                     + Connect Blog
                                 </button>
                             </Link>
@@ -497,7 +497,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="flex flex-col items-center justify-center h-full max-w-sm mx-auto text-center">
                             <div
                                 className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                                style={{ background: "rgba(255,107,53,0.10)", border: "1px solid rgba(255,107,53,0.22)" }}
+                                style={{ background: "rgba(249,115,22,0.10)", border: "1px solid rgba(249,115,22,0.22)" }}
                             >
                                 <Lock className="w-8 h-8" style={{ color: "var(--brand-orange)" }} />
                             </div>

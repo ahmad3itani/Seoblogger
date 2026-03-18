@@ -102,9 +102,9 @@ function TiltCard({ children, className = "" }: { children: React.ReactNode; cla
 
 // icon accent color values (static — no dynamic class names)
 const C = {
-  orange: { bg: "rgba(255,107,53,0.12)", border: "rgba(255,107,53,0.25)", text: "#FF6B35" },
-  blue:   { bg: "rgba(79,142,255,0.10)",  border: "rgba(79,142,255,0.22)",  text: "#4F8EFF" },
-  purple: { bg: "rgba(124,58,237,0.10)", border: "rgba(124,58,237,0.22)", text: "#7C3AED" },
+  orange: { bg: "rgba(249,115,22,0.12)", border: "rgba(249,115,22,0.25)", text: "#F97316" },
+  blue:   { bg: "rgba(59,130,246,0.10)",  border: "rgba(59,130,246,0.22)",  text: "#3B82F6" },
+  purple: { bg: "rgba(139,92,246,0.10)", border: "rgba(139,92,246,0.22)", text: "#8B5CF6" },
   green:  { bg: "rgba(34,197,94,0.10)",   border: "rgba(34,197,94,0.20)",   text: "#22C55E" },
 } as const;
 type CKey = keyof typeof C;
@@ -388,7 +388,7 @@ export default function LandingPage() {
               transition={{ duration: 0.5 }}
               className="tag-pill mb-6"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse-dot" />
+              <span className="w-1.5 h-1.5 rounded-full bg-[#F97316] animate-pulse-dot" />
               The #1 AI Tool Built Exclusively for Blogger
             </motion.div>
 
@@ -485,7 +485,7 @@ export default function LandingPage() {
               {/* Glow effect behind mockup */}
               <div
                 className="absolute inset-0 rounded-2xl opacity-40 blur-3xl"
-                style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(255,107,53,0.15), rgba(79,142,255,0.08), transparent 70%)" }}
+                style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(249,115,22,0.15), rgba(59,130,246,0.08), transparent 70%)" }}
               />
 
               {/* Dashboard preview */}
@@ -564,7 +564,7 @@ export default function LandingPage() {
                       {/* Inline keyword highlight */}
                       <div className="flex items-center gap-2 pt-1">
                         <div className="h-2 rounded-full flex-1" style={{ background: "rgba(255,255,255,0.07)" }} />
-                        <div className="h-2 w-20 rounded-full" style={{ background: "rgba(255,107,53,0.3)" }} />
+                        <div className="h-2 w-20 rounded-full" style={{ background: "rgba(249,115,22,0.3)" }} />
                         <div className="h-2 rounded-full flex-1" style={{ background: "rgba(255,255,255,0.07)" }} />
                       </div>
                     </div>
@@ -577,8 +577,8 @@ export default function LandingPage() {
                         { label: "Readability", val: "A+", color: "blue" },
                         { label: "Images", val: "4", color: "purple" },
                       ].map(({ label, val, color }) => {
-                        const colors: Record<string, string> = { orange: "rgba(255,107,53,0.12)", green: "rgba(34,197,94,0.10)", blue: "rgba(79,142,255,0.10)", purple: "rgba(124,58,237,0.10)" };
-                        const texts: Record<string, string> = { orange: "#FF6B35", green: "#22C55E", blue: "#4F8EFF", purple: "#7C3AED" };
+                        const colors: Record<string, string> = { orange: "rgba(249,115,22,0.12)", green: "rgba(34,197,94,0.10)", blue: "rgba(59,130,246,0.10)", purple: "rgba(139,92,246,0.10)" };
+                        const texts: Record<string, string> = { orange: "#F97316", green: "#22C55E", blue: "#3B82F6", purple: "#8B5CF6" };
                         return (
                           <div
                             key={label}
@@ -615,7 +615,7 @@ export default function LandingPage() {
 
               <div
                 className="absolute top-1/2 -right-6 glass-card float-badge-3 px-3 py-2 flex items-center gap-2 text-xs font-medium"
-                style={{ borderColor: "rgba(79,142,255,0.25)", background: "rgba(79,142,255,0.07)" }}
+                style={{ borderColor: "rgba(59,130,246,0.25)", background: "rgba(59,130,246,0.07)" }}
               >
                 <Zap className="w-3.5 h-3.5" style={{ color: "var(--brand-blue)" }} />
                 <span style={{ color: "var(--text-primary)" }}>3,240 words</span>
@@ -643,10 +643,10 @@ export default function LandingPage() {
       </section>
 
       {/* ── TEMPLATE MARQUEE ────────────────────────────────────── */}
-      <div className="py-4 overflow-hidden relative" style={{ background: "rgba(255,107,53,0.04)" }}>
+      <div className="py-4 overflow-hidden relative" style={{ background: "rgba(249,115,22,0.04)" }}>
         <div className="flex animate-marquee whitespace-nowrap">
           {[...TEMPLATES, ...TEMPLATES, ...TEMPLATES, ...TEMPLATES].map((t, i) => (
-            <span key={i} className="mx-4 text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: "rgba(255,107,53,0.10)", color: "var(--brand-orange)", border: "1px solid rgba(255,107,53,0.15)" }}>
+            <span key={i} className="mx-4 text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: "rgba(249,115,22,0.10)", color: "var(--brand-orange)", border: "1px solid rgba(249,115,22,0.15)" }}>
               {t}
             </span>
           ))}
@@ -751,7 +751,7 @@ export default function LandingPage() {
       <section id="tools" className="py-24 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-40"
-          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(79,142,255,0.05), transparent)" }}
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(59,130,246,0.05), transparent)" }}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <Reveal className="text-center mb-16">
@@ -776,15 +776,15 @@ export default function LandingPage() {
                   {i < STEPS.length - 1 && (
                     <div
                       className="hidden md:block absolute top-10 left-full w-full h-px z-10"
-                      style={{ background: "linear-gradient(90deg, rgba(255,107,53,0.3), transparent)" }}
+                      style={{ background: "linear-gradient(90deg, rgba(249,115,22,0.3), transparent)" }}
                     />
                   )}
 
                   <div
                     className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center text-sm font-bold relative"
                     style={{
-                      background: "rgba(255,107,53,0.12)",
-                      border: "1px solid rgba(255,107,53,0.25)",
+                      background: "rgba(249,115,22,0.12)",
+                      border: "1px solid rgba(249,115,22,0.25)",
                       fontFamily: "var(--font-display)",
                       color: "var(--brand-orange)",
                     }}
@@ -843,7 +843,7 @@ export default function LandingPage() {
                 className="px-4 py-2 rounded-full text-sm font-medium transition-all"
                 style={
                   activeTab === i
-                    ? { background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.35)", color: "var(--brand-orange)" }
+                    ? { background: "rgba(249,115,22,0.15)", border: "1px solid rgba(249,115,22,0.35)", color: "var(--brand-orange)" }
                     : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }
                 }
               >
@@ -875,7 +875,7 @@ export default function LandingPage() {
                           {!tool.free && (
                             <span
                               className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
-                              style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED", border: "1px solid rgba(124,58,237,0.2)" }}
+                              style={{ background: "rgba(139,92,246,0.12)", color: "#8B5CF6", border: "1px solid rgba(139,92,246,0.2)" }}
                             >
                               <Crown className="w-2.5 h-2.5" /> Pro
                             </span>
@@ -919,7 +919,7 @@ export default function LandingPage() {
                   {plan.featured && (
                     <div
                       className="text-center text-xs font-bold py-1.5 rounded-full mb-5 tracking-widest uppercase"
-                      style={{ background: "rgba(255,107,53,0.15)", color: "var(--brand-orange)", border: "1px solid rgba(255,107,53,0.25)" }}
+                      style={{ background: "rgba(249,115,22,0.15)", color: "var(--brand-orange)", border: "1px solid rgba(249,115,22,0.25)" }}
                     >
                       Most Popular
                     </div>
@@ -975,7 +975,7 @@ export default function LandingPage() {
       <section id="testimonials" className="py-24 relative overflow-hidden">
         <div
           className="absolute inset-0 opacity-30"
-          style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(255,107,53,0.08), transparent 60%)" }}
+          style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(249,115,22,0.08), transparent 60%)" }}
         />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <Reveal className="text-center mb-14">
@@ -1007,7 +1007,7 @@ export default function LandingPage() {
                   <div className="flex items-center gap-3 mt-auto">
                     <div
                       className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
-                      style={{ background: "rgba(255,107,53,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
+                      style={{ background: "rgba(249,115,22,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
                     >
                       {r.avatar}
                     </div>
@@ -1027,7 +1027,7 @@ export default function LandingPage() {
       <section className="py-28 relative overflow-hidden">
         <div
           className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(255,107,53,0.08), rgba(79,142,255,0.04), transparent 70%)" }}
+          style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(249,115,22,0.08), rgba(59,130,246,0.04), transparent 70%)" }}
         />
         <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
 
@@ -1036,8 +1036,8 @@ export default function LandingPage() {
             <div
               className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full mb-8"
               style={{
-                background: "rgba(255,107,53,0.08)",
-                border: "1px solid rgba(255,107,53,0.2)",
+                background: "rgba(249,115,22,0.08)",
+                border: "1px solid rgba(249,115,22,0.2)",
                 color: "var(--brand-orange)",
               }}
             >

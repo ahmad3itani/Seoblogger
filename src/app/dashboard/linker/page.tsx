@@ -253,7 +253,7 @@ export default function LinkerPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
-                        <Network className="w-6 h-6 text-[#FF6600]" />
+                        <Network className="w-6 h-6 text-[#F97316]" />
                         Internal Linking Engine
                     </h1>
                     <p className="text-sm text-muted-foreground max-w-xl">
@@ -285,7 +285,7 @@ export default function LinkerPage() {
             {/* Scanning State */}
             {isScanning && (
                 <div className="glass-card rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                    <Loader2 className="w-12 h-12 text-[#FF6600] animate-spin mx-auto mb-4" />
+                    <Loader2 className="w-12 h-12 text-[#F97316] animate-spin mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2">Building Link Graph</h3>
                     <p className="text-muted-foreground max-w-md mx-auto mb-6">
                         Fetching all posts, parsing content, extracting links, computing metrics, and detecting opportunities...
@@ -306,7 +306,7 @@ export default function LinkerPage() {
                                 className="flex items-center gap-2 animate-in fade-in"
                                 style={{ animationDelay: `${i * 2}s`, animationFillMode: "backwards" }}
                             >
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#FF6600]/50 shrink-0" />
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#F97316]/50 shrink-0" />
                                 <span>{step}</span>
                             </div>
                         ))}
@@ -331,9 +331,9 @@ export default function LinkerPage() {
                         ].map((s, i) => (
                             <div
                                 key={i}
-                                className={`glass-card rounded-xl p-3 text-center ${s.highlight ? "border border-[#FF6600]/30" : ""}`}
+                                className={`glass-card rounded-xl p-3 text-center ${s.highlight ? "border border-[#F97316]/30" : ""}`}
                             >
-                                <s.icon className={`w-4 h-4 mx-auto mb-1 ${s.highlight ? "text-[#FF6600]" : "text-muted-foreground"}`} />
+                                <s.icon className={`w-4 h-4 mx-auto mb-1 ${s.highlight ? "text-[#F97316]" : "text-muted-foreground"}`} />
                                 <p className="text-lg font-bold">{s.value}</p>
                                 <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{s.label}</p>
                             </div>
@@ -356,13 +356,13 @@ export default function LinkerPage() {
                                 onClick={() => setActiveTab(tab)}
                                 className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize ${
                                     activeTab === tab
-                                        ? "border-[#FF6600] text-[#FF6600]"
+                                        ? "border-[#F97316] text-[#F97316]"
                                         : "border-transparent text-muted-foreground hover:text-foreground"
                                 }`}
                             >
                                 {tab}
                                 {tab === "opportunities" && opportunities.length > 0 && (
-                                    <Badge className="ml-2 bg-[#FF6600]/10 text-[#FF6600] text-[10px] px-1.5 py-0">
+                                    <Badge className="ml-2 bg-[#F97316]/10 text-[#F97316] text-[10px] px-1.5 py-0">
                                         {opportunities.length}
                                     </Badge>
                                 )}
@@ -424,7 +424,7 @@ export default function LinkerPage() {
                                         { step: "4", title: "Safe Apply", desc: "Re-fetches latest content, validates the edit, and writes it back via Blogger API" },
                                     ].map((s) => (
                                         <div key={s.step} className="flex gap-2">
-                                            <span className="w-6 h-6 rounded-full bg-[#FF6600]/10 text-[#FF6600] flex items-center justify-center shrink-0 text-[10px] font-bold">
+                                            <span className="w-6 h-6 rounded-full bg-[#F97316]/10 text-[#F97316] flex items-center justify-center shrink-0 text-[10px] font-bold">
                                                 {s.step}
                                             </span>
                                             <div>
@@ -461,8 +461,8 @@ export default function LinkerPage() {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center gap-2 text-xs">
                                                     <span className="font-medium truncate max-w-[200px]">{opp.sourceTitle}</span>
-                                                    <ArrowRight className="w-3 h-3 text-[#FF6600] shrink-0" />
-                                                    <span className="font-medium truncate max-w-[200px] text-[#FF6600]">{opp.targetTitle}</span>
+                                                    <ArrowRight className="w-3 h-3 text-[#F97316] shrink-0" />
+                                                    <span className="font-medium truncate max-w-[200px] text-[#F97316]">{opp.targetTitle}</span>
                                                 </div>
                                                 <p className="text-[10px] text-muted-foreground mt-0.5">{opp.reason}</p>
                                             </div>
@@ -507,7 +507,7 @@ export default function LinkerPage() {
                                                 {!opp.suggestion && opp.applyStatus !== "applied" && (
                                                     <Button
                                                         size="sm"
-                                                        className="bg-[#FF6600] hover:bg-[#FF8533] text-white border-0"
+                                                        className="bg-[#F97316] hover:bg-[#FF8533] text-white border-0"
                                                         onClick={() => handleGetSuggestion(opp.id)}
                                                         disabled={opp.suggestLoading}
                                                     >
@@ -523,8 +523,8 @@ export default function LinkerPage() {
                                                 {opp.suggestion && (
                                                     <div className="space-y-3">
                                                         <div className="flex items-center gap-2">
-                                                            <p className="text-[10px] uppercase font-bold text-[#FF6600]">Suggested Edit</p>
-                                                            <Badge className="bg-[#FF6600]/10 text-[#FF6600] text-[10px]">
+                                                            <p className="text-[10px] uppercase font-bold text-[#F97316]">Suggested Edit</p>
+                                                            <Badge className="bg-[#F97316]/10 text-[#F97316] text-[10px]">
                                                                 {Math.round(opp.suggestion.confidence * 100)}% confidence
                                                             </Badge>
                                                         </div>
@@ -537,8 +537,8 @@ export default function LinkerPage() {
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <p className="text-[10px] text-[#FF6600] mb-1 font-medium">After</p>
-                                                                <div className="text-xs bg-[#FF6600]/5 rounded-lg p-3 border border-[#FF6600]/20 prose prose-a:text-[#FF6600] prose-a:font-semibold prose-a:underline max-w-none">
+                                                                <p className="text-[10px] text-[#F97316] mb-1 font-medium">After</p>
+                                                                <div className="text-xs bg-[#F97316]/5 rounded-lg p-3 border border-[#F97316]/20 prose prose-a:text-[#F97316] prose-a:font-semibold prose-a:underline max-w-none">
                                                                     <div dangerouslySetInnerHTML={{ __html: opp.suggestion.newParagraphHtml }} />
                                                                 </div>
                                                             </div>
@@ -621,7 +621,7 @@ export default function LinkerPage() {
                                                             href={p.url}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
-                                                            className="font-medium hover:text-[#FF6600] transition-colors flex items-center gap-1 max-w-xs truncate"
+                                                            className="font-medium hover:text-[#F97316] transition-colors flex items-center gap-1 max-w-xs truncate"
                                                         >
                                                             {p.title}
                                                             <ExternalLink className="w-2.5 h-2.5 shrink-0 opacity-40" />
@@ -658,8 +658,8 @@ export default function LinkerPage() {
             {/* Empty state */}
             {!stats && !isScanning && (
                 <div className="glass-card rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                    <div className="w-20 h-20 bg-[#FF6600]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Network className="w-10 h-10 text-[#FF6600] opacity-60" />
+                    <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Network className="w-10 h-10 text-[#F97316] opacity-60" />
                     </div>
                     <h3 className="text-xl font-bold mb-2">Internal Link Analysis</h3>
                     <p className="text-muted-foreground max-w-md mx-auto mb-6">
@@ -667,17 +667,17 @@ export default function LinkerPage() {
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-lg text-xs text-muted-foreground">
                         <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20">
-                            <BarChart3 className="w-5 h-5 text-[#FF6600] mb-1" />
+                            <BarChart3 className="w-5 h-5 text-[#F97316] mb-1" />
                             <span className="font-medium text-foreground">Link Graph</span>
                             <span>Maps every internal link</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20">
-                            <Target className="w-5 h-5 text-[#FF6600] mb-1" />
+                            <Target className="w-5 h-5 text-[#F97316] mb-1" />
                             <span className="font-medium text-foreground">Find Gaps</span>
                             <span>Detect orphan pages</span>
                         </div>
                         <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-muted/20">
-                            <Sparkles className="w-5 h-5 text-[#FF6600] mb-1" />
+                            <Sparkles className="w-5 h-5 text-[#F97316] mb-1" />
                             <span className="font-medium text-foreground">Smart Insert</span>
                             <span>Natural link placement</span>
                         </div>

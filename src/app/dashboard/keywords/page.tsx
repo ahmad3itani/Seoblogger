@@ -87,7 +87,7 @@ export default function KeywordsPage() {
                                 >
                                     <span className="text-sm font-medium">{keyword}</span>
                                     <Link href={`/dashboard/new?keyword=${encodeURIComponent(keyword)}`}>
-                                        <Button size="sm" className="bg-[#FF6600] hover:bg-violet-700">
+                                        <Button size="sm" className="bg-[#F97316] hover:bg-violet-700">
                                             <Plus className="w-3.5 h-3.5 mr-1.5" />
                                             Create Article
                                         </Button>

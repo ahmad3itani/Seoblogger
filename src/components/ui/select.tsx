@@ -41,7 +41,7 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "flex w-fit items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none hover:border-gray-400 focus-visible:border-[#FF6600] focus-visible:ring-2 focus-visible:ring-[#FF6600]/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/20 data-placeholder:text-gray-500 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex w-fit items-center justify-between gap-1.5 rounded-md border border-gray-300 bg-white py-2 pr-2 pl-2.5 text-sm whitespace-nowrap transition-colors outline-none select-none hover:border-gray-400 focus-visible:border-[#F97316] focus-visible:ring-2 focus-visible:ring-[#F97316]/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-50 aria-invalid:border-red-500 aria-invalid:ring-2 aria-invalid:ring-red-500/20 data-placeholder:text-gray-500 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-1.5 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className
       )}
       {...props}
@@ -130,7 +130,7 @@ function SelectItem({
           <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />
         }
       >
-        <CheckIcon className="pointer-events-none text-[#FF6600]" />
+        <CheckIcon className="pointer-events-none text-[#F97316]" />
       </SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   )

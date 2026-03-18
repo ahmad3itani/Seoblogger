@@ -60,20 +60,11 @@ export const metadata: Metadata = {
     siteName: "BloggerSEO",
     title: "BloggerSEO - Content Automation for Blogger Platform",
     description: "Automate your Blogger content. Generate SEO articles, images, and publish automatically. Save 10+ hours/week.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "BloggerSEO - Blogger Automation Tool",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "BloggerSEO - Content Automation for Blogger",
     description: "Automate Blogger content creation. Generate SEO articles & publish automatically.",
-    images: ["/og-image.png"],
     creator: "@bloggerseo",
   },
   robots: {
@@ -87,9 +78,10 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code",
-  },
+  // Add your real Google Search Console verification code here
+  // verification: {
+  //   google: "your-real-verification-code",
+  // },
   alternates: {
     canonical: "https://bloggerseowriting.com",
   },
@@ -124,13 +116,6 @@ export default function RootLayout({
       ],
       "description": "AI content automation platform for Google Blogger. Generate SEO-optimized articles, images, and auto-publish to Blogger.",
       "url": "https://bloggerseowriting.com",
-      "screenshot": "https://bloggerseowriting.com/og-image.png",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "127",
-        "bestRating": "5"
-      },
       "featureList": [
         "AI Article Generation",
         "SEO Optimization",

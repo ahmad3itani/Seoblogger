@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export default function RegisterPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#FF6600] border-t-transparent rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" /></div>}>
       <RegisterContent />
     </Suspense>
   );
@@ -168,7 +168,7 @@ function RegisterContent() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="John Doe"
                   required
-                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6600]/50 focus:border-[#FF6600]/50"
+                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F97316]/50 focus:border-[#F97316]/50"
                 />
               </div>
             </div>
@@ -186,7 +186,7 @@ function RegisterContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6600]/50 focus:border-[#FF6600]/50"
+                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F97316]/50 focus:border-[#F97316]/50"
                 />
               </div>
             </div>
@@ -205,7 +205,7 @@ function RegisterContent() {
                   placeholder="Min. 6 characters"
                   required
                   minLength={6}
-                  className="w-full h-10 pl-10 pr-10 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF6600]/50 focus:border-[#FF6600]/50"
+                  className="w-full h-10 pl-10 pr-10 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F97316]/50 focus:border-[#F97316]/50"
                 />
                 <button
                   type="button"
@@ -238,16 +238,16 @@ function RegisterContent() {
 
           <p className="text-[11px] text-muted-foreground text-center">
             By creating an account, you agree to our{" "}
-            <Link href="/terms" className="text-[#FF6600] hover:underline">Terms of Service</Link>{" "}
+            <Link href="/terms" className="text-[#F97316] hover:underline">Terms of Service</Link>{" "}
             and{" "}
-            <Link href="/privacy" className="text-[#FF6600] hover:underline">Privacy Policy</Link>
+            <Link href="/privacy" className="text-[#F97316] hover:underline">Privacy Policy</Link>
           </p>
         </div>
 
         {/* Sign in link */}
         <p className="text-center text-sm text-muted-foreground mt-6">
           Already have an account?{" "}
-          <Link href="/auth/login" className="text-[#FF6600] hover:text-orange-500 font-medium">
+          <Link href="/auth/login" className="text-[#F97316] hover:text-orange-500 font-medium">
             Sign in
           </Link>
         </p>

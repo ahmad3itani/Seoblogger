@@ -302,7 +302,7 @@ export default function AdvancedAuditPage() {
     if (isLoading) {
         return (
             <div className="flex h-64 items-center justify-center">
-                <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
             </div>
         );
     }
@@ -315,7 +315,7 @@ export default function AdvancedAuditPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
                 <div>
                     <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 mb-2 flex items-center gap-2">
-                        <Activity className="w-8 h-8 text-[#FF6600]" />
+                        <Activity className="w-8 h-8 text-[#F97316]" />
                         SEO Auditor
                     </h1>
                     <p className="text-muted-foreground">
@@ -335,7 +335,7 @@ export default function AdvancedAuditPage() {
                             </SelectContent>
                         </Select>
                         {hasScanData && !isScanning && (
-                            <Button onClick={handleProScan} variant="outline" className="h-11 border-[#FF6600] text-[#FF6600] hover:bg-[#FF6600]/10 shrink-0">
+                            <Button onClick={handleProScan} variant="outline" className="h-11 border-[#F97316] text-[#F97316] hover:bg-[#F97316]/10 shrink-0">
                                 <RefreshCw className="w-4 h-4 mr-2" /> Rescan
                             </Button>
                         )}
@@ -346,8 +346,8 @@ export default function AdvancedAuditPage() {
             {/* Empty State */}
             {!hasScanData && !isScanning && (
                 <div className="glass-card rounded-2xl p-16 text-center border-dashed">
-                    <div className="w-20 h-20 bg-[#FF6600]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Search className="w-10 h-10 text-[#FF6600]" />
+                    <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Search className="w-10 h-10 text-[#F97316]" />
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Ready to Audit Your Site?</h2>
                     <p className="text-muted-foreground max-w-xl mx-auto mb-8">
@@ -361,7 +361,7 @@ export default function AdvancedAuditPage() {
                             </Badge>
                         ))}
                     </div>
-                    <Button onClick={handleProScan} className="h-12 px-8 text-base bg-[#FF6600] hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-500/25">
+                    <Button onClick={handleProScan} className="h-12 px-8 text-base bg-[#F97316] hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-500/25">
                         <Play className="w-5 h-5 mr-2 fill-current" /> Start Pro Scan
                     </Button>
                 </div>
@@ -370,8 +370,8 @@ export default function AdvancedAuditPage() {
             {/* Scanning State */}
             {isScanning && (
                 <div className="glass-card rounded-2xl p-16 text-center">
-                    <div className="w-20 h-20 bg-[#FF6600]/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                        <RefreshCw className="w-10 h-10 text-[#FF6600] animate-spin" />
+                    <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                        <RefreshCw className="w-10 h-10 text-[#F97316] animate-spin" />
                     </div>
                     <h2 className="text-2xl font-bold mb-2">Scanning Your Site...</h2>
                     <p className="text-muted-foreground">{scanProgress || "Crawling pages, detecting issues, computing scores..."}</p>
@@ -385,10 +385,10 @@ export default function AdvancedAuditPage() {
                     {/* ─── Score Overview Bar ─── */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Overall Score */}
-                        <div className="glass-card p-6 rounded-2xl border-l-4 border-l-[#FF6600] md:col-span-1">
+                        <div className="glass-card p-6 rounded-2xl border-l-4 border-l-[#F97316] md:col-span-1">
                             <p className="text-[10px] text-muted-foreground uppercase font-semibold mb-1">Overall Score</p>
                             <div className="flex items-baseline gap-2">
-                                <h2 className="text-5xl font-black text-[#FF6600]">{scanData.score.overall}</h2>
+                                <h2 className="text-5xl font-black text-[#F97316]">{scanData.score.overall}</h2>
                                 <span className="text-lg text-muted-foreground">/100</span>
                                 <span className={`text-2xl font-black ${getGradeColor(scanData.score.grade)}`}>{scanData.score.grade}</span>
                             </div>
@@ -428,9 +428,9 @@ export default function AdvancedAuditPage() {
                             </div>
                             <div className="glass-card p-5 rounded-2xl text-center">
                                 <p className="text-[10px] text-muted-foreground uppercase font-semibold flex items-center justify-center gap-1">
-                                    <Wand2 className="w-3 h-3 text-[#FF6600]" /> Fixable
+                                    <Wand2 className="w-3 h-3 text-[#F97316]" /> Fixable
                                 </p>
-                                <h2 className="text-3xl font-bold mt-1 text-[#FF6600]">{scanData.score.fixableIssues}</h2>
+                                <h2 className="text-3xl font-bold mt-1 text-[#F97316]">{scanData.score.fixableIssues}</h2>
                             </div>
                         </div>
                     </div>
@@ -438,7 +438,7 @@ export default function AdvancedAuditPage() {
                     {/* ─── Category Score Breakdown ─── */}
                     <div className="glass-card rounded-2xl p-6 border">
                         <h3 className="font-bold text-lg mb-4 flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-[#FF6600]" />
+                            <Shield className="w-5 h-5 text-[#F97316]" />
                             Score by Category
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -485,7 +485,7 @@ export default function AdvancedAuditPage() {
                                 onClick={() => setActiveTab(tab.id)}
                                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all ${
                                     activeTab === tab.id
-                                        ? "bg-white shadow-sm text-[#FF6600] border border-[#FF6600]/20"
+                                        ? "bg-white shadow-sm text-[#F97316] border border-[#F97316]/20"
                                         : "text-muted-foreground hover:text-foreground"
                                 }`}
                             >
@@ -542,7 +542,7 @@ export default function AdvancedAuditPage() {
                                                             </Badge>
                                                             {getConfidenceBadge(issue.confidence, issue.confidenceScore)}
                                                             {issue.fixable && (
-                                                                <Badge variant="outline" className="text-[10px] bg-[#FF6600]/5 text-[#FF6600] border-[#FF6600]/20">
+                                                                <Badge variant="outline" className="text-[10px] bg-[#F97316]/5 text-[#F97316] border-[#F97316]/20">
                                                                     <Wand2 className="w-2.5 h-2.5 mr-1" /> Fixable
                                                                 </Badge>
                                                             )}
@@ -562,7 +562,7 @@ export default function AdvancedAuditPage() {
                                                         <Button
                                                             size="sm"
                                                             onClick={(e) => { e.stopPropagation(); handleGenerateFix(issue); }}
-                                                            className="bg-[#FF6600]/10 text-[#FF6600] border border-[#FF6600]/20 hover:bg-[#FF6600] hover:text-white transition-all"
+                                                            className="bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 hover:bg-[#F97316] hover:text-white transition-all"
                                                         >
                                                             <Wand2 className="w-4 h-4 mr-1.5" /> Fix
                                                         </Button>
@@ -631,8 +631,8 @@ export default function AdvancedAuditPage() {
 
                                                         {/* Blogger-specific note */}
                                                         {issue.bloggerNote && (
-                                                            <div className="bg-[#FF6600]/5 rounded-lg p-2.5 border border-[#FF6600]/20">
-                                                                <p className="text-[9px] uppercase font-bold text-[#FF6600]">Blogger Note</p>
+                                                            <div className="bg-[#F97316]/5 rounded-lg p-2.5 border border-[#F97316]/20">
+                                                                <p className="text-[9px] uppercase font-bold text-[#F97316]">Blogger Note</p>
                                                                 <p className="text-xs mt-0.5">{issue.bloggerNote}</p>
                                                             </div>
                                                         )}
@@ -656,9 +656,9 @@ export default function AdvancedAuditPage() {
                     {/* ─── Tab Content: Quick Wins ─── */}
                     {activeTab === "quick_wins" && (
                         <div className="space-y-4">
-                            <div className="glass-card rounded-2xl p-6 border bg-gradient-to-r from-[#FF6600]/5 to-transparent">
+                            <div className="glass-card rounded-2xl p-6 border bg-gradient-to-r from-[#F97316]/5 to-transparent">
                                 <h3 className="font-bold text-lg mb-1 flex items-center gap-2">
-                                    <Zap className="w-5 h-5 text-[#FF6600]" />
+                                    <Zap className="w-5 h-5 text-[#F97316]" />
                                     Quick Wins
                                 </h3>
                                 <p className="text-sm text-muted-foreground">
@@ -671,10 +671,10 @@ export default function AdvancedAuditPage() {
                                     {scanData.quickWins.map((issue: any, idx: number) => {
                                         const sevCfg = SEVERITY_CONFIG[issue.severity] || SEVERITY_CONFIG.medium;
                                         return (
-                                            <div key={idx} className="glass-card rounded-xl p-5 border flex items-start justify-between hover:border-[#FF6600]/30 transition-colors">
+                                            <div key={idx} className="glass-card rounded-xl p-5 border flex items-start justify-between hover:border-[#F97316]/30 transition-colors">
                                                 <div className="flex gap-3">
-                                                    <div className="w-10 h-10 rounded-xl bg-[#FF6600]/10 flex items-center justify-center shrink-0">
-                                                        <Zap className="w-5 h-5 text-[#FF6600]" />
+                                                    <div className="w-10 h-10 rounded-xl bg-[#F97316]/10 flex items-center justify-center shrink-0">
+                                                        <Zap className="w-5 h-5 text-[#F97316]" />
                                                     </div>
                                                     <div>
                                                         <div className="flex items-center gap-1.5 mb-1">
@@ -692,7 +692,7 @@ export default function AdvancedAuditPage() {
                                                     <Button
                                                         size="sm"
                                                         onClick={() => handleGenerateFix(issue)}
-                                                        className="bg-[#FF6600] text-white hover:bg-orange-600 shrink-0"
+                                                        className="bg-[#F97316] text-white hover:bg-orange-600 shrink-0"
                                                     >
                                                         <Wand2 className="w-4 h-4 mr-1.5" /> Fix Now
                                                     </Button>
@@ -763,7 +763,7 @@ export default function AdvancedAuditPage() {
                         <div className="glass-card rounded-2xl overflow-hidden border">
                             <div className="bg-muted px-6 py-4 border-b">
                                 <h3 className="font-bold flex items-center gap-2">
-                                    <FileText className="w-5 h-5 text-[#FF6600]" />
+                                    <FileText className="w-5 h-5 text-[#F97316]" />
                                     Page-Level Scores
                                 </h3>
                                 <p className="text-xs text-muted-foreground mt-1">Pages sorted by score — worst first.</p>
@@ -810,7 +810,7 @@ export default function AdvancedAuditPage() {
                     {scanData.comparison && (
                         <div className="glass-card rounded-2xl p-6 border">
                             <h3 className="font-bold text-sm mb-3 flex items-center gap-2">
-                                <History className="w-4 h-4 text-[#FF6600]" />
+                                <History className="w-4 h-4 text-[#F97316]" />
                                 Since Last Scan
                             </h3>
                             <div className="grid grid-cols-3 gap-4">
@@ -840,7 +840,7 @@ export default function AdvancedAuditPage() {
                     <div className="w-[520px] h-full bg-background p-6 shadow-2xl border-l animate-in slide-in-from-right overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
                             <h3 className="text-xl font-bold flex items-center gap-2">
-                                <Wand2 className="w-5 h-5 text-[#FF6600]" /> Smart Auto-Fix
+                                <Wand2 className="w-5 h-5 text-[#F97316]" /> Smart Auto-Fix
                             </h3>
                             <Button variant="ghost" size="icon" onClick={() => setSelectedIssue(null)}>✕</Button>
                         </div>
@@ -871,17 +871,17 @@ export default function AdvancedAuditPage() {
 
                             {isGeneratingFix ? (
                                 <div className="h-32 flex flex-col items-center justify-center text-center p-4">
-                                    <Loader2 className="w-8 h-8 text-[#FF6600] animate-spin mb-3" />
+                                    <Loader2 className="w-8 h-8 text-[#F97316] animate-spin mb-3" />
                                     <p className="text-sm text-muted-foreground">Engineering customized SEO fix...</p>
                                 </div>
                             ) : aiFix ? (
                                 <div className="space-y-4">
                                     {aiFix.analyzedKeyword && (
-                                        <div className="bg-[#FF6600]/5 border border-[#FF6600]/20 p-4 rounded-xl flex items-center gap-3">
-                                            <Search className="w-5 h-5 text-[#FF6600]" />
+                                        <div className="bg-[#F97316]/5 border border-[#F97316]/20 p-4 rounded-xl flex items-center gap-3">
+                                            <Search className="w-5 h-5 text-[#F97316]" />
                                             <div>
                                                 <p className="text-[10px] text-muted-foreground uppercase font-bold">Analyzed Target Keyword</p>
-                                                <p className="text-sm font-bold text-[#FF6600]">"{aiFix.analyzedKeyword}"</p>
+                                                <p className="text-sm font-bold text-[#F97316]">"{aiFix.analyzedKeyword}"</p>
                                             </div>
                                         </div>
                                     )}
@@ -912,7 +912,7 @@ export default function AdvancedAuditPage() {
                                     <Button
                                         disabled={isApplyingFix}
                                         onClick={handleApplyFix}
-                                        className="w-full bg-[#FF6600] text-white hover:bg-orange-600"
+                                        className="w-full bg-[#F97316] text-white hover:bg-orange-600"
                                     >
                                         {isApplyingFix ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
                                         {isApplyingFix ? "Applying Safely..." : "Apply Fix to Blogger"}

@@ -89,7 +89,7 @@ export default function ClusteringPage() {
                             )}
                             <Button
                                 size="lg"
-                                className="w-full bg-[#FF6600] hover:bg-violet-700 text-white"
+                                className="w-full bg-[#F97316] hover:bg-violet-700 text-white"
                                 onClick={handleCluster}
                                 disabled={isClustering || !keywordsInput.trim()}
                             >
@@ -111,7 +111,7 @@ export default function ClusteringPage() {
                             <p>Clusters will appear here after processing.</p>
                         </div>
                     ) : isClustering ? (
-                        <div className="h-full min-h-[400px] border border-border/50 rounded-xl flex flex-col items-center justify-center text-[#FF6600]">
+                        <div className="h-full min-h-[400px] border border-border/50 rounded-xl flex flex-col items-center justify-center text-[#F97316]">
                             <Loader2 className="w-12 h-12 mb-4 animate-spin opacity-50" />
                             <p className="animate-pulse">Analyzing semantic relationships...</p>
                         </div>
@@ -126,7 +126,7 @@ export default function ClusteringPage() {
                                     <CardContent className="pt-4 flex-1">
                                         <div className="flex flex-wrap gap-2">
                                             {cluster.keywords.slice(0, 10).map((k, i) => (
-                                                <span key={i} className="px-2 py-1 bg-orange-500/10 border border-[#FF6600]/20 text-violet-300 text-xs rounded-md">
+                                                <span key={i} className="px-2 py-1 bg-orange-500/10 border border-[#F97316]/20 text-violet-300 text-xs rounded-md">
                                                     {k}
                                                 </span>
                                             ))}
@@ -141,7 +141,7 @@ export default function ClusteringPage() {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="w-full text-[#FF6600] hover:text-orange-500 hover:bg-orange-500/10"
+                                            className="w-full text-[#F97316] hover:text-orange-500 hover:bg-orange-500/10"
                                             onClick={() => sendToBulk(cluster)}
                                         >
                                             Send to Bulk Generator

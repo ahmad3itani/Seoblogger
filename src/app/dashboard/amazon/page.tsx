@@ -418,7 +418,7 @@ export default function AmazonAffiliatePage() {
                         <Button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="w-full h-12 bg-gradient-to-r from-[#FF9900] to-[#FF6600] hover:from-[#e68a00] hover:to-[#e65c00] text-white font-semibold rounded-xl shadow-lg shadow-orange-500/25"
+                            className="w-full h-12 bg-gradient-to-r from-[#FF9900] to-[#F97316] hover:from-[#e68a00] hover:to-[#e65c00] text-white font-semibold rounded-xl shadow-lg shadow-orange-500/25"
                         >
                             {isGenerating ? (
                                 <>
@@ -549,7 +549,7 @@ export default function AmazonAffiliatePage() {
                                             size="sm"
                                             onClick={handlePublish}
                                             disabled={isPublishing || publishSuccess}
-                                            className="h-8 bg-[#FF6600] hover:bg-orange-600 text-white"
+                                            className="h-8 bg-[#F97316] hover:bg-orange-600 text-white"
                                         >
                                             {publishSuccess ? (
                                                 <><Check className="w-3 h-3 mr-1" /> Published!</>

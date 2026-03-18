@@ -323,8 +323,8 @@ export default function SettingsPage() {
                             </Button>
                         </div>
                         {blogs.map((blog) => (
-                            <div key={blog.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${blog.isDefault ? "bg-[#FF6600]/5 border-[#FF6600]/30 shadow-sm" : "bg-card border-border/50 hover:border-[#FF6600]/20"}`}>
-                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${blog.isDefault ? "bg-[#FF6600] text-white shadow-md shadow-[#FF6600]/20" : "bg-muted text-muted-foreground"}`}>
+                            <div key={blog.id} className={`flex items-center gap-3 p-4 rounded-xl border transition-all ${blog.isDefault ? "bg-[#F97316]/5 border-[#F97316]/30 shadow-sm" : "bg-card border-border/50 hover:border-[#F97316]/20"}`}>
+                                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${blog.isDefault ? "bg-[#F97316] text-white shadow-md shadow-[#F97316]/20" : "bg-muted text-muted-foreground"}`}>
                                     {blog.isDefault ? (
                                         <Check className="w-5 h-5" />
                                     ) : (
@@ -335,12 +335,12 @@ export default function SettingsPage() {
                                     <p className="text-sm font-semibold truncate text-foreground flex items-center gap-2">
                                         {blog.name}
                                         {blog.isDefault && (
-                                            <Badge variant="secondary" className="px-2 py-0 h-5 text-[10px] bg-[#FF6600] text-white border-0">
+                                            <Badge variant="secondary" className="px-2 py-0 h-5 text-[10px] bg-[#F97316] text-white border-0">
                                                 Default
                                             </Badge>
                                         )}
                                     </p>
-                                    <a href={blog.url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground truncate hover:text-[#FF6600] hover:underline transition-colors mt-0.5 block">
+                                    <a href={blog.url} target="_blank" rel="noreferrer" className="text-xs text-muted-foreground truncate hover:text-[#F97316] hover:underline transition-colors mt-0.5 block">
                                         {blog.url}
                                     </a>
                                 </div>
@@ -348,7 +348,7 @@ export default function SettingsPage() {
                                     <Button
                                         variant="ghost"
                                         size="sm"
-                                        className="h-8 text-xs hover:bg-orange-500/10 hover:text-[#FF6600]"
+                                        className="h-8 text-xs hover:bg-orange-500/10 hover:text-[#F97316]"
                                         onClick={() => handleSetDefault(blog.id)}
                                     >
                                         Set Default

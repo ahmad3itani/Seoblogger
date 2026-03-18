@@ -98,7 +98,7 @@ const LANGUAGES = [
 
 export default function NewArticlePage() {
     return (
-        <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-6 h-6 border-2 border-[#FF6600] border-t-transparent rounded-full animate-spin" /></div>}>
+        <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" /></div>}>
             <NewArticleContent />
         </Suspense>
     );
@@ -501,10 +501,10 @@ function NewArticleContent() {
                             <div>
                                 <Label className="flex items-center gap-1.5">
                                     Brand Voice
-                                    <Megaphone className="w-3.5 h-3.5 text-[#FF6600]" />
+                                    <Megaphone className="w-3.5 h-3.5 text-[#F97316]" />
                                 </Label>
                                 <Select value={selectedProfileId} onValueChange={(v) => v && handleBrandProfileSelect(v)}>
-                                    <SelectTrigger className="mt-1.5 bg-[#FF6600]/5 border-[#FF6600]/20 text-violet-100">
+                                    <SelectTrigger className="mt-1.5 bg-[#F97316]/5 border-[#F97316]/20 text-violet-100">
                                         <SelectValue placeholder="Select a voice..." />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -609,7 +609,7 @@ function NewArticleContent() {
                                             key={opt.label}
                                             onClick={() => opt.setter(!opt.value)}
                                             className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${opt.value
-                                                    ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30"
+                                                    ? "bg-orange-500/20 text-violet-300 border border-[#F97316]/30"
                                                     : "bg-muted/20 text-muted-foreground border border-border/50"
                                                 }`}
                                         >
@@ -681,12 +681,12 @@ function NewArticleContent() {
                                     key={i}
                                     onClick={() => { setSelectedTitle(title); setEditingTitleIdx(null); }}
                                     className={`group relative p-4 rounded-xl cursor-pointer transition-all duration-200 ${selectedTitle === title
-                                            ? "bg-[#FF6600]/15 border-2 border-[#FF6600]/40"
+                                            ? "bg-[#F97316]/15 border-2 border-[#F97316]/40"
                                             : "glass-card hover:bg-muted/20 border-2 border-transparent"
                                         }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${selectedTitle === title ? "bg-[#FF6600] text-white" : "bg-muted/50 text-muted-foreground"
+                                        <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${selectedTitle === title ? "bg-[#F97316] text-white" : "bg-muted/50 text-muted-foreground"
                                             }`}>
                                             {selectedTitle === title ? <Check className="w-3.5 h-3.5" /> : <span className="text-xs">{i + 1}</span>}
                                         </div>
@@ -725,7 +725,7 @@ function NewArticleContent() {
                         </div>
 
                         <div className="glass-card rounded-xl p-4">
-                            <Label htmlFor="custom-title" className="text-xs text-[#FF6600] mb-2 block">Custom Title</Label>
+                            <Label htmlFor="custom-title" className="text-xs text-[#F97316] mb-2 block">Custom Title</Label>
                             <Input
                                 id="custom-title"
                                 className="bg-muted/30 border-border/50"
@@ -773,7 +773,7 @@ function NewArticleContent() {
                         </div>
 
                         <div className="glass-card rounded-xl p-4">
-                            <Label className="text-xs text-[#FF6600] mb-2 block">Article Title</Label>
+                            <Label className="text-xs text-[#F97316] mb-2 block">Article Title</Label>
                             <Input
                                 className="bg-muted/30 border-border/50 font-semibold"
                                 value={selectedTitle}
@@ -827,7 +827,7 @@ function NewArticleContent() {
                                                         />
                                                     ) : (
                                                         <span
-                                                            className="flex-1 text-sm font-medium cursor-pointer hover:text-[#FF6600] transition-colors"
+                                                            className="flex-1 text-sm font-medium cursor-pointer hover:text-[#F97316] transition-colors"
                                                             onClick={() => setEditingOutlineIdx(i)}
                                                         >
                                                             {section.heading}
@@ -855,7 +855,7 @@ function NewArticleContent() {
                                                         ))}
                                                         <button
                                                             onClick={() => addPoint(i)}
-                                                            className="flex items-center gap-1 text-xs text-[#FF6600] hover:text-orange-500 ml-4 mt-1"
+                                                            className="flex items-center gap-1 text-xs text-[#F97316] hover:text-orange-500 ml-4 mt-1"
                                                         >
                                                             <Plus className="w-3 h-3" /> Add point
                                                         </button>
@@ -893,7 +893,7 @@ function NewArticleContent() {
                             </Button>
                             <Button
                                 variant="outline"
-                                className="flex-1 glass-card border-dashed border-[#FF6600]/30 hover:border-[#FF6600]/50 hover:bg-[#FF6600]/5"
+                                className="flex-1 glass-card border-dashed border-[#F97316]/30 hover:border-[#F97316]/50 hover:bg-[#F97316]/5"
                                 onClick={async () => {
                                     setIsLoading(true);
                                     try {
@@ -929,7 +929,7 @@ function NewArticleContent() {
                                 {isLoading ? (
                                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                 ) : (
-                                    <Sparkles className="w-4 h-4 mr-2 text-[#FF6600]" />
+                                    <Sparkles className="w-4 h-4 mr-2 text-[#F97316]" />
                                 )}
                                 Generate Sections
                             </Button>
@@ -940,7 +940,7 @@ function NewArticleContent() {
                                 <Label className="text-xs text-muted-foreground mb-2 block">Suggested Labels</Label>
                                 <div className="flex flex-wrap gap-2">
                                     {outline.suggestedLabels.map((label: string) => (
-                                        <Badge key={label} variant="secondary" className="bg-orange-500/10 text-violet-300 border-[#FF6600]/20">
+                                        <Badge key={label} variant="secondary" className="bg-orange-500/10 text-violet-300 border-[#F97316]/20">
                                             <Tag className="w-3 h-3 mr-1" />{label}
                                         </Badge>
                                     ))}
@@ -992,14 +992,14 @@ function NewArticleContent() {
                             <div className="flex gap-2">
                                 <Button
                                     variant="outline" size="sm"
-                                    className={`glass-card ${articleEditMode === "preview" ? "bg-orange-500/10 border-[#FF6600]/30" : ""}`}
+                                    className={`glass-card ${articleEditMode === "preview" ? "bg-orange-500/10 border-[#F97316]/30" : ""}`}
                                     onClick={() => setArticleEditMode("preview")}
                                 >
                                     <Eye className="w-3.5 h-3.5 mr-1.5" /> Preview
                                 </Button>
                                 <Button
                                     variant="outline" size="sm"
-                                    className={`glass-card ${articleEditMode === "html" ? "bg-orange-500/10 border-[#FF6600]/30" : ""}`}
+                                    className={`glass-card ${articleEditMode === "html" ? "bg-orange-500/10 border-[#F97316]/30" : ""}`}
                                     onClick={() => setArticleEditMode("html")}
                                 >
                                     <Code className="w-3.5 h-3.5 mr-1.5" /> HTML
@@ -1011,7 +1011,7 @@ function NewArticleContent() {
                         </div>
 
                         <div className="glass-card rounded-xl p-4">
-                            <Label className="text-xs text-[#FF6600] mb-2 block">Title</Label>
+                            <Label className="text-xs text-[#F97316] mb-2 block">Title</Label>
                             <Input
                                 className="bg-muted/30 border-border/50 font-semibold text-lg"
                                 value={selectedTitle}
@@ -1068,7 +1068,7 @@ function NewArticleContent() {
 
                         {/* Meta Description */}
                         <div className="glass-card rounded-xl p-5 space-y-4">
-                            <h3 className="text-sm font-semibold text-[#FF6600]">Meta Description & Excerpt</h3>
+                            <h3 className="text-sm font-semibold text-[#F97316]">Meta Description & Excerpt</h3>
                             <div>
                                 <Label className="text-xs">Meta Description ({meta?.metaDescription?.length || 0}/160 chars)</Label>
                                 <Textarea
@@ -1091,11 +1091,11 @@ function NewArticleContent() {
                         {/* FAQs */}
                         {faqs.length > 0 && (
                             <div className="space-y-3">
-                                <h3 className="text-sm font-semibold text-[#FF6600]">FAQs ({faqs.length})</h3>
+                                <h3 className="text-sm font-semibold text-[#F97316]">FAQs ({faqs.length})</h3>
                                 {faqs.map((faq, i) => (
                                     <div key={i} className="glass-card rounded-xl p-4 group">
                                         <div className="flex items-start gap-3">
-                                            <div className="w-6 h-6 rounded-full bg-orange-500/10 text-[#FF6600] flex items-center justify-center text-xs font-bold shrink-0 mt-1">
+                                            <div className="w-6 h-6 rounded-full bg-orange-500/10 text-[#F97316] flex items-center justify-center text-xs font-bold shrink-0 mt-1">
                                                 {i + 1}
                                             </div>
                                             <div className="flex-1 space-y-2">
@@ -1249,7 +1249,7 @@ function NewArticleContent() {
 
                         {/* Article body */}
                         <div className="glass-card rounded-xl p-6">
-                            <h1 className="text-xl font-bold text-[#FF6600] mb-4">{selectedTitle}</h1>
+                            <h1 className="text-xl font-bold text-[#F97316] mb-4">{selectedTitle}</h1>
                             <div
                                 className="article-preview text-sm prose prose-invert max-w-none"
                                 dangerouslySetInnerHTML={{ __html: article || "<p>No content generated.</p>" }}
@@ -1291,7 +1291,7 @@ function NewArticleContent() {
                                         key={action.value}
                                         onClick={() => setPublishAction(action.value)}
                                         className={`flex-1 min-w-[150px] p-4 rounded-xl text-left transition-all duration-200 ${publishAction === action.value
-                                                ? "bg-[#FF6600]/15 border-2 border-[#FF6600]/40"
+                                                ? "bg-[#F97316]/15 border-2 border-[#F97316]/40"
                                                 : "bg-muted/10 border-2 border-border/30"
                                             }`}
                                     >
@@ -1365,7 +1365,7 @@ function NewArticleContent() {
                                     if (step.id < currentStep) setCurrentStep(step.id);
                                 }}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${currentStep === step.id
-                                        ? "bg-orange-500/20 text-violet-300 border border-[#FF6600]/30"
+                                        ? "bg-orange-500/20 text-violet-300 border border-[#F97316]/30"
                                         : currentStep > step.id
                                             ? "bg-green-500/10 text-green-400 cursor-pointer hover:bg-green-500/20"
                                             : "text-muted-foreground/50"

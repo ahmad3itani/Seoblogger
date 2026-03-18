@@ -191,7 +191,7 @@ export default function ArticlesPage() {
             {/* Articles list */}
             {isLoading ? (
                 <div className="flex items-center justify-center py-16">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
+                    <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
                 </div>
             ) : (
                 <div className="space-y-3">
@@ -240,7 +240,7 @@ export default function ArticlesPage() {
                                                 <Badge
                                                     key={label}
                                                     variant="secondary"
-                                                    className="text-[10px] bg-[#FF6600]/10 text-[#FF6600] border-[#FF6600]/20"
+                                                    className="text-[10px] bg-[#F97316]/10 text-[#F97316] border-[#F97316]/20"
                                                 >
                                                     {label.trim()}
                                                 </Badge>

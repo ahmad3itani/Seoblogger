@@ -128,7 +128,7 @@ export async function GET(req: Request) {
                 await prisma.publishLog.create({
                     data: {
                         action: "publish",
-                        blogId: blogData.blogId,
+                        blogId: blogData.id,
                         articleId: article.id,
                         bloggerPostId: postResponse.id || null,
                         response: JSON.stringify(postResponse),

@@ -600,7 +600,7 @@ function ArticleWriterContent() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <PenTool className="w-6 h-6 text-[#FF6600]" />
+            <PenTool className="w-6 h-6 text-[#F97316]" />
             Article Writer
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -627,9 +627,9 @@ function ArticleWriterContent() {
             return (
               <div
                 key={p.id}
-                className={`flex flex-col items-center gap-0.5 min-w-[54px] ${isActive ? "text-[#FF6600]" : isDone ? "text-green-500" : "text-muted-foreground/50"}`}
+                className={`flex flex-col items-center gap-0.5 min-w-[54px] ${isActive ? "text-[#F97316]" : isDone ? "text-green-500" : "text-muted-foreground/50"}`}
               >
-                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${isActive ? "bg-[#FF6600]/15 ring-2 ring-[#FF6600]" : isDone ? "bg-green-500/15" : "bg-muted/30"}`}>
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs ${isActive ? "bg-[#F97316]/15 ring-2 ring-[#F97316]" : isDone ? "bg-green-500/15" : "bg-muted/30"}`}>
                   {isDone ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
                 </div>
                 <span className="text-[10px] font-medium leading-tight text-center">{p.label}</span>
@@ -674,7 +674,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-[#FF6600]" /> Topic Ideation
+                <Sparkles className="w-5 h-5 text-[#F97316]" /> Topic Ideation
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 What do you want to write about? I&apos;ll refine your idea into compelling angles.
@@ -754,7 +754,7 @@ function ArticleWriterContent() {
                     type="button"
                     onClick={() => setIncludeImages(!includeImages)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                      includeImages ? 'bg-[#FF6600]' : 'bg-muted-foreground/30'
+                      includeImages ? 'bg-[#F97316]' : 'bg-muted-foreground/30'
                     }`}
                   >
                     <span
@@ -783,7 +783,7 @@ function ArticleWriterContent() {
               </div>
             </div>
 
-            <Button onClick={handleIdeation} disabled={loading || !initialIdea.trim()} className="bg-[#FF6600] hover:bg-[#FF6600]/90 w-full">
+            <Button onClick={handleIdeation} disabled={loading || !initialIdea.trim()} className="bg-[#F97316] hover:bg-[#F97316]/90 w-full">
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
               {loading ? "Analyzing Topic..." : "Analyze & Refine Topic"}
             </Button>
@@ -795,7 +795,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Search className="w-5 h-5 text-[#FF6600]" /> Research Planning
+                <Search className="w-5 h-5 text-[#F97316]" /> Research Planning
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Want to back your article with research and sources?
@@ -804,10 +804,10 @@ function ArticleWriterContent() {
 
             {ideationResult && (
               <div className="rounded-lg bg-muted/20 p-4 space-y-2 border border-border/30">
-                <div className="text-xs font-medium text-[#FF6600] uppercase tracking-wider">Refined Topic</div>
+                <div className="text-xs font-medium text-[#F97316] uppercase tracking-wider">Refined Topic</div>
                 <p className="text-sm font-medium">{ideationResult.refinedTopic}</p>
                 {ideationResult.suggestedKeyword && (
-                  <p className="text-xs text-muted-foreground">Suggested keyword: <span className="font-mono text-[#FF6600]">{ideationResult.suggestedKeyword}</span></p>
+                  <p className="text-xs text-muted-foreground">Suggested keyword: <span className="font-mono text-[#F97316]">{ideationResult.suggestedKeyword}</span></p>
                 )}
                 {ideationResult.angles?.length > 0 && (
                   <div className="mt-2">
@@ -815,7 +815,7 @@ function ArticleWriterContent() {
                     <ul className="text-xs text-muted-foreground mt-1 space-y-1">
                       {ideationResult.angles.map((a: string, i: number) => (
                         <li key={i} className="flex items-start gap-1.5">
-                          <span className="text-[#FF6600] mt-0.5">•</span> {a}
+                          <span className="text-[#F97316] mt-0.5">•</span> {a}
                         </li>
                       ))}
                     </ul>
@@ -833,7 +833,7 @@ function ArticleWriterContent() {
             </div>
 
             {wantResearch && (
-              <div className="space-y-3 pl-4 border-l-2 border-[#FF6600]/30">
+              <div className="space-y-3 pl-4 border-l-2 border-[#F97316]/30">
                 <div>
                   <Label className="text-xs">Research Depth</Label>
                   <Select value={researchDepth} onValueChange={(v: any) => setResearchDepth(v)}>
@@ -881,7 +881,7 @@ function ArticleWriterContent() {
                     <p className="text-xs">{s.excerpt}</p>
                   </div>
                 ))}
-                <Button onClick={handleApproveResearch} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+                <Button onClick={handleApproveResearch} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Check className="w-4 h-4 mr-2" />}
                   Approve Sources & Continue
                 </Button>
@@ -889,7 +889,7 @@ function ArticleWriterContent() {
             )}
 
             {researchSources.length === 0 && (
-              <Button onClick={handleResearch} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={handleResearch} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ArrowRight className="w-4 h-4 mr-2" />}
                 {loading ? (wantResearch ? "Gathering Sources..." : "Continuing...") : (wantResearch ? "Gather Sources" : "Skip Research & Continue")}
               </Button>
@@ -902,7 +902,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Palette className="w-5 h-5 text-[#FF6600]" /> Writing Style
+                <Palette className="w-5 h-5 text-[#F97316]" /> Writing Style
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Select or create a reusable style guide to control voice, tone, and formatting.
@@ -915,7 +915,7 @@ function ArticleWriterContent() {
                 <div className="grid gap-2">
                   <button
                     onClick={() => setSelectedStyleId("")}
-                    className={`text-left p-3 rounded-lg border transition-colors ${!selectedStyleId ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
+                    className={`text-left p-3 rounded-lg border transition-colors ${!selectedStyleId ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
                   >
                     <span className="text-sm font-medium">Default Style</span>
                     <p className="text-xs text-muted-foreground">Balanced professional tone, standard formatting</p>
@@ -924,7 +924,7 @@ function ArticleWriterContent() {
                     <button
                       key={sg.id}
                       onClick={() => setSelectedStyleId(sg.id)}
-                      className={`text-left p-3 rounded-lg border transition-colors ${selectedStyleId === sg.id ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
+                      className={`text-left p-3 rounded-lg border transition-colors ${selectedStyleId === sg.id ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
                     >
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-medium">{sg.name}</span>
@@ -975,7 +975,7 @@ function ArticleWriterContent() {
               </div>
             )}
 
-            <Button onClick={handleStyleDone} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+            <Button onClick={handleStyleDone} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
               <ArrowRight className="w-4 h-4 mr-2" /> Continue to Title & Thesis
             </Button>
           </div>
@@ -986,7 +986,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Type className="w-5 h-5 text-[#FF6600]" /> Title & Thesis
+                <Type className="w-5 h-5 text-[#F97316]" /> Title & Thesis
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Choose a compelling title and direction for your article.
@@ -994,7 +994,7 @@ function ArticleWriterContent() {
             </div>
 
             {titleOptions.length === 0 && (
-              <Button onClick={handleThesis} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={handleThesis} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Sparkles className="w-4 h-4 mr-2" />}
                 {loading ? "Generating Titles..." : "Generate Title & Thesis Options"}
               </Button>
@@ -1006,7 +1006,7 @@ function ArticleWriterContent() {
                   <button
                     key={i}
                     onClick={() => { setSelectedTitle(opt.title); setSelectedThesis(opt.thesis); }}
-                    className={`w-full text-left p-4 rounded-lg border transition-colors ${selectedTitle === opt.title ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
+                    className={`w-full text-left p-4 rounded-lg border transition-colors ${selectedTitle === opt.title ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20 hover:bg-muted/30"}`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -1038,7 +1038,7 @@ function ArticleWriterContent() {
                   <Button onClick={handleThesis} disabled={loading} variant="outline" className="flex-1">
                     <RefreshCw className="w-3.5 h-3.5 mr-1" /> Regenerate
                   </Button>
-                  <Button onClick={handleConfirmThesis} disabled={loading || !selectedTitle} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
+                  <Button onClick={handleConfirmThesis} disabled={loading || !selectedTitle} className="flex-1 bg-[#F97316] hover:bg-[#F97316]/90">
                     <ArrowRight className="w-4 h-4 mr-2" /> Confirm & Generate Outline
                   </Button>
                 </div>
@@ -1052,13 +1052,13 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Layout className="w-5 h-5 text-[#FF6600]" /> Outline
+                <Layout className="w-5 h-5 text-[#F97316]" /> Outline
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Generating a structured outline for: <span className="font-medium text-foreground">{selectedTitle}</span>
               </p>
             </div>
-            <Button onClick={handleOutline} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+            <Button onClick={handleOutline} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Layout className="w-4 h-4 mr-2" />}
               {loading ? "Building Outline..." : "Generate Outline"}
             </Button>
@@ -1070,7 +1070,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <ListChecks className="w-5 h-5 text-[#FF6600]" /> Confirm Sections
+                <ListChecks className="w-5 h-5 text-[#F97316]" /> Confirm Sections
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Review, reorder, edit, or add sections before writing.
@@ -1135,7 +1135,7 @@ function ArticleWriterContent() {
                           newOutline[i] = { ...newOutline[i], points: [...(newOutline[i].points || []), "New point"] };
                           setOutline(newOutline);
                         }}
-                        className="text-xs text-[#FF6600] hover:underline"
+                        className="text-xs text-[#F97316] hover:underline"
                       >
                         + Add point
                       </button>
@@ -1143,12 +1143,12 @@ function ArticleWriterContent() {
                   )}
                 </div>
               ))}
-              <button onClick={addOutlineItem} className="w-full p-2 text-sm text-[#FF6600] border border-dashed border-[#FF6600]/30 rounded-lg hover:bg-[#FF6600]/5">
+              <button onClick={addOutlineItem} className="w-full p-2 text-sm text-[#F97316] border border-dashed border-[#F97316]/30 rounded-lg hover:bg-[#F97316]/5">
                 <Plus className="w-4 h-4 inline mr-1" /> Add Section
               </button>
             </div>
 
-            <Button onClick={handleConfirmSections} disabled={loading || outline.length === 0} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+            <Button onClick={handleConfirmSections} disabled={loading || outline.length === 0} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
               <ArrowRight className="w-4 h-4 mr-2" /> Confirm & Start Writing
             </Button>
           </div>
@@ -1159,7 +1159,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <PenTool className="w-5 h-5 text-[#FF6600]" /> Write Article
+                <PenTool className="w-5 h-5 text-[#F97316]" /> Write Article
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Choose how to generate your article content.
@@ -1169,24 +1169,24 @@ function ArticleWriterContent() {
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => setWritingMode("full")}
-                className={`p-4 rounded-lg border text-left ${writingMode === "full" ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20"}`}
+                className={`p-4 rounded-lg border text-left ${writingMode === "full" ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20"}`}
               >
-                <FileText className="w-5 h-5 text-[#FF6600] mb-2" />
+                <FileText className="w-5 h-5 text-[#F97316] mb-2" />
                 <p className="text-sm font-semibold">Full Draft</p>
                 <p className="text-xs text-muted-foreground">Generate the entire article at once</p>
               </button>
               <button
                 onClick={() => setWritingMode("section")}
-                className={`p-4 rounded-lg border text-left ${writingMode === "section" ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20"}`}
+                className={`p-4 rounded-lg border text-left ${writingMode === "section" ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20"}`}
               >
-                <ListChecks className="w-5 h-5 text-[#FF6600] mb-2" />
+                <ListChecks className="w-5 h-5 text-[#F97316] mb-2" />
                 <p className="text-sm font-semibold">Section by Section</p>
                 <p className="text-xs text-muted-foreground">Write and review one section at a time</p>
               </button>
             </div>
 
             {writingMode === "full" && (
-              <Button onClick={handleWriteFull} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={handleWriteFull} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <PenTool className="w-4 h-4 mr-2" />}
                 {loading ? "Writing Full Article... (this may take a minute)" : "Generate Full Article"}
               </Button>
@@ -1235,7 +1235,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Eye className="w-5 h-5 text-[#FF6600]" /> Review Article
+                <Eye className="w-5 h-5 text-[#F97316]" /> Review Article
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Review the generated article. You can edit it directly or approve to continue.
@@ -1254,7 +1254,7 @@ function ArticleWriterContent() {
               <Button onClick={() => setPhase("writing")} variant="outline" className="flex-1">
                 <ArrowLeft className="w-4 h-4 mr-1" /> Back to Writing
               </Button>
-              <Button onClick={handleApproveDraft} disabled={loading} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={handleApproveDraft} disabled={loading} className="flex-1 bg-[#F97316] hover:bg-[#F97316]/90">
                 <Check className="w-4 h-4 mr-2" /> Approve & Continue
               </Button>
             </div>
@@ -1266,7 +1266,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Edit3 className="w-5 h-5 text-[#FF6600]" /> Editor Pass
+                <Edit3 className="w-5 h-5 text-[#F97316]" /> Editor Pass
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 AI editorial review: removes AI tells, tightens prose, ensures tone consistency, and enhances formatting.
@@ -1305,7 +1305,7 @@ function ArticleWriterContent() {
                 <div className="rounded-lg bg-muted/10 border border-border/30 p-4 max-h-[400px] overflow-y-auto text-sm prose prose-invert prose-sm max-w-none"
                   dangerouslySetInnerHTML={{ __html: editorContent }}
                 />
-                <Button onClick={() => setPhase("metadata")} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+                <Button onClick={() => setPhase("metadata")} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                   <ArrowRight className="w-4 h-4 mr-2" /> Continue to Metadata
                 </Button>
               </div>
@@ -1316,7 +1316,7 @@ function ArticleWriterContent() {
                 <Button onClick={() => handleEditorPass(true)} disabled={loading} variant="outline" className="flex-1">
                   Skip Editor
                 </Button>
-                <Button onClick={() => handleEditorPass(false)} disabled={loading} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
+                <Button onClick={() => handleEditorPass(false)} disabled={loading} className="flex-1 bg-[#F97316] hover:bg-[#F97316]/90">
                   {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Edit3 className="w-4 h-4 mr-2" />}
                   {loading ? "Running Editor Pass..." : "Run Editor Pass"}
                 </Button>
@@ -1330,7 +1330,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Tags className="w-5 h-5 text-[#FF6600]" /> Article Metadata
+                <Tags className="w-5 h-5 text-[#F97316]" /> Article Metadata
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Generate and customize SEO metadata for your article.
@@ -1338,7 +1338,7 @@ function ArticleWriterContent() {
             </div>
 
             {!metaTitle && (
-              <Button onClick={handleMetadata} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={handleMetadata} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Tags className="w-4 h-4 mr-2" />}
                 {loading ? "Generating Metadata..." : "Generate SEO Metadata"}
               </Button>
@@ -1378,7 +1378,7 @@ function ArticleWriterContent() {
                   <Button onClick={handleMetadata} disabled={loading} variant="outline" className="flex-1">
                     <RefreshCw className="w-3.5 h-3.5 mr-1" /> Regenerate
                   </Button>
-                  <Button onClick={handleConfirmMetadata} disabled={loading} className="flex-1 bg-[#FF6600] hover:bg-[#FF6600]/90">
+                  <Button onClick={handleConfirmMetadata} disabled={loading} className="flex-1 bg-[#F97316] hover:bg-[#F97316]/90">
                     <ArrowRight className="w-4 h-4 mr-2" /> Confirm & Export
                   </Button>
                 </div>
@@ -1392,7 +1392,7 @@ function ArticleWriterContent() {
           <div className="space-y-5 animate-slide-up opacity-0 stagger-1">
             <div>
               <h2 className="text-lg font-bold flex items-center gap-2">
-                <Send className="w-5 h-5 text-[#FF6600]" /> Export & Publish
+                <Send className="w-5 h-5 text-[#F97316]" /> Export & Publish
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
                 Your article is ready! Choose how to save it.
@@ -1408,15 +1408,15 @@ function ArticleWriterContent() {
                 <button
                   key={opt.value}
                   onClick={() => setPublishAction(opt.value)}
-                  className={`p-4 rounded-lg border text-center ${publishAction === opt.value ? "border-[#FF6600] bg-[#FF6600]/10" : "border-border/30 bg-muted/20"}`}
+                  className={`p-4 rounded-lg border text-center ${publishAction === opt.value ? "border-[#F97316] bg-[#F97316]/10" : "border-border/30 bg-muted/20"}`}
                 >
-                  <opt.icon className="w-5 h-5 mx-auto mb-1.5 text-[#FF6600]" />
+                  <opt.icon className="w-5 h-5 mx-auto mb-1.5 text-[#F97316]" />
                   <p className="text-xs font-medium">{opt.label}</p>
                 </button>
               ))}
             </div>
 
-            <Button onClick={handleExport} disabled={loading} className="w-full bg-[#FF6600] hover:bg-[#FF6600]/90">
+            <Button onClick={handleExport} disabled={loading} className="w-full bg-[#F97316] hover:bg-[#F97316]/90">
               {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
               {loading ? "Exporting..." : `${publishAction === "publish" ? "Publish" : publishAction === "schedule" ? "Schedule" : "Save"} Article`}
             </Button>
@@ -1445,7 +1445,7 @@ function ArticleWriterContent() {
               <Button variant="outline" onClick={() => window.location.href = "/dashboard/articles"}>
                 <FileText className="w-4 h-4 mr-1" /> View Articles
               </Button>
-              <Button onClick={() => { setPhase("ideation"); setDraftId(null); setIdeationResult(null); setTitleOptions([]); setOutline([]); setDraftContent(""); setEditorContent(""); setMetaTitle(""); setMetaDescription(""); setMetaKeywords([]); setSavedArticle(null); setSelectedTitle(""); setSelectedThesis(""); setResearchSources([]); setError(""); }} className="bg-[#FF6600] hover:bg-[#FF6600]/90">
+              <Button onClick={() => { setPhase("ideation"); setDraftId(null); setIdeationResult(null); setTitleOptions([]); setOutline([]); setDraftContent(""); setEditorContent(""); setMetaTitle(""); setMetaDescription(""); setMetaKeywords([]); setSavedArticle(null); setSelectedTitle(""); setSelectedThesis(""); setResearchSources([]); setError(""); }} className="bg-[#F97316] hover:bg-[#F97316]/90">
                 <Plus className="w-4 h-4 mr-1" /> Write Another
               </Button>
             </div>
