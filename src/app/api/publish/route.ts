@@ -165,15 +165,24 @@ export async function POST(req: Request) {
             },
         });
 
+        console.log(`✅ Blogger Publish Success: Action=${action}, PostID=${bloggerPost?.id}, Status=${bloggerPost?.status}`);
+        console.log(`📊 Post URL: ${bloggerPost?.url || 'N/A'}`);
+        
         return NextResponse.json({
             success: true,
             action,
             post: bloggerPost,
+            url: bloggerPost?.url,
+            status: bloggerPost?.status,
         });
-    } catch (error) {
-        console.error("Publish API error:", error);
+    } catch (error: any) {
+        console.error("❌ Publish API error:", error);
+        console.error("Error details:", error.message || error.toString());
         return NextResponse.json(
-            { error: "Publishing failed. Please try again." },
+            { 
+                error: error.message || "Publishing failed. Please try again.",
+                details: error.toString()
+            },
             { status: 500 }
         );
     }

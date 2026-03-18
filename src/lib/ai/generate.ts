@@ -301,9 +301,10 @@ OUTPUT:
 
     const model = getModelForPlan(options.userPlan);
     
-    // Calculate max tokens: words * 1.5 (tokens per word) * 1.5 (safety margin)
+    // Calculate max tokens: words * 2 (tokens per word) * 2 (safety margin for HTML tags)
+    // Claude needs MORE tokens because HTML tags add overhead
     const targetWords = options.wordCount || 2000;
-    const maxTokens = Math.ceil(targetWords * 1.5 * 1.5);
+    const maxTokens = Math.min(Math.ceil(targetWords * 2 * 2), 16000); // Cap at 16k for safety
     
     console.log(`📝 Article Generation: Target=${targetWords} words, MaxTokens=${maxTokens}, Model=${model}`);
     
@@ -313,8 +314,8 @@ OUTPUT:
             { role: "system", content: systemPrompt },
             { role: "user", content: userPrompt },
         ],
-        temperature: 0.8, // Higher temperature for more verbose output
-        max_tokens: maxTokens, // Ensure enough tokens for target word count
+        temperature: 0.7, // Balanced for quality and completeness
+        max_tokens: maxTokens, // Ensure enough tokens for FULL article
     });
 
     let article = response.choices[0]?.message?.content || "";
