@@ -1,47 +1,25 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-  Zap,
-  PenTool,
-  Image,
-  Send,
-  BarChart3,
-  Globe,
-  ArrowRight,
-  CheckCircle2,
-  Sparkles,
-  FileText,
-  Eye,
-  Rocket,
-  Star,
-  ChevronRight,
-  Menu,
-  X,
-  User,
-  LayoutDashboard,
-  Search,
-  TrendingUp,
-  RefreshCw,
-  Network,
-  Lightbulb,
-  Calendar,
-  Activity,
-  Link as LinkIcon,
-  ShoppingCart,
-  Megaphone,
-  Shield,
-  Layers,
-  Crown,
+  Zap, PenTool, Image, Send, BarChart3, Globe, ArrowRight,
+  CheckCircle2, Sparkles, FileText, Rocket, Star, ChevronRight,
+  Menu, X, Search, TrendingUp, RefreshCw, Network, Lightbulb,
+  Calendar, Activity, Link as LinkIcon, ShoppingCart, Shield,
+  Layers, Crown, Brain, Target, Timer, Users, Gauge, Award,
+  Play, ChevronDown, Check,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
 
-// ─── Scroll reveal hook ──────────────────────────────────────────
-function Reveal({ children, className = "", delay = 0, direction = "up" }: {
-  children: React.ReactNode; className?: string; delay?: number; direction?: "up" | "left" | "right";
+// ─── Reveal on scroll ───────────────────────────────────────────
+function Reveal({
+  children, className = "", delay = 0, direction = "up",
+}: {
+  children: React.ReactNode; className?: string; delay?: number;
+  direction?: "up" | "left" | "right" | "scale";
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -49,17 +27,24 @@ function Reveal({ children, className = "", delay = 0, direction = "up" }: {
     if (!el) return;
     const obs = new IntersectionObserver(
       ([e]) => { if (e.isIntersecting) { el.classList.add("visible"); obs.unobserve(el); } },
-      { threshold: 0.12, rootMargin: "0px 0px -30px 0px" }
+      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
-  const cls = direction === "left" ? "fade-in-left" : direction === "right" ? "fade-in-right" : "fade-in-up";
-  return <div ref={ref} className={`${cls} ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
+  const cls =
+    direction === "left" ? "fade-in-left" :
+    direction === "right" ? "fade-in-right" :
+    direction === "scale" ? "scale-in" : "fade-in-up";
+  return (
+    <div ref={ref} className={`${cls} ${className}`} style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
 }
 
-// ─── Animated counter ────────────────────────────────────────────
-function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
+// ─── Animated counter ───────────────────────────────────────────
+function Counter({ target, suffix = "", prefix = "" }: { target: number; suffix?: string; prefix?: string }) {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const started = useRef(false);
@@ -69,7 +54,8 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
     const obs = new IntersectionObserver(([e]) => {
       if (e.isIntersecting && !started.current) {
         started.current = true;
-        const dur = 1400, t0 = performance.now();
+        const dur = 1600;
+        const t0 = performance.now();
         const tick = (now: number) => {
           const p = Math.min((now - t0) / dur, 1);
           setCount(Math.round(target * (1 - Math.pow(1 - p, 3))));
@@ -81,517 +67,996 @@ function Counter({ target, suffix = "" }: { target: number; suffix?: string }) {
     obs.observe(el);
     return () => obs.disconnect();
   }, [target]);
-  return <span ref={ref}>{count}{suffix}</span>;
+  return <span ref={ref} className="stat-number">{prefix}{count}{suffix}</span>;
+}
+
+// ─── Tilt card ──────────────────────────────────────────────────
+function TiltCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const onMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const el = ref.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const x = ((e.clientX - r.left) / r.width  - 0.5) * 12;
+    const y = ((e.clientY - r.top)  / r.height - 0.5) * -12;
+    el.style.transform = `perspective(900px) rotateX(${y}deg) rotateY(${x}deg) translateZ(4px)`;
+  }, []);
+  const onLeave = useCallback(() => {
+    const el = ref.current;
+    if (el) el.style.transform = "perspective(900px) rotateX(0deg) rotateY(0deg) translateZ(0)";
+  }, []);
+  return (
+    <div
+      ref={ref}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      className={className}
+      style={{ transition: "transform 0.15s ease", transformStyle: "preserve-3d" }}
+    >
+      {children}
+    </div>
+  );
 }
 
 // ─── Data ────────────────────────────────────────────────────────
 
-const TOOL_CATEGORIES = [
+const FEATURES = [
   {
-    id: "creation",
-    title: "Content Creation",
-    icon: PenTool,
-    tools: [
-      { icon: PenTool, name: "Article Writer", desc: "Generate complete SEO-optimized articles from a single keyword — title, headings, FAQs, meta, and Blogger-ready HTML.", color: "from-[#FF6600] to-amber-500" },
-      { icon: Layers, name: "Bulk Generator", desc: "Generate 10, 50, or 100 articles in one batch. Scale your content pipeline.", color: "from-purple-500 to-pink-500", pro: true },
-      { icon: Image, name: "Image Studio", desc: "Generate featured images and section visuals with SEO-optimized alt text.", color: "from-blue-500 to-indigo-500" },
-      { icon: ShoppingCart, name: "Amazon Affiliate Writer", desc: "Product reviews with affiliate links, comparison tables, and buying guides.", color: "from-emerald-500 to-teal-500" },
-      { icon: Megaphone, name: "Brand Voice Profiles", desc: "Save your brand tone, audience, and style. Every article matches your voice.", color: "from-rose-500 to-pink-500" },
+    icon: Brain, title: "AI Article Writer", size: "col-span-7",
+    desc: "Generate complete, 3000+ word SEO articles from a single keyword. Real SERP data. E-E-A-T signals. Blogger-ready HTML in one click.",
+    badge: "Most Popular", color: "orange",
+    preview: [
+      { label: "Keyword", val: "best running shoes 2026" },
+      { label: "Words", val: "3,200" },
+      { label: "SEO Score", val: "94/100" },
     ],
   },
   {
-    id: "seo",
-    title: "SEO & Research",
-    icon: Search,
-    tools: [
-      { icon: TrendingUp, name: "Keyword Research", desc: "Find high-opportunity keywords with search volume, difficulty, and suggestions.", color: "from-[#FF6600] to-red-500" },
-      { icon: Lightbulb, name: "Trend Ideas", desc: "Discover trending topics in your niche before your competitors.", color: "from-amber-500 to-yellow-500", pro: true },
-      { icon: Network, name: "Keyword Clustering", desc: "Group keywords into topic clusters. Build topical authority.", color: "from-cyan-500 to-blue-500", pro: true },
-      { icon: Activity, name: "Full Site Audit", desc: "Deep-scan for 50+ SEO issues: technical, content, performance. Smart fix suggestions.", color: "from-green-500 to-emerald-500" },
-      { icon: LinkIcon, name: "Internal Linker", desc: "Smart internal link suggestions. Boost link equity and reduce orphan pages.", color: "from-violet-500 to-purple-500" },
+    icon: Gauge, title: "Full Site Audit", size: "col-span-5",
+    desc: "Scan 50+ SEO signals — technical issues, broken links, thin content, missing meta. Smart fix suggestions included.",
+    badge: "Free", color: "blue",
+    stat: { val: 50, suffix: "+", label: "SEO checks" },
+  },
+  {
+    icon: Target, title: "Keyword Research", size: "col-span-5",
+    desc: "Find high-opportunity keywords with real search volume, difficulty scores, and topic cluster suggestions.",
+    badge: "Free", color: "purple",
+    stat: { val: 10, suffix: "k+", label: "Keywords scanned" },
+  },
+  {
+    icon: Layers, title: "Bulk Generator", size: "col-span-7",
+    desc: "Generate 10, 50, or 100 articles in a single batch. Schedule them across weeks. Your content pipeline runs itself.",
+    badge: "Pro", color: "orange",
+    preview: [
+      { label: "Articles queued", val: "47" },
+      { label: "Published", val: "23" },
+      { label: "Scheduled", val: "24" },
     ],
   },
   {
-    id: "optimize",
-    title: "Optimize & Publish",
-    icon: Rocket,
-    tools: [
-      { icon: Sparkles, name: "Quality Pass", desc: "3-stage editorial engine: improves clarity, originality, helpfulness, and trust.", color: "from-[#FF6600] to-rose-500", pro: true },
-      { icon: RefreshCw, name: "Content Refresh", desc: "Find underperforming posts and rewrite with better structure and SEO.", color: "from-indigo-500 to-blue-500", pro: true },
-      { icon: Send, name: "1-Click Publish", desc: "Publish to Blogger as draft or live. Labels, scheduling, post updates.", color: "from-green-500 to-teal-500" },
-      { icon: Calendar, name: "Campaign Scheduler", desc: "Schedule content campaigns. Set keywords, frequency, publish on autopilot.", color: "from-orange-500 to-amber-500", pro: true },
-      { icon: BarChart3, name: "Analytics Dashboard", desc: "Track performance, publishing trends, word counts, and content ROI.", color: "from-pink-500 to-rose-500", pro: true },
-    ],
+    icon: Sparkles, title: "Quality Pass", size: "col-span-4",
+    desc: "3-stage editorial engine — improves clarity, originality, and trustworthiness. Makes AI content indistinguishable.",
+    badge: "Pro", color: "blue",
+  },
+  {
+    icon: Send, title: "1-Click Publish", size: "col-span-4",
+    desc: "Publish to Blogger as draft or live. Set labels, schedule future dates, and update existing posts.",
+    badge: "Free", color: "green",
+  },
+  {
+    icon: Image, title: "AI Image Studio", size: "col-span-4",
+    desc: "FLUX.1 Schnell photorealistic images. Auto-embed with SEO alt text. Hosted on Cloudflare.",
+    badge: "Free", color: "purple",
+  },
+];
+
+const STEPS = [
+  { n: "01", icon: Globe,    title: "Connect Blogger",      desc: "Sign in with Google. Link your Blogger blog in under 30 seconds." },
+  { n: "02", icon: Search,   title: "Enter a Keyword",      desc: "Type any topic. BloggerSEO pulls live SERP data and builds your article strategy." },
+  { n: "03", icon: Sparkles, title: "Generate & Optimize",  desc: "Full article generated, humanized, images added, meta description written." },
+  { n: "04", icon: Rocket,   title: "Publish to Blogger",   desc: "Review your article and publish with one click — or schedule for later." },
+];
+
+const REVIEWS = [
+  { name: "Sarah K.",  role: "Travel Blogger",   avatar: "SK", text: "Cut my content time from 8 hours to 30 minutes. The Quality Pass makes every article read like a pro wrote it.", stars: 5 },
+  { name: "Ahmed R.",  role: "Tech Reviewer",    avatar: "AR", text: "Amazon Affiliate writer is a game-changer. Product reviews with comparison tables in minutes. Revenue doubled.", stars: 5 },
+  { name: "Maria L.",  role: "Food Blogger",     avatar: "ML", text: "The Site Audit found 23 issues I had no idea about. Smart fix suggestions. Organic traffic up 40%.", stars: 5 },
+  { name: "David C.",  role: "Agency Owner",     avatar: "DC", text: "We manage 12 Blogger sites. Bulk Generator runs 100+ articles/month on autopilot. Incredible ROI.", stars: 5 },
+  { name: "Priya N.",  role: "Lifestyle Blogger",avatar: "PN", text: "The keyword clustering tool helped me build topical authority fast. Rankings shot up in 6 weeks.", stars: 5 },
+  { name: "James W.",  role: "Finance Blogger",  avatar: "JW", text: "Finally a Blogger-specific tool. The native publish integration saves hours every week.", stars: 5 },
+];
+
+const PLANS = [
+  {
+    name: "Free", price: 0, period: "forever",
+    features: ["5 articles / month", "Article Writer", "Site Audit", "Keyword Research", "1-Click Publish", "AI Images (5/mo)"],
+    cta: "Get Started Free", featured: false,
+  },
+  {
+    name: "Starter", price: 19, period: "/month",
+    features: ["30 articles / month", "Everything in Free", "Quality Pass", "Content Refresh", "Analytics Dashboard", "AI Images (50/mo)", "Priority support"],
+    cta: "Start 7-Day Trial", featured: true,
+  },
+  {
+    name: "Pro", price: 49, period: "/month",
+    features: ["Unlimited articles", "Everything in Starter", "Bulk Generator", "Campaign Scheduler", "Keyword Clustering", "Trend Discovery", "AI Images (∞)", "White-label reports"],
+    cta: "Go Pro", featured: false,
   },
 ];
 
 const STATS = [
-  { value: 15, suffix: "+", label: "Built-in Tools" },
-  { value: 7, suffix: "", label: "Article Templates" },
-  { value: 50, suffix: "+", label: "SEO Checks" },
-  { value: 10, suffix: "x", label: "Faster Content" },
+  { value: 15,   suffix: "+",  prefix: "",  label: "Built-in Tools"  },
+  { value: 3200, suffix: "",   prefix: "",  label: "Articles Written" },
+  { value: 40,   suffix: "%",  prefix: "+", label: "Avg Traffic Lift" },
+  { value: 10,   suffix: "x",  prefix: "",  label: "Faster Content"  },
 ];
 
-const STEPS = [
-  { step: 1, title: "Connect Blogger", desc: "Sign in with Google and link your Blogger account in seconds.", icon: Globe },
-  { step: 2, title: "Choose Your Tool", desc: "Write an article, run an audit, research keywords, or schedule a campaign.", icon: Search },
-  { step: 3, title: "Generate & Optimize", desc: "Content is generated, optimized, and formatted — ready for Blogger.", icon: Sparkles },
-  { step: 4, title: "Review & Publish", desc: "Preview, edit, polish with Quality Pass, and publish to your blog.", icon: Rocket },
-];
+const TEMPLATES = ["How-To Guide", "Listicle", "Product Review", "Comparison Post", "Q&A Article", "Informational", "Affiliate Post"];
 
-const REVIEWS = [
-  { name: "Sarah K.", role: "Travel Blogger", text: "BloggerSEO cut my content creation time from 8 hours to 30 minutes per article. The Quality Pass makes every article read like an expert wrote it." },
-  { name: "Ahmed R.", role: "Tech Reviewer", text: "The Amazon Affiliate writer is a game-changer. Product reviews with comparison tables in minutes. My revenue doubled." },
-  { name: "Maria L.", role: "Food Blogger", text: "The Site Audit found 23 SEO issues I had no idea about. Smart fix suggestions saved me hours. Organic traffic up 40%." },
-  { name: "David C.", role: "Agency Owner", text: "We manage 12 Blogger sites. Bulk Generator and Campaign Scheduler let us publish 100+ articles per month on autopilot." },
+const TOOLS_SHOWCASE = [
+  { icon: PenTool,    name: "Article Writer",         desc: "SERP-aware, section-by-section generation for 3000+ word articles.", free: true  },
+  { icon: Layers,     name: "Bulk Generator",         desc: "Batch generate 100 articles. Queue and schedule automatically.",       free: false },
+  { icon: Image,      name: "AI Image Studio",        desc: "FLUX.1 photorealistic images with SEO alt text. Auto-embedded.",       free: true  },
+  { icon: ShoppingCart, name: "Affiliate Writer",     desc: "Amazon product reviews, comparison tables, and buying guides.",        free: true  },
+  { icon: Search,     name: "Keyword Research",       desc: "Volume, difficulty, CPC, and topic cluster suggestions.",              free: true  },
+  { icon: Network,    name: "Keyword Clustering",     desc: "Group keywords into topic silos. Build topical authority.",            free: false },
+  { icon: Activity,   name: "Full Site Audit",        desc: "50+ technical, content, and performance checks.",                      free: true  },
+  { icon: LinkIcon,   name: "Internal Linker",        desc: "Smart link suggestions to boost equity and eliminate orphan pages.",   free: true  },
+  { icon: Sparkles,   name: "Quality Pass",           desc: "3-stage humanizer — clarity, originality, E-E-A-T trust signals.",    free: false },
+  { icon: RefreshCw,  name: "Content Refresh",        desc: "Rewrite underperforming posts with updated structure and keywords.",   free: false },
+  { icon: Send,       name: "1-Click Publish",        desc: "Publish draft or live. Labels, scheduling, post updates.",             free: true  },
+  { icon: Calendar,   name: "Campaign Scheduler",     desc: "Set keywords, frequency, and publish on autopilot.",                   free: false },
+  { icon: BarChart3,  name: "Analytics Dashboard",    desc: "Track publishing trends, word counts, and content ROI.",              free: false },
+  { icon: Lightbulb,  name: "Trend Discovery",        desc: "Find trending topics in your niche before competitors do.",           free: false },
+  { icon: Brain,      name: "Brand Voice Profiles",   desc: "Save your tone, audience, and style. Every article matches.",         free: true  },
 ];
-
-const TEMPLATES = ["How-To Guide", "Listicle", "Product Review", "Comparison", "Q&A Article", "Informational", "Affiliate Post"];
 
 // ─── Component ───────────────────────────────────────────────────
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
-  const [activeCat, setActiveCat] = useState(0);
   const [heroWord, setHeroWord] = useState(0);
-  const heroWords = ["Articles", "Reviews", "Guides", "Campaigns", "Content"];
+  const [prevWord, setPrevWord] = useState<number | null>(null);
+  const [activeTab, setActiveTab] = useState(0);
+  const heroWords = ["Articles", "Reviews", "Guides", "Campaigns", "Traffic"];
 
   useEffect(() => {
     const checkAuth = async () => {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
       setIsAuthenticated(!!user);
-      setUserEmail(user?.email || null);
     };
     checkAuth();
   }, []);
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20);
-    window.addEventListener("scroll", fn);
+    window.addEventListener("scroll", fn, { passive: true });
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setHeroWord(w => (w + 1) % heroWords.length), 2500);
+    const t = setInterval(() => {
+      setPrevWord(heroWord);
+      setHeroWord(w => (w + 1) % heroWords.length);
+    }, 2800);
     return () => clearInterval(t);
-  }, []);
+  }, [heroWord]);
 
-  const ctaHref = isAuthenticated ? "/dashboard" : "/auth/register";
-  const ctaLabel = isAuthenticated ? "Go to Dashboard" : "Get Started Free";
+  const toolCategories = [
+    { label: "All Tools",     slice: [0, 15] },
+    { label: "Creation",      slice: [0, 5]  },
+    { label: "SEO & Research",slice: [4, 10] },
+    { label: "Optimize",      slice: [9, 15] },
+  ];
 
   return (
-    <div className="min-h-screen">
-      {/* ═══ Navbar ═══ */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-sm" : "bg-transparent"}`}>
+    <div className="min-h-screen" style={{ background: "var(--bg-space)" }}>
+
+      {/* ── NAVBAR ── */}
+      <nav
+        className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
+          scrolled ? "glass border-b" : ""
+        }`}
+        style={{
+          borderColor: scrolled ? "rgba(255,255,255,0.06)" : "transparent",
+        }}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg glow-button flex items-center justify-center"><Sparkles className="w-4 h-4 text-white" /></div>
-              <span className="text-lg font-bold gradient-text">BloggerSEO</span>
-            </Link>
-            <div className="hidden md:flex items-center gap-8">
-              {[["Tools", "#tools"], ["How It Works", "#how-it-works"], ["Pricing", "#pricing"], ["Free Audit", "/free-audit"]].map(([l, h]) => (
-                <a key={h} href={h} className="text-sm text-muted-foreground hover:text-foreground transition-colors">{l}</a>
+            {/* Logo */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg btn-primary flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white" />
+              </div>
+              <span
+                className="text-lg font-semibold"
+                style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+              >
+                BloggerSEO
+              </span>
+            </div>
+
+            {/* Desktop nav */}
+            <div className="hidden md:flex items-center gap-6">
+              {["Features", "Tools", "Pricing", "Testimonials"].map(item => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  className="text-sm font-medium transition-colors hover:text-white"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {item}
+                </a>
               ))}
             </div>
+
+            {/* CTAs */}
             <div className="hidden md:flex items-center gap-3">
               {isAuthenticated ? (
-                <Link href="/dashboard"><Button size="sm" className="glow-button text-white border-0 px-6"><LayoutDashboard className="w-4 h-4 mr-2" />Dashboard</Button></Link>
+                <Link href="/dashboard">
+                  <Button size="sm" className="btn-primary px-5">
+                    Dashboard <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Button>
+                </Link>
               ) : (
                 <>
-                  <Link href="/auth/login"><Button variant="ghost" size="sm">Sign In</Button></Link>
-                  <Link href="/auth/register"><Button size="sm" className="glow-button text-white border-0 px-6">Get Started Free <ArrowRight className="w-4 h-4 ml-1" /></Button></Link>
+                  <Link href="/auth/signin">
+                    <button className="text-sm font-medium px-4 py-2 rounded-lg btn-ghost">
+                      Sign In
+                    </button>
+                  </Link>
+                  <Link href="/auth/signup">
+                    <Button size="sm" className="btn-primary px-5">
+                      Get Started Free
+                    </Button>
+                  </Link>
                 </>
               )}
             </div>
-            <button className="md:hidden p-2" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+
+            {/* Mobile */}
+            <button
+              className="md:hidden p-2 rounded-lg btn-ghost"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
-        {mobileMenuOpen && (
-          <div className="md:hidden bg-background/95 backdrop-blur-xl border-b border-border">
-            <div className="px-4 py-4 space-y-3">
-              {[["Tools", "#tools"], ["How It Works", "#how-it-works"], ["Pricing", "#pricing"], ["Free Audit", "/free-audit"]].map(([l, h]) => (
-                <a key={h} href={h} className="block text-sm text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>{l}</a>
+
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              className="md:hidden glass border-t px-4 pb-5 pt-3 space-y-3"
+              style={{ borderColor: "rgba(255,255,255,0.06)" }}
+            >
+              {["Features", "Tools", "Pricing", "Testimonials"].map(item => (
+                <a
+                  key={item}
+                  href={`#${item.toLowerCase()}`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block py-2 text-sm font-medium"
+                  style={{ color: "var(--text-secondary)" }}
+                >
+                  {item}
+                </a>
               ))}
-              <Link href={ctaHref}><Button className="w-full glow-button text-white border-0 mt-2">{ctaLabel}</Button></Link>
-            </div>
-          </div>
-        )}
+              <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                <Link href="/auth/signup">
+                  <Button size="sm" className="btn-primary w-full">Get Started Free</Button>
+                </Link>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </nav>
 
-      {/* ═══ Hero ═══ */}
-      <section className="relative pt-28 pb-16 px-4 overflow-hidden">
-        <div className="absolute inset-0 grid-pattern" />
-        <div className="relative max-w-5xl mx-auto text-center">
-          <div className="animate-slide-up opacity-0 stagger-1">
-            <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm glass-card border-[#FF6600]/20">
-              <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2 animate-pulse-dot" />
-              15+ Tools for Blogger — Start Free
-            </Badge>
+      {/* ══ HERO ══════════════════════════════════════════════════ */}
+      <section className="hero-mesh relative pt-28 pb-20 overflow-hidden" id="hero">
+        {/* Dot grid overlay */}
+        <div className="absolute inset-0 dot-grid opacity-60 pointer-events-none" />
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="flex flex-col items-center text-center max-w-4xl mx-auto">
+
+            {/* Tag */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="tag-pill mb-6"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-[#FF6B35] animate-pulse-dot" />
+              The #1 AI Tool Built Exclusively for Blogger
+            </motion.div>
+
+            {/* Headline */}
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight leading-[1.08] mb-6"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Publish SEO{" "}
+              <span className="relative inline-block" style={{ minWidth: "6ch" }}>
+                <AnimatePresence mode="wait">
+                  <motion.span
+                    key={heroWord}
+                    initial={{ opacity: 0, y: 14 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -14 }}
+                    transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                    className="gradient-text inline-block"
+                  >
+                    {heroWords[heroWord]}
+                  </motion.span>
+                </AnimatePresence>
+              </span>
+              <br />
+              to Blogger in Minutes
+            </motion.h1>
+
+            {/* Subline */}
+            <motion.p
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-lg sm:text-xl max-w-2xl leading-relaxed mb-10"
+              style={{ color: "var(--text-secondary)" }}
+            >
+              AI-powered article generation, keyword research, site audits, and one-click Blogger publishing.
+              Save 10+ hours/week while ranking higher.
+            </motion.p>
+
+            {/* CTA buttons */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row gap-3 mb-14"
+            >
+              <Link href="/auth/signup">
+                <Button size="lg" className="btn-primary px-8 py-6 text-base gap-2">
+                  <Zap className="w-4 h-4" />
+                  Start for Free — No Card Needed
+                </Button>
+              </Link>
+              <button
+                className="btn-ghost flex items-center gap-2 px-8 py-3 text-sm font-medium rounded-xl"
+                onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
+              >
+                <Play className="w-4 h-4" style={{ color: "var(--brand-orange)" }} />
+                See How It Works
+              </button>
+            </motion.div>
+
+            {/* Trust signals */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="flex flex-wrap items-center justify-center gap-5 text-sm"
+              style={{ color: "var(--text-muted)" }}
+            >
+              {[
+                { icon: Shield, label: "Free forever plan" },
+                { icon: Zap,    label: "Live in 60 seconds" },
+                { icon: Users,  label: "3,200+ articles written" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5">
+                  <Icon className="w-3.5 h-3.5" style={{ color: "var(--brand-orange)" }} />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </motion.div>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 animate-slide-up opacity-0 stagger-2">
-            <span className="text-foreground/90">Generate SEO</span>{" "}
-            <span className="gradient-text inline-block min-w-[180px] sm:min-w-[260px] text-left" key={heroWord}>
-              {heroWords[heroWord]}
-            </span>
-            <br />
-            <span className="text-foreground/70 text-3xl sm:text-4xl md:text-5xl">for Blogger — Faster</span>
-          </h1>
+          {/* Hero Mockup */}
+          <motion.div
+            initial={{ opacity: 0, y: 40, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.9, delay: 0.4, ease: [0.23, 1, 0.32, 1] }}
+            className="mt-16 relative"
+          >
+            <div className="hero-mockup max-w-5xl mx-auto relative">
+              {/* Glow effect behind mockup */}
+              <div
+                className="absolute inset-0 rounded-2xl opacity-40 blur-3xl"
+                style={{ background: "radial-gradient(ellipse at 50% 50%, rgba(255,107,53,0.15), rgba(79,142,255,0.08), transparent 70%)" }}
+              />
 
-          <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 animate-slide-up opacity-0 stagger-3">
-            The all-in-one content platform built for Blogger. Write articles, audit SEO, research keywords,
-            refresh old content, and publish — all from one dashboard.
-          </p>
+              {/* Dashboard preview */}
+              <div className="mockup-surface relative overflow-hidden rounded-2xl shadow-2xl">
+                {/* Top bar */}
+                <div
+                  className="flex items-center gap-1.5 px-5 py-3 border-b"
+                  style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(5,9,18,0.7)" }}
+                >
+                  <span className="w-3 h-3 rounded-full bg-red-500/60" />
+                  <span className="w-3 h-3 rounded-full bg-yellow-500/60" />
+                  <span className="w-3 h-3 rounded-full bg-green-500/60" />
+                  <span className="ml-3 text-xs font-medium px-4 py-0.5 rounded-full" style={{ background: "rgba(255,255,255,0.05)", color: "var(--text-muted)" }}>
+                    bloggerseo.app/dashboard/write
+                  </span>
+                </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-slide-up opacity-0 stagger-4">
-            <Link href={ctaHref}>
-              <Button size="lg" className="glow-button text-white border-0 px-8 h-12 text-base group">
-                <Sparkles className="w-5 h-5 mr-2" />
-                {ctaLabel}
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-            <a href="#tools">
-              <Button variant="outline" size="lg" className="glass-card h-12 text-base px-8">
-                <Eye className="w-5 h-5 mr-2" />Explore All Tools
-              </Button>
-            </a>
-          </div>
-        </div>
+                {/* Dashboard body */}
+                <div className="grid grid-cols-4 min-h-[380px]">
+                  {/* Sidebar */}
+                  <div
+                    className="col-span-1 border-r p-4 flex flex-col gap-1"
+                    style={{ borderColor: "rgba(255,255,255,0.05)", background: "rgba(5,9,18,0.5)" }}
+                  >
+                    {[
+                      { icon: PenTool, label: "Article Writer", active: true },
+                      { icon: Search,  label: "Keywords",       active: false },
+                      { icon: Activity,label: "Site Audit",     active: false },
+                      { icon: Send,    label: "Publish",        active: false },
+                      { icon: BarChart3,label: "Analytics",     active: false },
+                    ].map(({ icon: Icon, label, active }) => (
+                      <div
+                        key={label}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium ${
+                          active ? "nav-active" : ""
+                        }`}
+                        style={!active ? { color: "var(--text-muted)" } : {}}
+                      >
+                        <Icon className="w-3.5 h-3.5 flex-shrink-0" />
+                        <span className="hidden sm:block">{label}</span>
+                      </div>
+                    ))}
+                  </div>
 
-        {/* Stats bar */}
-        <div className="relative max-w-3xl mx-auto mt-16 animate-slide-up opacity-0 stagger-5">
-          <div className="glass-card rounded-2xl p-6 grid grid-cols-2 sm:grid-cols-4 gap-6">
-            {STATS.map(s => (
-              <div key={s.label} className="text-center">
-                <div className="text-3xl font-bold gradient-text"><Counter target={s.value} suffix={s.suffix} /></div>
-                <div className="text-xs text-muted-foreground mt-1">{s.label}</div>
+                  {/* Main content */}
+                  <div className="col-span-3 p-5 flex flex-col gap-4">
+                    {/* Input row */}
+                    <div
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-xs"
+                      style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)", color: "var(--text-secondary)" }}
+                    >
+                      <Search className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--brand-orange)" }} />
+                      <span>best running shoes for beginners 2026</span>
+                      <div className="ml-auto btn-primary px-3 py-1 rounded-lg text-xs text-white font-medium">
+                        Generate
+                      </div>
+                    </div>
+
+                    {/* Generation output */}
+                    <div
+                      className="rounded-xl p-4 border flex-1 space-y-2"
+                      style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.05)" }}
+                    >
+                      {/* Title */}
+                      <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>
+                        10 Best Running Shoes for Beginners in 2026
+                      </div>
+                      {/* Body lines */}
+                      {[100, 88, 94, 72, 90, 80].map((w, i) => (
+                        <div
+                          key={i}
+                          className="h-2 rounded-full"
+                          style={{ width: `${w}%`, background: "rgba(255,255,255,0.07)" }}
+                        />
+                      ))}
+                      {/* Inline keyword highlight */}
+                      <div className="flex items-center gap-2 pt-1">
+                        <div className="h-2 rounded-full flex-1" style={{ background: "rgba(255,255,255,0.07)" }} />
+                        <div className="h-2 w-20 rounded-full" style={{ background: "rgba(255,107,53,0.3)" }} />
+                        <div className="h-2 rounded-full flex-1" style={{ background: "rgba(255,255,255,0.07)" }} />
+                      </div>
+                    </div>
+
+                    {/* Metrics row */}
+                    <div className="grid grid-cols-4 gap-2">
+                      {[
+                        { label: "Words", val: "3,240", color: "orange" },
+                        { label: "SEO Score", val: "94", color: "green" },
+                        { label: "Readability", val: "A+", color: "blue" },
+                        { label: "Images", val: "4", color: "purple" },
+                      ].map(({ label, val, color }) => {
+                        const colors: Record<string, string> = { orange: "rgba(255,107,53,0.12)", green: "rgba(34,197,94,0.10)", blue: "rgba(79,142,255,0.10)", purple: "rgba(124,58,237,0.10)" };
+                        const texts: Record<string, string> = { orange: "#FF6B35", green: "#22C55E", blue: "#4F8EFF", purple: "#7C3AED" };
+                        return (
+                          <div
+                            key={label}
+                            className="rounded-lg px-3 py-2 text-center"
+                            style={{ background: colors[color] }}
+                          >
+                            <div className="text-base font-bold" style={{ color: texts[color], fontFamily: "var(--font-display)" }}>
+                              {val}
+                            </div>
+                            <div className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>{label}</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
               </div>
-            ))}
-          </div>
+
+              {/* Floating badges */}
+              <div
+                className="absolute -top-4 -right-4 glass-card float-badge-1 px-3 py-2 flex items-center gap-2 text-xs font-medium"
+                style={{ borderColor: "rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.08)" }}
+              >
+                <CheckCircle2 className="w-3.5 h-3.5 text-green-400" />
+                <span style={{ color: "var(--text-primary)" }}>Published to Blogger</span>
+              </div>
+
+              <div
+                className="absolute -bottom-4 -left-4 glass-card float-badge-2 px-3 py-2 flex items-center gap-2 text-xs font-medium"
+              >
+                <TrendingUp className="w-3.5 h-3.5" style={{ color: "var(--brand-orange)" }} />
+                <span style={{ color: "var(--text-primary)" }}>SEO Score 94/100</span>
+              </div>
+
+              <div
+                className="absolute top-1/2 -right-6 glass-card float-badge-3 px-3 py-2 flex items-center gap-2 text-xs font-medium"
+                style={{ borderColor: "rgba(79,142,255,0.25)", background: "rgba(79,142,255,0.07)" }}
+              >
+                <Zap className="w-3.5 h-3.5" style={{ color: "var(--brand-blue)" }} />
+                <span style={{ color: "var(--text-primary)" }}>3,240 words</span>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
-      {/* ═══ Tool ticker (marquee) ═══ */}
-      <section className="py-6 overflow-hidden border-y border-border/30 bg-muted/20">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[...TOOL_CATEGORIES.flatMap(c => c.tools), ...TOOL_CATEGORIES.flatMap(c => c.tools)].map((t, i) => (
-            <div key={i} className="flex items-center gap-2 mx-6 text-sm text-muted-foreground shrink-0">
-              <t.icon className="w-4 h-4 text-[#FF6600]/60" />
-              <span>{t.name}</span>
-            </div>
+      {/* ── STATS STRIP ─────────────────────────────────────────── */}
+      <section className="py-12 border-y relative" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.015)" }}>
+        <div className="max-w-5xl mx-auto px-4 grid grid-cols-2 md:grid-cols-4 gap-8">
+          {STATS.map((s, i) => (
+            <Reveal key={s.label} delay={i * 80} direction="up" className="text-center">
+              <div
+                className="text-4xl font-bold mb-1"
+                style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+              >
+                <Counter target={s.value} prefix={s.prefix} suffix={s.suffix} />
+              </div>
+              <div className="text-sm" style={{ color: "var(--text-secondary)" }}>{s.label}</div>
+            </Reveal>
           ))}
         </div>
       </section>
 
-      {/* ═══ All Tools Section ═══ */}
-      <section id="tools" className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">All Tools</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Every Tool You Need to <span className="gradient-text">Dominate Blogger</span>
-              </h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                From keyword research to published post — every step of the content pipeline, handled.
-              </p>
-            </div>
-          </Reveal>
-
-          {/* Category tabs */}
-          <Reveal delay={100}>
-            <div className="flex justify-center gap-2 mb-10 flex-wrap">
-              {TOOL_CATEGORIES.map((cat, i) => (
-                <button
-                  key={cat.id}
-                  onClick={() => setActiveCat(i)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all duration-200 ${activeCat === i
-                    ? "bg-[#FF6600] text-white shadow-md shadow-[#FF6600]/20"
-                    : "glass-card text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <cat.icon className="w-4 h-4" />{cat.title}
-                </button>
-              ))}
-            </div>
-          </Reveal>
-
-          {/* Tool cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {TOOL_CATEGORIES[activeCat].tools.map((tool, i) => (
-              <Reveal key={tool.name} delay={i * 80}>
-                <div className="glass-card rounded-xl p-6 hover:scale-[1.02] transition-all duration-300 group h-full relative">
-                  {tool.pro && (
-                    <div className="absolute top-3 right-3">
-                      <Badge className="bg-[#FF6600]/10 text-[#FF6600] border-[#FF6600]/20 text-[10px]"><Crown className="w-3 h-3 mr-1" />Pro</Badge>
-                    </div>
-                  )}
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                    <tool.icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="text-lg font-semibold mb-2">{tool.name}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{tool.desc}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* See all CTA */}
-          <Reveal delay={200}>
-            <div className="text-center mt-10">
-              <p className="text-sm text-muted-foreground mb-3">That&apos;s {TOOL_CATEGORIES.flatMap(c => c.tools).length} tools — and we&apos;re adding more every month.</p>
-              <Link href={ctaHref}>
-                <Button className="glow-button text-white border-0 px-8">Try All Tools Free <ArrowRight className="w-4 h-4 ml-2" /></Button>
-              </Link>
-            </div>
-          </Reveal>
+      {/* ── TEMPLATE MARQUEE ────────────────────────────────────── */}
+      <div className="py-4 overflow-hidden relative" style={{ background: "rgba(255,107,53,0.04)" }}>
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[...TEMPLATES, ...TEMPLATES, ...TEMPLATES, ...TEMPLATES].map((t, i) => (
+            <span key={i} className="mx-4 text-xs font-medium px-3 py-1.5 rounded-full" style={{ background: "rgba(255,107,53,0.10)", color: "var(--brand-orange)", border: "1px solid rgba(255,107,53,0.15)" }}>
+              {t}
+            </span>
+          ))}
         </div>
-      </section>
+      </div>
 
-      {/* ═══ How it Works ═══ */}
-      <section id="how-it-works" className="py-20 px-4 dot-pattern">
-        <div className="max-w-5xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-14">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">How It Works</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Keyword to Published Post in <span className="gradient-text">4 Steps</span>
-              </h2>
+      {/* ══ FEATURES BENTO ════════════════════════════════════════ */}
+      <section id="features" className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal className="text-center mb-14">
+            <div className="tag-pill inline-flex mb-4">
+              <Sparkles className="w-3.5 h-3.5" /> Features
             </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {STEPS.map((step, i) => (
-              <Reveal key={step.step} delay={i * 120}>
-                <div className="relative">
-                  <div className="glass-card rounded-xl p-6 text-center hover:scale-[1.03] transition-all duration-300 h-full">
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#FF6600] to-amber-400 flex items-center justify-center mx-auto mb-4 animate-gentle-bounce" style={{ animationDelay: `${i * 0.5}s` }}>
-                      <step.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <div className="text-xs font-semibold text-[#FF6600] mb-2">STEP {step.step}</div>
-                    <h3 className="font-semibold mb-2">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.desc}</p>
-                  </div>
-                  {i < STEPS.length - 1 && (
-                    <div className="hidden lg:block absolute top-1/2 -right-3 -translate-y-1/2">
-                      <ChevronRight className="w-6 h-6 text-[#FF6600]/40" />
-                    </div>
-                  )}
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ Templates ═══ */}
-      <section className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">Templates</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                <span className="gradient-text">7 Article Templates</span> for Every Niche
-              </h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
-                Choose a template and the engine follows the perfect structure — from how-to guides to affiliate reviews.
-              </p>
-            </div>
-          </Reveal>
-          <Reveal delay={100}>
-            <div className="flex flex-wrap justify-center gap-3">
-              {TEMPLATES.map(t => (
-                <div key={t} className="glass-card rounded-full px-6 py-3 hover:scale-105 hover:border-[#FF6600]/30 transition-all duration-200 cursor-default">
-                  <span className="text-sm font-medium">{t}</span>
-                </div>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
-      {/* ═══ Social Proof / Reviews ═══ */}
-      <section className="py-20 px-4 bg-muted/20">
-        <div className="max-w-6xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">Testimonials</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Loved by <span className="gradient-text">Bloggers Worldwide</span>
-              </h2>
-            </div>
-          </Reveal>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {REVIEWS.map((r, i) => (
-              <Reveal key={r.name} delay={i * 100}>
-                <div className="glass-card rounded-xl p-6 h-full">
-                  <div className="flex gap-1 mb-3">
-                    {[1, 2, 3, 4, 5].map(s => <Star key={s} className="w-4 h-4 fill-[#FF6600] text-[#FF6600]" />)}
-                  </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed mb-4">&ldquo;{r.text}&rdquo;</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#FF6600] to-amber-400 flex items-center justify-center text-white text-sm font-bold">
-                      {r.name[0]}
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold">{r.name}</div>
-                      <div className="text-xs text-muted-foreground">{r.role}</div>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══ Pricing Preview ═══ */}
-      <section id="pricing" className="py-20 px-4">
-        <div className="max-w-5xl mx-auto">
-          <Reveal>
-            <div className="text-center mb-12">
-              <Badge variant="secondary" className="mb-4 px-4 py-1 glass-card border-[#FF6600]/20">Pricing</Badge>
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">Start for <span className="gradient-text">Free</span></h2>
-              <p className="text-muted-foreground max-w-xl mx-auto">
-                Try every core tool free. Upgrade for bulk generation, Quality Pass, campaigns, and more — at 40-60% less than competitors.
-              </p>
-            </div>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
-            {/* Free */}
-            <Reveal delay={0}>
-              <div className="glass-card rounded-xl p-6 h-full flex flex-col">
-                <h3 className="text-lg font-semibold mb-1">Free</h3>
-                <div className="text-3xl font-bold mb-4">$0<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2 mb-6 flex-1">
-                  {["5 articles/month", "1 blog connected", "Keyword research", "Site audit", "Internal linker", "SEO optimization"].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/auth/register"><Button variant="outline" className="w-full glass-card">Get Started</Button></Link>
-              </div>
-            </Reveal>
-
-            {/* Starter */}
-            <Reveal delay={80}>
-              <div className="glass-card rounded-xl p-6 h-full flex flex-col">
-                <h3 className="text-lg font-semibold mb-1">Starter</h3>
-                <div className="text-3xl font-bold mb-4">$12<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2 mb-6 flex-1">
-                  {["30 articles/month", "2 blogs connected", "10 images/month", "Bulk generation", "Scheduling", "Keyword clustering", "Brand voices", "Amazon affiliate writer"].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/pricing"><Button variant="outline" className="w-full glass-card">Start Free Trial</Button></Link>
-              </div>
-            </Reveal>
-
-            {/* Pro — highlighted */}
-            <Reveal delay={160}>
-              <div className="relative glass-card rounded-xl p-6 h-full flex flex-col border-[#FF6600]/40 ring-1 ring-[#FF6600]/20">
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-[#FF6600] text-white border-0 px-3">Most Popular</Badge>
-                </div>
-                <h3 className="text-lg font-semibold mb-1">Pro</h3>
-                <div className="text-3xl font-bold mb-4">$39<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2 mb-6 flex-1">
-                  {["100 articles/month", "5 blogs connected", "50 images", "Quality Pass", "Content Refresh", "Bulk generation", "Campaign scheduler", "Analytics dashboard", "Priority support"].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-[#FF6600] shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/pricing"><Button className="w-full glow-button text-white border-0">Start Free Trial</Button></Link>
-              </div>
-            </Reveal>
-
-            {/* Enterprise */}
-            <Reveal delay={240}>
-              <div className="glass-card rounded-xl p-6 h-full flex flex-col">
-                <h3 className="text-lg font-semibold mb-1">Enterprise</h3>
-                <div className="text-3xl font-bold mb-4">$99<span className="text-sm text-muted-foreground font-normal">/mo</span></div>
-                <ul className="space-y-2 mb-6 flex-1">
-                  {["300 articles/month", "Unlimited blogs", "200 images", "Everything in Pro", "API access", "White-label", "Team access (3 seats)", "Dedicated support"].map(f => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />{f}
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/pricing"><Button variant="outline" className="w-full glass-card">Learn More</Button></Link>
-              </div>
-            </Reveal>
-          </div>
-
-          <Reveal delay={150}>
-            <p className="text-center text-sm text-muted-foreground mt-6">
-              All paid plans include a 7-day free trial. No credit card required. <Link href="/pricing" className="text-[#FF6600] hover:underline">See full comparison &rarr;</Link>
+            <h2
+              className="text-4xl sm:text-5xl font-bold mb-4"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Everything You Need to{" "}
+              <span className="gradient-text">Dominate Google</span>
+            </h2>
+            <p className="text-lg max-w-2xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+              A complete content automation suite built for Blogger. No other tool comes close.
             </p>
           </Reveal>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            {FEATURES.map((f, i) => {
+              const Icon = f.icon;
+              const badgeColors: Record<string, string> = {
+                orange: "rgba(255,107,53,0.12)", blue: "rgba(79,142,255,0.10)",
+                purple: "rgba(124,58,237,0.10)", green: "rgba(34,197,94,0.10)",
+              };
+              const badgeText: Record<string, string> = {
+                orange: "#FF6B35", blue: "#4F8EFF", purple: "#7C3AED", green: "#22C55E",
+              };
+
+              return (
+                <Reveal
+                  key={f.title}
+                  delay={i * 60}
+                  className={`md:${f.size}`}
+                >
+                  <TiltCard className="bento-card h-full min-h-[200px]">
+                    {/* Badge */}
+                    {f.badge && (
+                      <span
+                        className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-4 uppercase tracking-wider"
+                        style={{ background: badgeColors[f.color], color: badgeText[f.color] }}
+                      >
+                        {f.badge === "Pro" && <Crown className="w-2.5 h-2.5" />}
+                        {f.badge}
+                      </span>
+                    )}
+
+                    {/* Icon + title */}
+                    <div className="flex items-start gap-3 mb-3">
+                      <div
+                        className={`icon-badge icon-badge-${f.color === "green" ? "green" : f.color === "blue" ? "blue" : f.color === "purple" ? "purple" : "orange"}`}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <h3
+                        className="text-lg font-semibold pt-0.5"
+                        style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                      >
+                        {f.title}
+                      </h3>
+                    </div>
+
+                    <p className="text-sm leading-relaxed mb-4" style={{ color: "var(--text-secondary)" }}>
+                      {f.desc}
+                    </p>
+
+                    {/* Preview rows */}
+                    {f.preview && (
+                      <div
+                        className="rounded-xl p-3 space-y-2 border text-xs mt-auto"
+                        style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }}
+                      >
+                        {f.preview.map(r => (
+                          <div key={r.label} className="flex justify-between">
+                            <span style={{ color: "var(--text-muted)" }}>{r.label}</span>
+                            <span style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{r.val}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Stat */}
+                    {f.stat && (
+                      <div className="mt-auto pt-4">
+                        <span
+                          className="text-3xl font-bold"
+                          style={{ fontFamily: "var(--font-display)", color: badgeText[f.color] }}
+                        >
+                          <Counter target={f.stat.val} suffix={f.stat.suffix} />
+                        </span>
+                        <span className="ml-2 text-sm" style={{ color: "var(--text-muted)" }}>{f.stat.label}</span>
+                      </div>
+                    )}
+                  </TiltCard>
+                </Reveal>
+              );
+            })}
+          </div>
         </div>
       </section>
 
-      {/* ═══ Free Audit CTA ═══ */}
-      <section className="py-16 px-4 bg-gradient-to-r from-[#FF6600]/5 via-amber-50/30 to-orange-50/20">
-        <div className="max-w-4xl mx-auto">
-          <Reveal>
-            <div className="glass-card rounded-2xl p-8 sm:p-12 flex flex-col md:flex-row items-center gap-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <Activity className="w-5 h-5 text-[#FF6600]" />
-                  <span className="text-sm font-semibold text-[#FF6600]">FREE TOOL</span>
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-bold mb-3">Audit Your Blog&apos;s SEO — Free</h3>
-                <p className="text-muted-foreground mb-4">
-                  Get an instant SEO health score for your Blogger site. We scan up to 5 pages, check 50+ issues, and give you an actionable report. No sign-up required.
-                </p>
-                <Link href="/free-audit">
-                  <Button size="lg" className="glow-button text-white border-0 px-8 group">
-                    <Shield className="w-5 h-5 mr-2" />
-                    Run Free SEO Audit
-                    <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
-              <div className="w-48 h-48 rounded-2xl bg-gradient-to-br from-[#FF6600]/10 to-amber-100/30 flex items-center justify-center shrink-0">
-                <div className="text-center">
-                  <div className="text-5xl font-bold gradient-text">A+</div>
-                  <div className="text-xs text-muted-foreground mt-1">SEO Score</div>
-                </div>
-              </div>
+      {/* ══ HOW IT WORKS ══════════════════════════════════════════ */}
+      <section id="tools" className="py-24 relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-40"
+          style={{ background: "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(79,142,255,0.05), transparent)" }}
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal className="text-center mb-16">
+            <div className="tag-pill inline-flex mb-4">
+              <Play className="w-3.5 h-3.5" /> How It Works
             </div>
+            <h2
+              className="text-4xl sm:text-5xl font-bold mb-4"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              From Keyword to{" "}
+              <span className="gradient-text-blue">Published Article</span>
+              <br />in 4 Simple Steps
+            </h2>
           </Reveal>
+
+          <div className="grid md:grid-cols-4 gap-5">
+            {STEPS.map(({ n, icon: Icon, title, desc }, i) => (
+              <Reveal key={n} delay={i * 100}>
+                <TiltCard className="bento-card text-center group relative">
+                  {/* Connector line */}
+                  {i < STEPS.length - 1 && (
+                    <div
+                      className="hidden md:block absolute top-10 left-full w-full h-px z-10"
+                      style={{ background: "linear-gradient(90deg, rgba(255,107,53,0.3), transparent)" }}
+                    />
+                  )}
+
+                  <div
+                    className="w-12 h-12 rounded-2xl mx-auto mb-4 flex items-center justify-center text-sm font-bold relative"
+                    style={{
+                      background: "rgba(255,107,53,0.12)",
+                      border: "1px solid rgba(255,107,53,0.25)",
+                      fontFamily: "var(--font-display)",
+                      color: "var(--brand-orange)",
+                    }}
+                  >
+                    {n}
+                  </div>
+
+                  <div
+                    className="w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)" }}
+                  >
+                    <Icon className="w-5 h-5" style={{ color: "var(--text-secondary)" }} />
+                  </div>
+
+                  <h3
+                    className="text-base font-semibold mb-2"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                  >
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                    {desc}
+                  </p>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ═══ Final CTA ═══ */}
-      <section className="py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center">
+      {/* ══ ALL TOOLS ═════════════════════════════════════════════ */}
+      <section className="py-24 border-y" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal className="text-center mb-12">
+            <div className="tag-pill inline-flex mb-4">
+              <Layers className="w-3.5 h-3.5" /> Full Toolkit
+            </div>
+            <h2
+              className="text-4xl sm:text-5xl font-bold mb-4"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              15 Tools.{" "}
+              <span className="gradient-text">One Platform.</span>
+            </h2>
+            <p className="text-lg max-w-xl mx-auto" style={{ color: "var(--text-secondary)" }}>
+              Cancel every other SEO tool you're paying for.
+            </p>
+          </Reveal>
+
+          {/* Tab filter */}
+          <div className="flex flex-wrap justify-center gap-2 mb-10">
+            {toolCategories.map((cat, i) => (
+              <button
+                key={cat.label}
+                onClick={() => setActiveTab(i)}
+                className="px-4 py-2 rounded-full text-sm font-medium transition-all"
+                style={
+                  activeTab === i
+                    ? { background: "rgba(255,107,53,0.15)", border: "1px solid rgba(255,107,53,0.35)", color: "var(--brand-orange)" }
+                    : { background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", color: "var(--text-secondary)" }
+                }
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tools grid */}
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {TOOLS_SHOWCASE
+              .slice(toolCategories[activeTab].slice[0], toolCategories[activeTab].slice[1])
+              .map((tool, i) => {
+                const Icon = tool.icon;
+                return (
+                  <Reveal key={tool.name} delay={i * 40}>
+                    <div
+                      className="flex items-start gap-3 p-4 rounded-xl border transition-all hover:border-orange-500/20"
+                      style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }}
+                    >
+                      <div className="icon-badge icon-badge-orange flex-shrink-0">
+                        <Icon className="w-4.5 h-4.5" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-sm font-semibold" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
+                            {tool.name}
+                          </span>
+                          {!tool.free && (
+                            <span
+                              className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full flex items-center gap-0.5"
+                              style={{ background: "rgba(124,58,237,0.12)", color: "#7C3AED", border: "1px solid rgba(124,58,237,0.2)" }}
+                            >
+                              <Crown className="w-2.5 h-2.5" /> Pro
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs leading-relaxed" style={{ color: "var(--text-muted)" }}>
+                          {tool.desc}
+                        </p>
+                      </div>
+                    </div>
+                  </Reveal>
+                );
+              })}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ PRICING ═══════════════════════════════════════════════ */}
+      <section id="pricing" className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal className="text-center mb-14">
+            <div className="tag-pill inline-flex mb-4">
+              <Crown className="w-3.5 h-3.5" /> Pricing
+            </div>
+            <h2
+              className="text-4xl sm:text-5xl font-bold mb-4"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Simple,{" "}
+              <span className="gradient-text">Transparent</span> Pricing
+            </h2>
+            <p className="text-lg" style={{ color: "var(--text-secondary)" }}>
+              Start free. Upgrade when you're ready to scale.
+            </p>
+          </Reveal>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {PLANS.map((plan, i) => (
+              <Reveal key={plan.name} delay={i * 100} direction="scale">
+                <div className={`pricing-card h-full flex flex-col ${plan.featured ? "featured" : ""}`}>
+                  {plan.featured && (
+                    <div
+                      className="text-center text-xs font-bold py-1.5 rounded-full mb-5 tracking-widest uppercase"
+                      style={{ background: "rgba(255,107,53,0.15)", color: "var(--brand-orange)", border: "1px solid rgba(255,107,53,0.25)" }}
+                    >
+                      Most Popular
+                    </div>
+                  )}
+
+                  <div className="mb-6">
+                    <h3
+                      className="text-xl font-semibold mb-1"
+                      style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                    >
+                      {plan.name}
+                    </h3>
+                    <div className="flex items-end gap-1">
+                      <span
+                        className="text-4xl font-bold"
+                        style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                      >
+                        ${plan.price}
+                      </span>
+                      <span className="text-sm mb-1" style={{ color: "var(--text-secondary)" }}>
+                        {plan.period}
+                      </span>
+                    </div>
+                  </div>
+
+                  <ul className="space-y-3 mb-8 flex-1">
+                    {plan.features.map(f => (
+                      <li key={f} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--text-secondary)" }}>
+                        <Check
+                          className="w-4 h-4 flex-shrink-0 mt-0.5"
+                          style={{ color: plan.featured ? "var(--brand-orange)" : "var(--brand-blue)" }}
+                        />
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <Link href={plan.price === 0 ? "/auth/signup" : "/auth/signup?plan=" + plan.name.toLowerCase()}>
+                    <Button
+                      className={`w-full ${plan.featured ? "btn-primary" : "btn-ghost"}`}
+                    >
+                      {plan.cta}
+                    </Button>
+                  </Link>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ TESTIMONIALS ══════════════════════════════════════════ */}
+      <section id="testimonials" className="py-24 relative overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-30"
+          style={{ background: "radial-gradient(ellipse at 50% 100%, rgba(255,107,53,0.08), transparent 60%)" }}
+        />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <Reveal className="text-center mb-14">
+            <div className="tag-pill inline-flex mb-4">
+              <Star className="w-3.5 h-3.5" /> Testimonials
+            </div>
+            <h2
+              className="text-4xl sm:text-5xl font-bold mb-4"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Loved by{" "}
+              <span className="gradient-text">Blogger Creators</span>
+            </h2>
+          </Reveal>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {REVIEWS.map((r, i) => (
+              <Reveal key={r.name} delay={i * 70}>
+                <TiltCard className="bento-card h-full">
+                  {/* Stars */}
+                  <div className="flex gap-0.5 mb-4">
+                    {Array.from({ length: r.stars }).map((_, s) => (
+                      <Star key={s} className="w-3.5 h-3.5 fill-current" style={{ color: "var(--brand-orange)" }} />
+                    ))}
+                  </div>
+                  <p className="text-sm leading-relaxed mb-5" style={{ color: "var(--text-secondary)" }}>
+                    &quot;{r.text}&quot;
+                  </p>
+                  <div className="flex items-center gap-3 mt-auto">
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0"
+                      style={{ background: "rgba(255,107,53,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
+                    >
+                      {r.avatar}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{r.name}</div>
+                      <div className="text-xs" style={{ color: "var(--text-muted)" }}>{r.role}</div>
+                    </div>
+                  </div>
+                </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FINAL CTA ═════════════════════════════════════════════ */}
+      <section className="py-28 relative overflow-hidden">
+        <div
+          className="absolute inset-0"
+          style={{ background: "radial-gradient(ellipse 80% 80% at 50% 50%, rgba(255,107,53,0.08), rgba(79,142,255,0.04), transparent 70%)" }}
+        />
+        <div className="absolute inset-0 dot-grid opacity-40 pointer-events-none" />
+
+        <div className="max-w-3xl mx-auto px-4 text-center relative z-10">
           <Reveal>
-            <div className="glass-card rounded-2xl p-10 sm:p-14 border-[#FF6600]/10">
-              <Sparkles className="w-12 h-12 text-[#FF6600] mx-auto mb-6 animate-gentle-bounce" />
-              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-                Ready to Automate Your <span className="gradient-text">Blogger Content?</span>
-              </h2>
-              <p className="text-muted-foreground mb-8 max-w-lg mx-auto">
-                Join thousands of bloggers publishing SEO-optimized content 10x faster. Free to start, no credit card required.
-              </p>
-              <Link href={ctaHref}>
-                <Button size="lg" className="glow-button text-white border-0 px-10 h-12 group">
-                  <Rocket className="w-5 h-5 mr-2" />{ctaLabel}
-                  <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            <div
+              className="inline-flex items-center gap-2 text-xs font-semibold px-4 py-2 rounded-full mb-8"
+              style={{
+                background: "rgba(255,107,53,0.08)",
+                border: "1px solid rgba(255,107,53,0.2)",
+                color: "var(--brand-orange)",
+              }}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Free to start · No credit card needed
+            </div>
+            <h2
+              className="text-4xl sm:text-6xl font-bold mb-6"
+              style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+            >
+              Start Ranking Higher{" "}
+              <span className="gradient-text">Today</span>
+            </h2>
+            <p className="text-lg mb-10" style={{ color: "var(--text-secondary)" }}>
+              Join thousands of Blogger creators who save 10+ hours/week and grow organic traffic with BloggerSEO.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/auth/signup">
+                <Button size="lg" className="btn-primary px-10 py-6 text-base animate-glow-pulse">
+                  <Rocket className="w-4 h-4 mr-2" />
+                  Get Started for Free
+                </Button>
+              </Link>
+              <Link href="/auth/signin">
+                <Button size="lg" className="btn-ghost px-10 py-6 text-base">
+                  Sign In
                 </Button>
               </Link>
             </div>
@@ -599,51 +1064,60 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══ Footer ═══ */}
-      <footer className="border-t border-border/50 py-12 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-7 h-7 rounded-md glow-button flex items-center justify-center"><Sparkles className="w-3.5 h-3.5 text-white" /></div>
-                <span className="text-sm font-bold gradient-text">BloggerSEO</span>
+      {/* ══ FOOTER ════════════════════════════════════════════════ */}
+      <footer className="border-t py-12" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(5,9,18,0.8)" }}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
+            {/* Brand */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg btn-primary flex items-center justify-center">
+                <Zap className="w-4 h-4 text-white" />
               </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                The all-in-one content platform built exclusively for Blogger. Generate, optimize, and publish SEO content at scale.
-              </p>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-3">Product</h4>
-              <div className="space-y-2">
-                {[["Article Writer", "#tools"], ["Keyword Research", "#tools"], ["Site Audit", "/free-audit"], ["Quality Pass", "#tools"]].map(([l, h]) => (
-                  <a key={l} href={h} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a>
-                ))}
-              </div>
-            </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-3">Resources</h4>
-              <div className="space-y-2">
-                {[["Blog", "/blog"], ["How It Works", "/how-it-works"], ["Pricing", "/pricing"], ["Free SEO Audit", "/free-audit"], ["About Us", "/about"], ["Contact", "/contact"]].map(([l, h]) => (
-                  <a key={l} href={h} className="block text-xs text-muted-foreground hover:text-foreground transition-colors">{l}</a>
-                ))}
+              <div>
+                <div
+                  className="text-base font-semibold"
+                  style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                >
+                  BloggerSEO
+                </div>
+                <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                  AI Content Automation for Blogger
+                </div>
               </div>
             </div>
-            <div>
-              <h4 className="text-sm font-semibold mb-3">Get Started</h4>
-              <div className="space-y-2">
-                <Link href="/auth/register" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">Sign Up Free</Link>
-                <Link href="/auth/login" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">Sign In</Link>
-                <Link href="/dashboard" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">Dashboard</Link>
-              </div>
+
+            {/* Links */}
+            <div className="flex flex-wrap gap-6 text-sm" style={{ color: "var(--text-secondary)" }}>
+              {[
+                { label: "Features",     href: "#features"     },
+                { label: "Pricing",      href: "#pricing"      },
+                { label: "Privacy",      href: "/privacy"      },
+                { label: "Terms",        href: "/terms"        },
+                { label: "Contact",      href: "/contact"      },
+              ].map(({ label, href }) => (
+                <a
+                  key={label}
+                  href={href}
+                  className="hover:text-white transition-colors"
+                >
+                  {label}
+                </a>
+              ))}
             </div>
           </div>
-          <div className="border-t border-border/50 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-            <span className="text-xs text-muted-foreground">&copy; {new Date().getFullYear()} BloggerSEO. All rights reserved.</span>
-            <div className="flex items-center gap-4 flex-wrap justify-center">
-              <Link href="/privacy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link>
-              <Link href="/terms" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Terms</Link>
-              <Link href="/disclaimer" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Disclaimer</Link>
-              <Link href="/refund-policy" className="text-xs text-muted-foreground hover:text-foreground transition-colors">Refund Policy</Link>
+
+          <div
+            className="mt-8 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-3 text-xs"
+            style={{ borderColor: "rgba(255,255,255,0.06)", color: "var(--text-muted)" }}
+          >
+            <span>© {new Date().getFullYear()} BloggerSEO. All rights reserved.</span>
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5" /> Built for Google Blogger
+              </span>
+              <span className="flex items-center gap-1">
+                <Shield className="w-3.5 h-3.5" /> GDPR Compliant
+              </span>
             </div>
           </div>
         </div>

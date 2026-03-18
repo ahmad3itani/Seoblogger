@@ -1,6 +1,6 @@
 import { SYSTEM_PROMPTS } from "./prompts";
 import { generateAndHostImage } from "../cloudflare/image-generator";
-import { openai, getModelForPlan } from "./client";
+import { openai, getModelForPlan, getFastModel, getHumanizerModel, getArticleModel } from "./client";
 
 // Helper to inject variables into prompt templates
 function injectVars(prompt: string, vars: Record<string, string>): string {
@@ -56,6 +56,10 @@ export interface GenerationOptions {
     includeProsCons?: boolean;
     includeStepByStep?: boolean;
     includeExternalLinks?: boolean;
+    // Real SERP sources to use for external links (prevents hallucinated URLs)
+    serpSources?: string; // Pre-formatted string from formatSourcesForPrompt()
+    // PAA questions for smarter FAQ generation
+    paaQuestions?: string[]; // Real "People Also Ask" questions from SERP
     userPlan?: string; // User's subscription plan for model selection
 }
 
@@ -88,11 +92,10 @@ export interface MetaOutput {
 export async function generateTitles(
     options: GenerationOptions
 ): Promise<string[]> {
-    const systemPrompt = injectVars(SYSTEM_PROMPTS.TITLE_GENERATOR, {
-        KEYWORD: options.keyword,
-    });
+    // Titles are a structured JSON task — use the fast model
+    const model = getFastModel();
 
-    const userPrompt = `Generate 5 SEO-optimized blog post titles for:
+    const userPrompt = `Generate 5 SEO-optimized blog post titles.
 
 Primary Keyword: ${options.keyword}
 Language: ${options.language || "English"}
@@ -100,19 +103,18 @@ Tone: ${options.tone || "informational"}
 Niche: ${options.niche || "general"}
 Article Type: ${options.articleType || "blog post"}
 
-Return ONLY a JSON array of 5 title strings. No explanation.`;
+Return ONLY a JSON array of 5 title strings. No explanation, no markdown.`;
 
-    const model = getModelForPlan(options.userPlan);
-    
     let response;
     try {
         response = await openai.chat.completions.create({
-            model: model,
+            model,
             messages: [
-                { role: "system", content: systemPrompt + "\n\nOutput only valid JSON." },
+                { role: "system", content: SYSTEM_PROMPTS.TITLE_GENERATOR + "\n\nOutput only valid JSON. No markdown code fences." },
                 { role: "user", content: userPrompt },
             ],
             temperature: 0.8,
+            max_tokens: 512,
         });
     } catch (err: any) {
         console.error("Title generation error:", err.message, err.status);
@@ -159,15 +161,17 @@ Analyze what they cover, find gaps in their content, and create a MORE comprehen
 
 Return ONLY valid JSON matching the required format. No explanation.`;
 
-    const model = getModelForPlan(options.userPlan);
-    
+    // Outline is a structured JSON task — use the fast model
+    const model = getFastModel();
+
     const response = await openai.chat.completions.create({
-        model: model,
+        model,
         messages: [
-            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON and nothing else." },
+            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON. No markdown code fences, no explanation." },
             { role: "user", content: userPrompt },
         ],
         temperature: 0.7,
+        max_tokens: 4096,
     });
 
     const content = response.choices[0]?.message?.content || "{}";
@@ -178,161 +182,253 @@ Return ONLY valid JSON matching the required format. No explanation.`;
     }
 }
 
-// ─── GENERATE FULL ARTICLE ───────────────────────────────────────────────────
+// ─── BUILD CONTENT-TYPE INSTRUCTIONS ────────────────────────────────────────
+function buildContentTypeInstructions(options: GenerationOptions): string {
+    let instructions = "";
+
+    if (options.includeComparisonTable) {
+        instructions += `\n\nCOMPARISON TABLE REQUIRED:
+Include a detailed <table> comparing 3-5 options/products/methods.
+Columns: Name | Key Features | Pros | Cons | Best For
+Place it in the most relevant section.`;
+    }
+    if (options.includeRecipe) {
+        instructions += `\n\nRECIPE SECTION REQUIRED:
+Include structured recipe block: Prep Time, Cook Time, Total Time, Servings.
+Ingredients as <ul> with exact measurements. Steps as <ol> with numbered actions.`;
+    }
+    if (options.includeProsCons) {
+        instructions += `\n\nPROS & CONS SECTION REQUIRED:
+Dedicated section with ✅ Pros (<ul>, 5-7 items) and ❌ Cons (<ul>, 3-5 items). Be honest and specific.`;
+    }
+    if (options.includeStepByStep) {
+        instructions += `\n\nSTEP-BY-STEP GUIDE REQUIRED:
+Use <ol> with minimum 5 numbered steps. Each step: action heading + 2-3 sentence explanation + optional tip.`;
+    }
+    return instructions;
+}
+
+// ─── BUILD LINKING BLOCK ─────────────────────────────────────────────────────
+function buildLinkingBlock(options: GenerationOptions): string {
+    const parts: string[] = [];
+
+    if (options.existingPostsList) {
+        parts.push(`\n━━━ INTERNAL LINKS (INSERT 2-3 OF THESE) ━━━
+${options.existingPostsList}
+Rules: natural placement in paragraph text, descriptive anchor (not "click here"), spread across sections.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+    }
+
+    if (options.affiliateLinks && options.affiliateLinks.length > 0) {
+        parts.push(`\nAffiliate links (integrate naturally as recommendations):\n- ${options.affiliateLinks.join("\n- ")}`);
+    }
+
+    if (options.includeExternalLinks === false) {
+        parts.push(`\nDo NOT include any external links.`);
+    } else if (options.serpSources) {
+        parts.push(`\n${options.serpSources}`);
+    } else {
+        parts.push(`\nExternal links: only include if you are 100% certain the URL exists. Wikipedia and official root domains (who.int, cdc.gov) are safe. Never construct or guess specific paths.`);
+    }
+
+    return parts.join("\n");
+}
+
+// ─── GENERATE FULL ARTICLE (single-pass, ≤3000 words) ───────────────────────
+async function generateArticleSinglePass(
+    title: string,
+    outline: Outline,
+    options: GenerationOptions
+): Promise<string> {
+    const targetWords = options.wordCount || 2000;
+    const model = getArticleModel(options.userPlan);
+
+    const systemPrompt = injectVars(SYSTEM_PROMPTS.ARTICLE_WRITER, {
+        PRIMARY_KEYWORD: options.keyword,
+        WORD_COUNT: String(targetWords),
+        LANGUAGE: options.language || "English",
+    });
+
+    const userPrompt = `Write the complete article for Blogger.
+
+Title: ${title}
+Primary Keyword: ${options.keyword}
+Target: ${targetWords} words
+Language: ${options.language || "English"}
+Tone: ${options.tone || "informational"}
+Niche: ${options.niche || "general"}
+Article Type: ${options.articleType || "blog post"}
+${options.brandVoice ? `Brand Voice: ${options.brandVoice}` : ""}
+${buildLinkingBlock(options)}
+${buildContentTypeInstructions(options)}
+
+OUTLINE:
+${JSON.stringify(outline, null, 2)}
+
+Output: ONLY the Blogger-compatible HTML body. Start with the TLDR <p>, then first <h2>. No markdown, no code fences.`;
+
+    // Safe token limit: 1.5 tokens/word for HTML, capped at 8000
+    const maxTokens = Math.min(Math.ceil(targetWords * 1.5), 8000);
+    console.log(`📝 Single-pass: target=${targetWords}w, maxTokens=${maxTokens}, model=${model}`);
+
+    const response = await openai.chat.completions.create({
+        model,
+        messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt },
+        ],
+        temperature: 0.75,
+        max_tokens: maxTokens,
+    });
+
+    return cleanMarkdown(response.choices[0]?.message?.content || "");
+}
+
+// ─── GENERATE ARTICLE SECTION BY SECTION (long articles > 3000 words) ────────
+async function generateArticleSectionBySection(
+    title: string,
+    outline: Outline,
+    options: GenerationOptions
+): Promise<string> {
+    const targetWords = options.wordCount || 2000;
+    const model = getArticleModel(options.userPlan);
+    const sections = outline.sections || [];
+    const totalSections = sections.length;
+    const linkingBlock = buildLinkingBlock(options);
+    const contentTypeInstructions = buildContentTypeInstructions(options);
+
+    console.log(`📝 Section-by-section: ${totalSections} sections, target=${targetWords}w, model=${model}`);
+
+    const parts: string[] = [];
+
+    // ── TLDR + intro section ──────────────────────────────────────────────────
+    const introSection = sections[0] || { heading: "Introduction", level: 2, points: [] };
+    const introWordTarget = introSection.wordCount || Math.round(targetWords * 0.12);
+
+    const tldrPrompt = injectVars(SYSTEM_PROMPTS.SECTION_WRITER, {
+        PRIMARY_KEYWORD: options.keyword,
+        ARTICLE_TITLE: title,
+        TONE: options.tone || "informational",
+        ARTICLE_TYPE: options.articleType || "blog post",
+        LANGUAGE: options.language || "English",
+        SECTION_WORD_COUNT: String(introWordTarget),
+    });
+
+    const tldrUserPrompt = `Write the opening of this article.
+
+FIRST: Write the TLDR paragraph (before the H2). 2-3 sentences. Direct answer to: "${options.keyword}". Uses keyword in sentence 1. Optimized as a featured snippet. Start this paragraph with a <p> tag.
+
+THEN: Write the first full section:
+Heading: ${introSection.heading}
+Points to cover: ${JSON.stringify(introSection.points)}
+Subsections: ${JSON.stringify(introSection.subsections || [])}
+Target: ${introWordTarget} words for this section.
+${linkingBlock ? `Linking context (place 1 internal link here if available):\n${linkingBlock}` : ""}
+
+Output: Clean HTML only. TLDR <p> first, then <h2> for the section.`;
+
+    const tldrResponse = await openai.chat.completions.create({
+        model,
+        messages: [
+            { role: "system", content: tldrPrompt },
+            { role: "user", content: tldrUserPrompt },
+        ],
+        temperature: 0.75,
+        max_tokens: Math.min(Math.ceil(introWordTarget * 1.8), 2000),
+    });
+    parts.push(cleanMarkdown(tldrResponse.choices[0]?.message?.content || ""));
+
+    // ── Middle sections ───────────────────────────────────────────────────────
+    const remainingSections = sections.slice(1);
+    const wordsUsed = introWordTarget;
+    const wordsLeft = targetWords - wordsUsed;
+    const wordsPerSection = Math.round(wordsLeft / Math.max(remainingSections.length, 1));
+
+    for (let i = 0; i < remainingSections.length; i++) {
+        const section = remainingSections[i];
+        const sectionTarget = section.wordCount || wordsPerSection;
+        const isLast = i === remainingSections.length - 1;
+
+        // Inject content-type instructions and linking into middle or last section
+        const sectionExtra =
+            i === Math.floor(remainingSections.length / 2) ? contentTypeInstructions : "";
+        const linkExtra =
+            i === Math.floor(remainingSections.length / 3) && linkingBlock
+                ? `\nPlace 1 internal link naturally here if relevant:\n${linkingBlock}`
+                : "";
+
+        const sectionSystemPrompt = injectVars(SYSTEM_PROMPTS.SECTION_WRITER, {
+            PRIMARY_KEYWORD: options.keyword,
+            ARTICLE_TITLE: title,
+            TONE: options.tone || "informational",
+            ARTICLE_TYPE: options.articleType || "blog post",
+            LANGUAGE: options.language || "English",
+            SECTION_WORD_COUNT: String(sectionTarget),
+        });
+
+        const sectionUserPrompt = `Write section ${i + 2} of ${totalSections} for the article "${title}".
+
+Heading: ${section.heading}
+Level: H${section.level}
+Points to cover: ${JSON.stringify(section.points)}
+Subsections: ${JSON.stringify(section.subsections || [])}
+Target: ${sectionTarget} words
+${isLast ? `This is the CONCLUSION section. Summarize key takeaways. Use "${options.keyword}" at least twice. End with a strong, specific call-to-action.` : ""}
+${sectionExtra}
+${linkExtra}
+
+Output: Clean HTML only. Start with <h${section.level}> tag.`;
+
+        const sectionResponse = await openai.chat.completions.create({
+            model,
+            messages: [
+                { role: "system", content: sectionSystemPrompt },
+                { role: "user", content: sectionUserPrompt },
+            ],
+            temperature: 0.75,
+            max_tokens: Math.min(Math.ceil(sectionTarget * 1.8), 3000),
+        });
+
+        parts.push(cleanMarkdown(sectionResponse.choices[0]?.message?.content || ""));
+        console.log(`  ✓ Section ${i + 2}/${totalSections}: "${section.heading}"`);
+    }
+
+    return parts.join("\n\n");
+}
+
+// ─── CLEAN MARKDOWN ARTIFACTS ────────────────────────────────────────────────
+function cleanMarkdown(text: string): string {
+    return text
+        .replace(/^```html?\s*/i, "")
+        .replace(/\s*```\s*$/i, "")
+        .trim();
+}
+
+// ─── GENERATE ARTICLE (smart router) ─────────────────────────────────────────
+// Routes to single-pass (≤3000 words) or section-by-section (>3000 words).
 export async function generateArticle(
     title: string,
     outline: Outline,
     options: GenerationOptions
 ): Promise<string> {
-    const systemPrompt = injectVars(SYSTEM_PROMPTS.ARTICLE_WRITER, {
-        PRIMARY_KEYWORD: options.keyword,
-        WORD_COUNT: String(options.wordCount || 2000),
-    });
-
-    // Build dynamic content type instructions
-    let contentTypeInstructions = "";
-    
-    if (options.includeComparisonTable) {
-        contentTypeInstructions += `\n\nCOMPARISON TABLE REQUIRED:
-- Create a detailed HTML comparison table using <table>, <thead>, <tbody>, <tr>, <th>, <td>
-- Compare 3-5 options/products/methods related to the keyword
-- Include columns: Name, Key Features, Pros, Cons, Price/Rating, Best For
-- Make it visually scannable with clear headers
-- Place the table in a relevant section (e.g., "Comparison of Top Options")`;
-    }
-    
-    if (options.includeRecipe) {
-        contentTypeInstructions += `\n\nRECIPE FORMAT REQUIRED:
-- Include a structured recipe section with:
-  * Prep Time, Cook Time, Total Time, Servings
-  * Ingredients list (use <ul> with precise measurements)
-  * Step-by-step instructions (use <ol> with numbered steps)
-  * Optional: Nutrition facts, Tips, Variations
-- Format as a clear, easy-to-follow recipe card
-- Use <strong> for ingredient amounts and key instructions`;
-    }
-    
-    if (options.includeProsCons) {
-        contentTypeInstructions += `\n\nPROS & CONS REQUIRED:
-- Create a dedicated "Pros and Cons" section
-- Use two columns or lists:
-  * ✅ Pros: Use <ul> with positive points (5-7 items)
-  * ❌ Cons: Use <ul> with limitations/drawbacks (3-5 items)
-- Be honest and balanced
-- Place after the main description/overview section`;
-    }
-    
-    if (options.includeStepByStep) {
-        contentTypeInstructions += `\n\nSTEP-BY-STEP GUIDE REQUIRED:
-- Create a detailed step-by-step tutorial section
-- Use <ol> for numbered steps (minimum 5-10 steps)
-- Each step should include:
-  * Clear action-oriented heading
-  * Detailed explanation (2-3 sentences)
-  * Optional: Tips, warnings, or pro advice
-- Make it actionable and easy to follow
-- Consider adding "What You'll Need" subsection before steps`;
-    }
-
-    const userPrompt = `Write a complete article for Blogger based on this outline:
-
-Title: ${title}
-Primary Keyword: ${options.keyword}
-Target Word Count: ${options.wordCount || 2000}
-Language: ${options.language || "English"}
-Tone: ${options.tone || "informational"}
-Niche: ${options.niche || "general"}
-Article Type: ${options.articleType || "blog post"}
-${options.brandVoice ? `Brand Voice Instructions: ${options.brandVoice}` : ""}
-${options.existingPostsList ? `\n━━━ INTERNAL LINKING — MANDATORY ━━━
-You MUST insert 2-3 internal links to these existing blog posts throughout the article:
-${options.existingPostsList}
-
-RULES FOR INTERNAL LINKS:
-- Insert links NATURALLY within paragraph text (not in headings)
-- Use DESCRIPTIVE anchor text (2-5 words) that matches the linked post's topic
-- Format: <a href="URL">descriptive anchor text</a>
-- Spread links across different sections (first half, middle, last half)
-- Example: "For more details on this topic, check out our guide on <a href="URL">keyword optimization strategies</a>."
-- NEVER use generic anchors like "click here" or "this post"
-- This is MANDATORY - articles without internal links when provided will be REJECTED.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━` : ""}
-${options.affiliateLinks && options.affiliateLinks.length > 0 ? `\nAffiliate Links: Naturally integrate these links as contextual text links or recommendation sections:\n- ${options.affiliateLinks.join("\n- ")}\n` : ""}
-${options.includeExternalLinks === false ? `\nIMPORTANT: Do NOT include any external links to other websites. Only use internal links if provided above.` : `\nEXTERNAL LINKS — MANDATORY:
-You MUST include 3-5 relevant external links to authoritative sources throughout the article.
-Rules for external links:
-- Link to well-known, authoritative websites (e.g., Wikipedia, official brand sites, .gov, .edu, research papers, trusted publications like Forbes, NYT, WebMD, etc.)
-- Use descriptive anchor text (2-5 words) that naturally fits the sentence
-- Add rel="noopener noreferrer" and target="_blank" to ALL external links
-- Format: <a href="URL" target="_blank" rel="noopener noreferrer">anchor text</a>
-- Spread links across different sections — do NOT cluster them
-- Link to sources that ADD VALUE for the reader (studies, official docs, product pages, tutorials)
-- At least 1 external link should be in the first half of the article
-- At least 1 external link should be in the second half
-- NEVER use "click here" as anchor text
-- Example: According to <a href="https://www.who.int/..." target="_blank" rel="noopener noreferrer">World Health Organization guidelines</a>, ...
-- This is NOT optional. Articles without external links will be REJECTED.`}
-${contentTypeInstructions}
-
-OUTLINE TO FOLLOW:
-${JSON.stringify(outline, null, 2)}
-
-REMEMBER — CRITICAL REQUIREMENTS:
-- Start with a TLDR paragraph, then the first <h2>
-- No <h1> tags (Blogger uses the title field)
-- Clean HTML only: <p>, <h2>, <h3>, <h4>, <ul>, <ol>, <li>, <table>, <strong>, <em>, <a>, <blockquote>
-- Use the keyword 10-15 times naturally
-
-PARAGRAPH REQUIREMENTS (MANDATORY):
-- Write in FULL, RICH PARAGRAPHS (4-6 sentences, 80-120 words each)
-- NEVER use bullet points (<ul>, <ol>) in main content sections UNLESS specifically requested (e.g., recipe ingredients, step-by-step instructions, pros/cons lists)
-- Each paragraph should provide DEPTH, DETAIL, and VALUE
-- Users should feel they're reading a comprehensive article, NOT a quick list
-- BANNED: Short, choppy, bullet-point style writing
-- REQUIRED: Flowing, informative, paragraph-based content
-
-WORD COUNT (STRICT):
-- You MUST write EXACTLY ${options.wordCount || 2000} words. This is a strict requirement. Do not write less.
-- If the target is 4000 words, write 4000 words. If 2000, write 2000. Match the exact target.
-- Expand sections with detailed explanations, examples, and insights to reach the target
-
-OUTPUT:
-- Return ONLY the HTML article body. No markdown. No explanations.`;
-
-    const model = getModelForPlan(options.userPlan);
-    
-    // Calculate max tokens: words * 1.5 (tokens per word) * 1.5 (safety margin)
     const targetWords = options.wordCount || 2000;
-    const maxTokens = Math.ceil(targetWords * 1.5 * 1.5);
-    
-    console.log(`📝 Article Generation: Target=${targetWords} words, MaxTokens=${maxTokens}, Model=${model}`);
-    
-    const response = await openai.chat.completions.create({
-        model: model,
-        messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt },
-        ],
-        temperature: 0.8, // Higher temperature for more verbose output
-        max_tokens: maxTokens, // Ensure enough tokens for target word count
-    });
+    const useSectionBySection = targetWords > 3000;
 
-    let article = response.choices[0]?.message?.content || "";
+    let article: string;
 
-    // Clean up any markdown artifacts the LLM might inject
-    article = article
-        .replace(/^```html?\s*/i, "")
-        .replace(/\s*```\s*$/i, "")
-        .trim();
+    if (useSectionBySection) {
+        console.log(`📋 Using section-by-section generation (${targetWords} words)`);
+        article = await generateArticleSectionBySection(title, outline, options);
+    } else {
+        article = await generateArticleSinglePass(title, outline, options);
+    }
 
-    // Count words in generated article
-    const wordCount = article.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w.length > 0).length;
-    const percentageOfTarget = Math.round((wordCount / targetWords) * 100);
-    
-    console.log(`✅ Article Generated: ${wordCount} words (${percentageOfTarget}% of ${targetWords} target)`);
-    
-    if (wordCount < targetWords * 0.8) {
-        console.warn(`⚠️ WARNING: Article is significantly shorter than target (${wordCount} vs ${targetWords})`);
+    // Count words and log
+    const wordCount = article.replace(/<[^>]*>/g, " ").split(/\s+/).filter(w => w.length > 0).length;
+    const pct = Math.round((wordCount / targetWords) * 100);
+    console.log(`✅ Article: ${wordCount} words (${pct}% of ${targetWords} target)`);
+    if (wordCount < targetWords * 0.75) {
+        console.warn(`⚠️ Article significantly shorter than target: ${wordCount}/${targetWords}`);
     }
 
     return article;
@@ -373,19 +469,20 @@ CRITICAL REMINDERS:
 - Make every paragraph feel like it was written by someone who actually knows the topic
 - Output ONLY clean HTML — no markdown, no explanations`;
 
-    const model = getModelForPlan(options.userPlan);
-    
-    // Calculate tokens generously to ensure complete output
-    // HTML adds significant overhead, so we need more than just word count * 1.5
-    const inputWordCount = articleHtml.replace(/<[^>]*>/g, ' ').split(/\s+/).filter(w => w.length > 0).length;
-    const inputCharCount = articleHtml.length;
-    
-    // Use character-based estimation for better accuracy with HTML
-    // Average: 4 chars per token, but give 3x buffer for safety
-    const estimatedTokens = Math.ceil(inputCharCount / 4);
-    const maxTokens = Math.min(estimatedTokens * 3, 16000); // Cap at 16k for safety
-    
-    console.log(`🧠 Humanizer: Processing ${inputWordCount} words (${inputCharCount} chars), MaxTokens=${maxTokens}, Model=${model}`);
+    // Humanizer uses DeepSeek — excellent at natural writing, very cheap
+    const model = getHumanizerModel();
+
+    const inputWordCount = articleHtml.replace(/<[^>]*>/g, " ").split(/\s+/).filter(w => w.length > 0).length;
+
+    // DeepSeek has a large output window, but we still cap reasonably.
+    // If article is very long (>4000 words), skip humanizer to be safe.
+    if (inputWordCount > 4000) {
+        console.log(`⚠️ Humanizer: Article too long (${inputWordCount}w) — skipping to prevent truncation`);
+        return articleHtml;
+    }
+
+    const maxTokens = Math.min(Math.ceil(inputWordCount * 1.6) + 400, 8000);
+    console.log(`🧠 Humanizer: ${inputWordCount}w → maxTokens=${maxTokens}, model=${model}`);
     
     try {
         const response = await openai.chat.completions.create({
@@ -444,11 +541,18 @@ export async function generateFAQ(
     articleContent: string,
     language?: string,
     niche?: string,
-    userPlan?: string
+    userPlan?: string,
+    paaQuestions?: string[] // Real "People Also Ask" questions from SERP
 ): Promise<FAQ[]> {
     const systemPrompt = injectVars(SYSTEM_PROMPTS.FAQ_GENERATOR, {
         PRIMARY_KEYWORD: keyword,
     });
+
+    const paaContext = paaQuestions && paaQuestions.length > 0
+        ? `\nREAL SEARCH QUESTIONS (from Google's "People Also Ask" — PRIORITIZE these as your FAQ questions):
+${paaQuestions.map(q => `- ${q}`).join("\n")}
+These are questions real users search for. Use them as the basis for your FAQ answers.\n`
+        : "";
 
     const userPrompt = `Generate FAQs for this blog post:
 
@@ -456,18 +560,20 @@ Primary Keyword: ${keyword}
 Language: ${language || "English"}
 Niche: ${niche || "general"}
 Article summary (first 800 chars): ${articleContent.replace(/<[^>]*>/g, "").substring(0, 800)}
-
+${paaContext}
 Return ONLY a valid JSON array of objects with "question" and "answer" keys.`;
 
-    const model = getModelForPlan(userPlan);
+    // FAQs are structured JSON — use the fast model
+    const model = getFastModel();
 
     const response = await openai.chat.completions.create({
         model,
         messages: [
-            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON." },
+            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON. No markdown code fences." },
             { role: "user", content: userPrompt },
         ],
         temperature: 0.7,
+        max_tokens: 2048,
     });
 
     const content = response.choices[0]?.message?.content || "[]";
@@ -500,15 +606,17 @@ Article summary (first 800 chars): ${articleContent.replace(/<[^>]*>/g, "").subs
 
 Return ONLY valid JSON with "metaDescription" and "excerpt" keys.`;
 
-    const model = getModelForPlan(userPlan);
+    // Meta is structured JSON — use the fast model
+    const model = getFastModel();
 
     const response = await openai.chat.completions.create({
         model,
         messages: [
-            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON." },
+            { role: "system", content: systemPrompt + "\n\nOutput ONLY valid JSON. No markdown code fences." },
             { role: "user", content: userPrompt },
         ],
         temperature: 0.6,
+        max_tokens: 512,
     });
 
     const content = response.choices[0]?.message?.content || "{}";
@@ -519,14 +627,10 @@ Return ONLY valid JSON with "metaDescription" and "excerpt" keys.`;
     }
 }
 
-// ─── IMAGE STYLE VARIATIONS ─────────────────────────────────────────────────
-const IMAGE_STYLES: Array<{ type: "featured" | "content" | "social" | "process"; style: string }> = [
-    { type: "featured", style: "hero product photography, centered composition, shallow depth of field, bokeh background" },
-    { type: "content", style: "overhead flat lay arrangement, geometric layout, clean white surface, editorial style" },
-    { type: "process", style: "close-up detail shot, macro photography, showing texture and craftsmanship, dramatic lighting" },
-    { type: "social", style: "lifestyle scene in natural environment, warm golden hour lighting, authentic and candid feel" },
-    { type: "content", style: "wide angle environmental shot, showing full scene and context, deep depth of field, architectural perspective" },
-    { type: "process", style: "side angle product shot with props, complementary colors, moody studio lighting, premium aesthetic" },
+// ─── IMAGE TYPE ROTATION ─────────────────────────────────────────────────────
+// Ensures each image in an article has a different composition style
+const IMAGE_TYPE_ROTATION: Array<"featured" | "content" | "social" | "process"> = [
+    "featured", "content", "process", "social", "content", "process",
 ];
 
 // ─── GENERATE IMAGE ──────────────────────────────────────────────────────────
@@ -538,80 +642,68 @@ export async function generateFeaturedImage(
     imageIndex?: number
 ): Promise<{ url: string; altText: string }> {
     try {
-        // Pick a varied style based on image index to ensure diversity
-        const styleVariation = IMAGE_STYLES[imageIndex !== undefined ? imageIndex % IMAGE_STYLES.length : 0];
-        const actualType = imageIndex !== undefined && imageIndex > 0 ? styleVariation.type : imageType;
+        // Rotate image type for visual variety across the article
+        const actualType = imageIndex !== undefined && imageIndex > 0
+            ? IMAGE_TYPE_ROTATION[imageIndex % IMAGE_TYPE_ROTATION.length]
+            : imageType;
 
-        // Build the image prompt from templates
-        let templatePrompt: string;
-        switch (actualType) {
-            case "content":
-                templatePrompt = SYSTEM_PROMPTS.IMAGE_CONTENT;
-                break;
-            case "social":
-                templatePrompt = SYSTEM_PROMPTS.IMAGE_SOCIAL;
-                break;
-            case "process":
-                templatePrompt = SYSTEM_PROMPTS.IMAGE_PROCESS;
-                break;
-            default:
-                templatePrompt = SYSTEM_PROMPTS.IMAGE_FEATURED;
-        }
+        // Pick the base template for the type
+        const templateMap: Record<string, string> = {
+            content: SYSTEM_PROMPTS.IMAGE_CONTENT,
+            social: SYSTEM_PROMPTS.IMAGE_SOCIAL,
+            process: SYSTEM_PROMPTS.IMAGE_PROCESS,
+            featured: SYSTEM_PROMPTS.IMAGE_FEATURED,
+        };
+        const basePrompt = injectVars(templateMap[actualType] || SYSTEM_PROMPTS.IMAGE_FEATURED, {
+            PRIMARY_KEYWORD: keyword,
+        });
 
-        const basePrompt = injectVars(templatePrompt, { PRIMARY_KEYWORD: keyword });
-
-        // Build context-aware prompt with section info for variety
-        const contextInfo = sectionContext 
-            ? `\nThis image is for a section titled: "${sectionContext}". Make the image specifically relevant to this section topic, not just the general keyword.`
-            : "";
-        
-        const styleInfo = imageIndex !== undefined 
-            ? `\nStyle direction: ${styleVariation.style}`
-            : "";
-
-        // Enhance with AI for a unique, context-aware prompt
+        // Use fast model for prompt enhancement (cheap + fast enough)
         const promptResponse = await openai.chat.completions.create({
-            model: getModelForPlan(),
+            model: getFastModel(),
             messages: [
                 { role: "system", content: SYSTEM_PROMPTS.IMAGE_PROMPT_GENERATOR },
                 {
                     role: "user",
-                    content: `Create a UNIQUE image prompt for a "${actualType}" blog image about "${title}" (keyword: "${keyword}").${contextInfo}${styleInfo}
+                    content: `Create a unique FLUX.1 image prompt for a "${actualType}" blog image.
+Topic: "${title}"
+Keyword: "${keyword}"
+${sectionContext ? `Section context: "${sectionContext}" — make the image specifically relevant to this section` : ""}
+${imageIndex && imageIndex > 0 ? "Make this distinctly different from the hero/featured image — different angle, subject, and composition." : ""}
 
-Base template: ${basePrompt}
+Base template to refine:
+${basePrompt}
 
-IMPORTANT: 
-- Make this image DISTINCTLY DIFFERENT from other images in the article
-- Focus on the specific section topic, not just the keyword
-- Use a different angle, composition, and subject matter than a typical flat lay
-- Be creative and specific about what objects/scenes should appear
-
-Return a single refined prompt string (100-150 words).`,
+Return a single descriptive paragraph (80–120 words). No bullet points, no explanation.`,
                 },
             ],
-            temperature: 0.9,
+            temperature: 0.85,
+            max_tokens: 250,
         });
 
         const imagePrompt =
-            promptResponse.choices[0]?.message?.content?.replace(/^["']|["']$/g, "").trim() ||
+            promptResponse.choices[0]?.message?.content?.replace(/^["'`]|["'`]$/g, "").trim() ||
             basePrompt;
 
-        // Generate SEO-friendly alt text
-        const altText = sectionContext 
-            ? `${sectionContext} - ${keyword}`.substring(0, 125)
-            : `${title} - ${keyword}`.substring(0, 125);
+        // SEO-friendly alt text
+        const altText = sectionContext
+            ? `${sectionContext} — ${keyword}`.substring(0, 120)
+            : `${title} — ${keyword}`.substring(0, 120);
 
-        // Get negative prompt
-        const negativePrompt = SYSTEM_PROMPTS.IMAGE_FEATURED_NEGATIVE;
+        console.log(`🖼️ Image ${(imageIndex || 0) + 1} (${actualType}): ${imagePrompt.substring(0, 80)}...`);
 
-        // Generate and host image with Cloudflare Workers AI
-        console.log(`Generating ${actualType} image (#${(imageIndex || 0) + 1}) with Cloudflare Workers AI...`);
-        const result = await generateAndHostImage(imagePrompt, keyword, actualType, negativePrompt, altText);
+        const result = await generateAndHostImage(
+            imagePrompt,
+            keyword,
+            actualType,
+            SYSTEM_PROMPTS.IMAGE_FEATURED_NEGATIVE,
+            altText
+        );
 
         return result;
     } catch (err) {
-        console.error("AI Image Generation failed:", err);
-        return { url: "", altText: `${keyword} - ${imageType} image` };
+        console.error("Image generation failed:", err);
+        return { url: "", altText: `${keyword} - ${imageType}` };
     }
 }
 
@@ -632,7 +724,7 @@ export async function generateFullArticle(
     const outline = await generateOutline(selectedTitle, options);
     const article = await generateArticle(selectedTitle, outline, options);
     const faqs = options.includeFaq !== false
-        ? await generateFAQ(options.keyword, article, options.language, options.niche)
+        ? await generateFAQ(options.keyword, article, options.language, options.niche, options.userPlan, options.paaQuestions)
         : [];
     const meta = await generateMeta(selectedTitle, article, options.keyword, options.language);
 

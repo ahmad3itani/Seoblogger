@@ -15,6 +15,7 @@ import { requireAuth, checkUsageLimit, trackUsage } from "@/lib/supabase/auth-he
 import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { sanitizeString, sanitizeNumber } from "@/lib/security/validate";
+import { fetchSerpIntelligence, formatSourcesForPrompt, formatPAAForFAQ } from "@/lib/seo/serp-sources";
 
 export async function POST(req: Request) {
     try {
@@ -230,6 +231,27 @@ export async function POST(req: Request) {
                     }
                 }
 
+                // ─── SERP INTELLIGENCE ──────────────────────────────────────
+                // Fetch real SERP data to use real URLs (prevents link hallucination)
+                // and real PAA questions (improves FAQ targeting)
+                if (includeExternalLinks !== false) {
+                    try {
+                        const serpLang = language?.substring(0, 2) || "en";
+                        const serpIntel = await fetchSerpIntelligence(keyword, "us", serpLang);
+
+                        if (serpIntel.sources.length > 0) {
+                            options.serpSources = formatSourcesForPrompt(serpIntel.sources);
+                        }
+
+                        if (serpIntel.paaQuestions.length > 0) {
+                            options.paaQuestions = serpIntel.paaQuestions.map(q => q.question);
+                            console.log(`❓ PAA questions fetched: ${options.paaQuestions.join(" | ")}`);
+                        }
+                    } catch (serpErr) {
+                        console.warn("SERP intelligence fetch failed (non-blocking):", serpErr);
+                    }
+                }
+
                 const rawArticle = await generateArticle(selectedTitle, outline, options);
 
                 // ─── HUMANIZER PASS ─────────────────────────────────────────
@@ -245,9 +267,10 @@ export async function POST(req: Request) {
                 });
 
                 // Generate FAQs if requested
+                // Prioritize real PAA questions from SERP for better featured snippet targeting
                 let faqs: Array<{ question: string; answer: string }> = [];
                 if (includeFaq) {
-                    faqs = await generateFAQ(keyword, article, language, niche, options.userPlan);
+                    faqs = await generateFAQ(keyword, article, language, niche, options.userPlan, options.paaQuestions);
                 }
 
                 // Generate meta
@@ -325,7 +348,7 @@ export async function POST(req: Request) {
                             if ((i + 1) % interval === 0 && i > 0) {
                                 const img = inlineImages[imageIndex];
                                 console.log(`  Placing image ${imageIndex + 1} after section ${i + 1}: ${img.altText}`);
-                                const imageHtml = `\n<div class="article-image" style="text-align: center; margin: 2rem 0;">\n  <img src="${img.url}" alt="${img.altText}" style="max-width: 100%; height: auto; border-radius: 8px;" loading="lazy" />\n</div>\n`;
+                                const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
                                 sections[sectionPos] = imageHtml + sections[sectionPos];
                                 imageIndex++;
                             }
@@ -337,7 +360,7 @@ export async function POST(req: Request) {
                             const startSection = Math.max(1, numSections - remaining);
                             for (let i = startSection; i <= numSections && imageIndex < inlineImages.length; i++) {
                                 const img = inlineImages[imageIndex];
-                                const imageHtml = `\n<div class="article-image" style="text-align: center; margin: 2rem 0;">\n  <img src="${img.url}" alt="${img.altText}" style="max-width: 100%; height: auto; border-radius: 8px;" loading="lazy" />\n</div>\n`;
+                                const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
                                 sections[i] = imageHtml + sections[i];
                                 imageIndex++;
                             }
@@ -353,7 +376,7 @@ export async function POST(req: Request) {
                         for (let i = 0; i < inlineImages.length; i++) {
                             const insertIndex = Math.min((i + 1) * interval, paragraphs.length - 1);
                             const img = inlineImages[i];
-                            const imageHtml = `\n<div class="article-image" style="text-align: center; margin: 2rem 0;">\n  <img src="${img.url}" alt="${img.altText}" style="max-width: 100%; height: auto; border-radius: 8px;" loading="lazy" />\n</div>\n`;
+                            const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
                             paragraphs[insertIndex] = paragraphs[insertIndex] + '</p>' + imageHtml;
                         }
                         fullContent = paragraphs.join('</p>');
@@ -392,6 +415,31 @@ export async function POST(req: Request) {
                 }) + '\n\n' + schemaMarkup;
 
                 const wordCountResult = countWords(formattedContent);
+
+                // ─── QUALITY VALIDATION ─────────────────────────────────────
+                const targetWordCount = wordCount || 2000;
+                const qualityWarnings: string[] = [];
+
+                if (wordCountResult < targetWordCount * 0.7) {
+                    qualityWarnings.push(`Article is ${wordCountResult} words — significantly shorter than the ${targetWordCount}-word target (${Math.round(wordCountResult / targetWordCount * 100)}%). Consider regenerating.`);
+                    console.warn(`⚠️ Quality: Article too short: ${wordCountResult}/${targetWordCount} words`);
+                }
+
+                const h2Count = (formattedContent.match(/<h2/gi) || []).length;
+                if (h2Count < 3) {
+                    qualityWarnings.push(`Article has only ${h2Count} H2 headings — structure may be insufficient for SEO.`);
+                    console.warn(`⚠️ Quality: Only ${h2Count} H2 headings found`);
+                }
+
+                const hasTldr = formattedContent.toLowerCase().includes("tldr") ||
+                    formattedContent.indexOf("<p") < formattedContent.indexOf("<h2");
+                if (!hasTldr) {
+                    qualityWarnings.push("Article may be missing TLDR/intro paragraph before first H2.");
+                }
+
+                if (qualityWarnings.length > 0) {
+                    console.log(`📋 Quality warnings: ${qualityWarnings.join(" | ")}`);
+                }
 
                 // Determine article status based on publishAction
                 let articleStatus = "draft";
@@ -450,6 +498,7 @@ export async function POST(req: Request) {
                         image,
                         wordCount: wordCountResult,
                         savedArticle,
+                        qualityWarnings: qualityWarnings.length > 0 ? qualityWarnings : undefined,
                     });
                 }
 
@@ -460,6 +509,7 @@ export async function POST(req: Request) {
                     meta,
                     image,
                     wordCount: wordCountResult,
+                    qualityWarnings: qualityWarnings.length > 0 ? qualityWarnings : undefined,
                 });
             }
 

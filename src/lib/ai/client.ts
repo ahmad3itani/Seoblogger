@@ -1,7 +1,7 @@
 import OpenAI from "openai";
 import { prisma } from "@/lib/prisma";
 
-// Lazy-initialized OpenAI client via OpenRouter (avoids build-time crash when env vars missing)
+// ─── OpenRouter Client ────────────────────────────────────────────────────────
 let _openai: OpenAI | null = null;
 
 export function getOpenAIClient(): OpenAI {
@@ -12,33 +12,77 @@ export function getOpenAIClient(): OpenAI {
             defaultHeaders: {
                 "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000",
                 "X-Title": "BloggerSEO",
-            }
+            },
         });
     }
     return _openai;
 }
 
-// Backward-compatible export (lazy getter)
 export const openai = new Proxy({} as OpenAI, {
     get(_target, prop) {
         return (getOpenAIClient() as any)[prop];
-    }
+    },
 });
 
-// Model selection based on user plan
-// Using Claude Sonnet 4 for superior content quality and instruction following
-const PREMIUM_MODEL = "anthropic/claude-3.5-sonnet:beta";
-const FREE_MODEL = "anthropic/claude-3.5-sonnet:beta";
+// ─── Model Catalog ─────────────────────────────────────────────────────────────
+// Cost/quality tiers tuned for content generation workloads.
+// All prices are approximate OpenRouter rates per 1M tokens (input/output).
+//
+//  deepseek/deepseek-chat         $0.14 / $0.28   — Excellent quality, best $/quality
+//  google/gemini-flash-1.5        $0.075 / $0.30  — Ultra fast, great for JSON tasks
+//  anthropic/claude-3.5-haiku-…   $0.80 / $4.00   — Stronger instruction-following
+//  anthropic/claude-3.5-sonnet-…  $3.00 / $15.00  — Best overall quality, pro tier
 
-export function getModelForPlan(planName?: string): string {
+export const MODELS = {
+    // Structural tasks (titles, outlines, FAQ, meta) — need reliable JSON output
+    FAST: "deepseek/deepseek-chat",
+
+    // Free plan article body — very good quality at near-zero cost
+    FREE_ARTICLE: "deepseek/deepseek-chat",
+
+    // Starter plan — strong creative writing + instruction following
+    STARTER_ARTICLE: "anthropic/claude-3.5-haiku-20241022",
+
+    // Pro / Enterprise — highest quality output
+    PRO_ARTICLE: "anthropic/claude-3.5-sonnet-20241022",
+
+    // Humanizer pass — DeepSeek excels at natural, human-sounding writing
+    HUMANIZER: "deepseek/deepseek-chat",
+} as const;
+
+// ─── Plan → Article Model ────────────────────────────────────────────────────
+export function getArticleModel(planName?: string): string {
     const plan = planName?.toLowerCase() || "free";
-    const isPremium = plan === "pro" || plan === "enterprise";
-    const selectedModel = isPremium ? PREMIUM_MODEL : FREE_MODEL;
-    console.log(`🤖 Model Selection: Plan="${plan}" → ${selectedModel} ${isPremium ? "(PREMIUM)" : "(FREE)"}`);
-    return selectedModel;
+    let model: string;
+
+    if (plan === "enterprise" || plan === "pro") {
+        model = MODELS.PRO_ARTICLE;
+    } else if (plan === "starter") {
+        model = MODELS.STARTER_ARTICLE;
+    } else {
+        model = MODELS.FREE_ARTICLE;
+    }
+
+    console.log(`🤖 Article model: plan="${plan}" → ${model}`);
+    return model;
 }
 
-// Fetch user's plan name from database
+// ─── Backward-compatible wrapper used by older callers ────────────────────────
+export function getModelForPlan(planName?: string): string {
+    return getArticleModel(planName);
+}
+
+// ─── Fast model for structured tasks ─────────────────────────────────────────
+export function getFastModel(): string {
+    return MODELS.FAST;
+}
+
+// ─── Humanizer model ──────────────────────────────────────────────────────────
+export function getHumanizerModel(): string {
+    return MODELS.HUMANIZER;
+}
+
+// ─── DB lookup helpers ────────────────────────────────────────────────────────
 export async function getUserPlanName(userId: string): Promise<string> {
     try {
         const user = await prisma.user.findUnique({
@@ -46,14 +90,12 @@ export async function getUserPlanName(userId: string): Promise<string> {
             include: { plan: true },
         });
         return user?.plan?.name || "free";
-    } catch (error) {
-        console.error("Error fetching user plan:", error);
+    } catch {
         return "free";
     }
 }
 
-// Get model for a specific user by their ID
 export async function getModelForUser(userId: string): Promise<string> {
     const planName = await getUserPlanName(userId);
-    return getModelForPlan(planName);
+    return getArticleModel(planName);
 }

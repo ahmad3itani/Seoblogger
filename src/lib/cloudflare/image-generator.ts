@@ -1,14 +1,7 @@
-// Cloudflare Workers AI Image Generation
-// Uses @cf/stabilityai/stable-diffusion-xl-base-1.0 (free tier)
-
-interface CloudflareAIResponse {
-  result: {
-    image: string; // base64 encoded image
-  };
-  success: boolean;
-  errors: any[];
-  messages: any[];
-}
+// Cloudflare Workers AI — Image Generation
+// Model: @cf/black-forest-labs/flux-1-schnell
+// (upgraded from SDXL — dramatically better quality, same free tier)
+// Free tier: 10,000 AI requests/day, R2 10GB storage
 
 interface ImageGenerationResult {
   url: string;
@@ -16,74 +9,95 @@ interface ImageGenerationResult {
   base64?: string;
 }
 
-/**
- * Generate an image using Cloudflare Workers AI
- * Model: @cf/stabilityai/stable-diffusion-xl-base-1.0
- * Free tier: 10,000 requests/day
- */
+// ─── Generate with FLUX.1 Schnell ────────────────────────────────────────────
+// FLUX.1 Schnell is Black Forest Labs' fast model — photorealistic, high-quality.
+// Steps: 4–8 is optimal (fast + high quality). Returns binary image data.
 export async function generateImageWithCloudflare(
   prompt: string,
   accountId: string,
   apiToken: string,
   negativePrompt?: string
 ): Promise<string> {
+  // FLUX.1 Schnell — better quality than SDXL, same Cloudflare free tier
+  const model = "@cf/black-forest-labs/flux-1-schnell";
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
+
+  const body: Record<string, any> = {
+    prompt,
+    num_steps: 8, // FLUX optimal: 4-8 steps. 8 = best quality within free tier speed.
+  };
+
+  // FLUX doesn't support negative_prompt natively, but we include it
+  // in prompt context as it sometimes influences generation
+  if (negativePrompt) {
+    body.prompt = `${prompt}. Avoid: ${negativePrompt.split(",").slice(0, 5).join(", ")}.`;
+  }
+
+  console.log(`🎨 FLUX.1 prompt (${prompt.length} chars): ${prompt.substring(0, 100)}...`);
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const err = await response.text();
+    // Fallback to SDXL if FLUX isn't available on the account
+    if (response.status === 404 || response.status === 400) {
+      console.warn(`FLUX.1 not available, falling back to SDXL...`);
+      return generateWithSDXLFallback(prompt, accountId, apiToken);
+    }
+    throw new Error(`Cloudflare AI error ${response.status}: ${err}`);
+  }
+
+  const imageBuffer = await response.arrayBuffer();
+  return Buffer.from(imageBuffer).toString("base64");
+}
+
+// ─── SDXL Fallback ───────────────────────────────────────────────────────────
+async function generateWithSDXLFallback(
+  prompt: string,
+  accountId: string,
+  apiToken: string
+): Promise<string> {
   const model = "@cf/stabilityai/stable-diffusion-xl-base-1.0";
   const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/ai/run/${model}`;
 
-  try {
-    const body: Record<string, any> = {
-      prompt: prompt,
-      num_steps: 20, // Maximum allowed by Cloudflare API
-      guidance: 7.5, // How closely to follow prompt (7.5 is recommended)
-    };
-    if (negativePrompt) {
-      body.negative_prompt = negativePrompt;
-    }
-    
-    console.log(`🎨 Image prompt: ${prompt.substring(0, 120)}...`);
-    
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiToken}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(body),
-    });
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ prompt, num_steps: 20, guidance: 7.5 }),
+  });
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`Cloudflare AI error: ${response.status} - ${errorText}`);
-    }
-
-    // Response is the image binary directly
-    const imageBuffer = await response.arrayBuffer();
-    const base64Image = Buffer.from(imageBuffer).toString("base64");
-    
-    return base64Image;
-  } catch (error) {
-    console.error("Cloudflare AI image generation failed:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`SDXL fallback error: ${response.status}`);
   }
+
+  const imageBuffer = await response.arrayBuffer();
+  return Buffer.from(imageBuffer).toString("base64");
 }
 
-/**
- * Generate a unique filename for the image
- */
+// ─── SEO-Friendly Filename ────────────────────────────────────────────────────
 function generateImageFilename(keyword: string, imageType: string): string {
   const timestamp = Date.now();
-  const random = Math.random().toString(36).substring(2, 8);
-  const sanitizedKeyword = keyword
+  const random = Math.random().toString(36).substring(2, 7);
+  const slug = keyword
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
-    .substring(0, 30);
-  return `${sanitizedKeyword}-${imageType}-${timestamp}-${random}.png`;
+    .replace(/^-+|-+$/g, "")
+    .substring(0, 35);
+  // SEO-friendly filename: keyword-type-timestamp.webp
+  return `${slug}-${imageType}-${timestamp}-${random}.png`;
 }
 
-/**
- * Upload base64 image to Cloudflare R2 using REST API
- * Free tier: 10GB storage, unlimited egress to Cloudflare
- */
+// ─── Upload to Cloudflare R2 ──────────────────────────────────────────────────
 export async function uploadToCloudflareR2(
   base64Image: string,
   fileName: string,
@@ -91,40 +105,30 @@ export async function uploadToCloudflareR2(
   apiToken: string,
   bucketName: string = "bloggerseo-images"
 ): Promise<string> {
-  try {
-    const imageBuffer = Buffer.from(base64Image, "base64");
-    
-    // Upload using Cloudflare R2 REST API
-    const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucketName}/objects/${fileName}`;
-    
-    const response = await fetch(uploadUrl, {
-      method: "PUT",
-      headers: {
-        "Authorization": `Bearer ${apiToken}`,
-        "Content-Type": "image/png",
-      },
-      body: imageBuffer,
-    });
+  const imageBuffer = Buffer.from(base64Image, "base64");
+  const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucketName}/objects/${fileName}`;
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`R2 upload error: ${response.status} - ${errorText}`);
-    }
+  const response = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      "Content-Type": "image/png",
+    },
+    body: imageBuffer,
+  });
 
-    // Return public URL using the R2 public development URL
-    const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL || `https://pub-153f654887954c46b572eef9cc43ec55.r2.dev`;
-    const publicUrl = `${r2PublicUrl}/${fileName}`;
-    return publicUrl;
-  } catch (error) {
-    console.error("Cloudflare R2 upload failed:", error);
-    throw error;
+  if (!response.ok) {
+    const err = await response.text();
+    throw new Error(`R2 upload error ${response.status}: ${err}`);
   }
+
+  const r2PublicUrl =
+    process.env.CLOUDFLARE_R2_PUBLIC_URL ||
+    `https://pub-153f654887954c46b572eef9cc43ec55.r2.dev`;
+  return `${r2PublicUrl}/${fileName}`;
 }
 
-/**
- * Complete image generation and hosting pipeline
- * Uses Cloudflare Workers AI + Cloudflare R2 (both free)
- */
+// ─── Full Pipeline: Generate → Host ──────────────────────────────────────────
 export async function generateAndHostImage(
   prompt: string,
   keyword: string,
@@ -132,72 +136,39 @@ export async function generateAndHostImage(
   negativePrompt?: string,
   altText?: string
 ): Promise<ImageGenerationResult> {
-  const cloudflareAccountId = process.env.CLOUDFLARE_ACCOUNT_ID;
-  const cloudflareApiToken = process.env.CLOUDFLARE_API_TOKEN;
-  const r2BucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "bloggerseo-images";
+  const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
+  const apiToken = process.env.CLOUDFLARE_API_TOKEN;
+  const bucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "bloggerseo-images";
+  const finalAltText = altText || `${keyword} - ${imageType}`;
 
-  // Validate required credentials
-  if (!cloudflareAccountId || !cloudflareApiToken) {
-    console.warn("Cloudflare credentials missing. Image generation skipped.");
-    return {
-      url: "",
-      altText: altText || `${keyword} - ${imageType} image`,
-    };
+  if (!accountId || !apiToken) {
+    console.warn("⚠️ Cloudflare credentials missing — image generation skipped");
+    return { url: "", altText: finalAltText };
   }
 
-  const finalAltText = altText || `${keyword} - ${imageType} image`;
-
   try {
-    // Step 1: Generate image with Cloudflare Workers AI
-    console.log(`Generating ${imageType} image with Cloudflare Workers AI...`);
-    const base64Image = await generateImageWithCloudflare(
-      prompt,
-      cloudflareAccountId,
-      cloudflareApiToken,
-      negativePrompt
-    );
+    console.log(`🖼️ Generating ${imageType} image (FLUX.1 Schnell)...`);
+    const base64 = await generateImageWithCloudflare(prompt, accountId, apiToken, negativePrompt);
 
-    // Step 2: Upload to Cloudflare R2
-    console.log("Uploading to Cloudflare R2...");
+    console.log(`☁️ Uploading to R2...`);
     const fileName = generateImageFilename(keyword, imageType);
-    
-    const imageUrl = await uploadToCloudflareR2(
-      base64Image,
-      fileName,
-      cloudflareAccountId,
-      cloudflareApiToken,
-      r2BucketName
-    );
+    const imageUrl = await uploadToCloudflareR2(base64, fileName, accountId, apiToken, bucketName);
 
-    console.log(`✅ Image generated and hosted: ${imageUrl}`);
-
-    return {
-      url: imageUrl,
-      altText: finalAltText,
-      base64: base64Image,
-    };
+    console.log(`✅ Image ready: ${imageUrl}`);
+    return { url: imageUrl, altText: finalAltText, base64 };
   } catch (error) {
-    console.error("❌ Image generation and hosting failed:", error);
-    console.warn("⚠️ Falling back to base64 data URL");
-    
+    console.error("❌ Image pipeline failed:", error);
+
+    // Last-resort: return base64 data URL so article isn't blocked
     try {
-      const base64Image = await generateImageWithCloudflare(
-        prompt,
-        cloudflareAccountId,
-        cloudflareApiToken,
-        negativePrompt
-      );
+      const base64 = await generateImageWithCloudflare(prompt, accountId, apiToken, negativePrompt);
       return {
-        url: `data:image/png;base64,${base64Image}`,
+        url: `data:image/png;base64,${base64}`,
         altText: finalAltText,
-        base64: base64Image,
+        base64,
       };
-    } catch (fallbackError) {
-      console.error("❌ Fallback also failed:", fallbackError);
-      return {
-        url: "",
-        altText: finalAltText,
-      };
+    } catch {
+      return { url: "", altText: finalAltText };
     }
   }
 }

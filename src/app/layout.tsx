@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import { Geist_Mono } from "next/font/google";
+import { Inter, Space_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -8,6 +7,12 @@ import GoogleAnalytics from "@/components/GoogleAnalytics";
 const inter = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
+});
+
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 const geistMono = Geist_Mono({
@@ -179,10 +184,10 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${geistMono.variable} antialiased font-sans`}
+        className={`${inter.variable} ${spaceGrotesk.variable} ${geistMono.variable} antialiased font-sans`}
         suppressHydrationWarning
       >
-        {/* Background gradient orbs */}
+        {/* Ambient background orbs */}
         <div className="gradient-orb gradient-orb-1" />
         <div className="gradient-orb gradient-orb-2" />
         <div className="gradient-orb gradient-orb-3" />
