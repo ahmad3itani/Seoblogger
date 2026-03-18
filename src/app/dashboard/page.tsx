@@ -4,28 +4,11 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/supabase/auth-context";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
-    PenTool,
-    FileText,
-    Globe,
-    BarChart3,
-    ArrowRight,
-    TrendingUp,
-    Clock,
-    CheckCircle2,
-    Sparkles,
-    Image,
-    Tag,
-    Loader2,
-    TrendingDown,
-    Search,
-    Activity,
-    RefreshCw,
-    Link as LinkIcon,
-    ShoppingCart,
-    Lightbulb,
-    Network,
+    PenTool, FileText, Globe, ArrowRight, TrendingUp,
+    Clock, CheckCircle2, Loader2, TrendingDown, Search, Activity,
+    RefreshCw, Link as LinkIcon, ShoppingCart, Lightbulb, Network,
+    Rocket,
 } from "lucide-react";
 
 interface DashboardStats {
@@ -46,39 +29,59 @@ interface DashboardStats {
 }
 
 const QUICK_ACTIONS = [
-    {
-        title: "Write New Article",
-        description: "Generate a complete SEO article from a keyword",
-        icon: PenTool,
-        href: "/dashboard/new",
-        primary: true,
-    },
-    {
-        title: "Connect Blog",
-        description: "Link your Blogger account to start publishing",
-        icon: Globe,
-        href: "/dashboard/settings",
-        primary: false,
-    },
-    {
-        title: "Browse Templates",
-        description: "Choose from 7 article templates for any niche",
-        icon: FileText,
-        href: "/dashboard/new",
-        primary: false,
-    },
+    { title: "Write New Article", desc: "Generate a complete SEO article from a keyword", icon: PenTool,  href: "/dashboard/new",      primary: true  },
+    { title: "Connect Blog",      desc: "Link your Blogger account to start publishing",  icon: Globe,    href: "/dashboard/settings", primary: false },
+    { title: "Browse Templates",  desc: "Choose from 7 article templates for any niche",  icon: FileText, href: "/dashboard/new",      primary: false },
 ];
 
 const TOOL_SHORTCUTS = [
-    { icon: PenTool, title: "Write Article", description: "Article from keyword", href: "/dashboard/new", color: "from-[#FF6600] to-amber-500" },
-    { icon: Search, title: "Keywords", description: "Research & analyze", href: "/dashboard/keywords", color: "from-blue-500 to-cyan-500" },
-    { icon: Activity, title: "Site Audit", description: "50+ SEO checks", href: "/dashboard/audit", color: "from-green-500 to-emerald-500" },
-    { icon: Lightbulb, title: "Trend Ideas", description: "Topic discovery", href: "/dashboard/ideas", color: "from-amber-500 to-yellow-500" },
-    { icon: ShoppingCart, title: "Amazon Writer", description: "Affiliate reviews", href: "/dashboard/amazon", color: "from-emerald-500 to-teal-500" },
-    { icon: LinkIcon, title: "Internal Linker", description: "Smart link suggestions", href: "/dashboard/linker", color: "from-violet-500 to-purple-500" },
-    { icon: Network, title: "Clustering", description: "Topic clusters", href: "/dashboard/clustering", color: "from-cyan-500 to-blue-500" },
-    { icon: RefreshCw, title: "Content Refresh", description: "Update old posts", href: "/dashboard/refresh", color: "from-indigo-500 to-blue-500" },
+    { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "#FF6B35" },
+    { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "#4F8EFF" },
+    { icon: Activity,   title: "Site Audit",       desc: "50+ SEO checks",          href: "/dashboard/audit",     color: "#22C55E" },
+    { icon: Lightbulb,  title: "Trend Ideas",      desc: "Topic discovery",         href: "/dashboard/ideas",     color: "#F59E0B" },
+    { icon: ShoppingCart,title:"Amazon Writer",    desc: "Affiliate reviews",       href: "/dashboard/amazon",    color: "#10B981" },
+    { icon: LinkIcon,   title: "Internal Linker",  desc: "Smart link suggestions",  href: "/dashboard/linker",    color: "#7C3AED" },
+    { icon: Network,    title: "Clustering",       desc: "Topic clusters",          href: "/dashboard/clustering",color: "#06B6D4" },
+    { icon: RefreshCw,  title: "Content Refresh",  desc: "Update old posts",        href: "/dashboard/refresh",   color: "#6366F1" },
 ];
+
+function StatCard({ icon: Icon, label, value, sub, trend, iconColor }: {
+    icon: any; label: string; value: string; sub: string; trend?: number; iconColor: string;
+}) {
+    return (
+        <div
+            className="rounded-2xl p-5 transition-all hover:translate-y-[-2px]"
+            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+        >
+            <div className="flex items-start justify-between mb-4">
+                <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: `${iconColor}18`, border: `1px solid ${iconColor}30` }}
+                >
+                    <Icon className="w-5 h-5" style={{ color: iconColor }} />
+                </div>
+                {trend !== undefined && trend !== 0 && (
+                    <div
+                        className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full"
+                        style={
+                            trend > 0
+                                ? { background: "rgba(34,197,94,0.10)", color: "#22C55E" }
+                                : { background: "rgba(239,68,68,0.10)", color: "#ef4444" }
+                        }
+                    >
+                        {trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                        {Math.abs(trend)}%
+                    </div>
+                )}
+            </div>
+            <div className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                {value}
+            </div>
+            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>{label}</div>
+            <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>{sub}</div>
+        </div>
+    );
+}
 
 export default function DashboardPage() {
     const { profile } = useAuth();
@@ -86,206 +89,186 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const res = await fetch("/api/dashboard/stats");
-                if (res.ok) {
-                    const data = await res.json();
-                    setStats(data);
-                }
-            } catch (error) {
-                console.error("Failed to fetch dashboard stats:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchStats();
+        fetch("/api/dashboard/stats")
+            .then(r => r.ok ? r.json() : null)
+            .then(data => { if (data) setStats(data); })
+            .catch(console.error)
+            .finally(() => setIsLoading(false));
     }, []);
 
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-[#FF6600]" />
+                <Loader2 className="w-7 h-7 animate-spin" style={{ color: "var(--brand-orange)" }} />
             </div>
         );
     }
 
-    const quickStats = [
-        {
-            label: "Total Articles",
-            value: stats?.totalArticles.toString() || "0",
-            change: stats?.totalArticles ? `${stats.articlesThisMonth} this month` : "Start creating!",
-            icon: FileText,
-            color: "from-[#FF6600] to-amber-500",
-            trend: stats?.growthPercentage || 0,
-        },
-        {
-            label: "Published",
-            value: stats?.publishedArticles.toString() || "0",
-            change: stats?.publishedArticles ? `${stats.totalPublishLogs} total publishes` : "Connect Blogger",
-            icon: CheckCircle2,
-            color: "from-emerald-500 to-green-500",
-        },
-        {
-            label: "Drafts",
-            value: stats?.draftArticles.toString() || "0",
-            change: stats?.draftArticles ? "Ready to publish" : "Write your first post",
-            icon: Clock,
-            color: "from-amber-500 to-yellow-500",
-        },
-        {
-            label: "Connected Blogs",
-            value: stats?.connectedBlogs.toString() || "0",
-            change: stats?.connectedBlogs ? `${stats.activeCampaigns} active campaigns` : "Set up your blog",
-            icon: Globe,
-            color: "from-blue-500 to-cyan-500",
-        },
-    ];
+    const usagePct = stats ? Math.min(100, (stats.articlesThisMonth / stats.articleLimit) * 100) : 0;
 
     return (
-        <div className="space-y-8 max-w-6xl">
-            {/* Welcome */}
+        <div className="space-y-7 max-w-6xl">
+
+            {/* ── Welcome ── */}
             <div>
-                <h1 className="text-2xl font-bold mb-1">
-                    {profile?.name ? (
-                        <>Welcome back, <span className="gradient-text">{profile.name.split(" ")[0]}</span></>
-                    ) : (
-                        <>Welcome to <span className="gradient-text">BloggerSEO</span></>
-                    )}
+                <h1
+                    className="text-2xl font-bold mb-1"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                >
+                    {profile?.name
+                        ? <>Welcome back, <span className="gradient-text">{profile.name.split(" ")[0]}</span></>
+                        : <>Welcome to <span className="gradient-text">BloggerSEO</span></>
+                    }
                 </h1>
-                <p className="text-muted-foreground text-sm">
-                    Generate, format, and publish SEO-optimized blog posts to Blogger.
+                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                    Generate, optimize, and publish SEO articles to Blogger — all in one place.
                 </p>
             </div>
 
-            {/* Stats Grid */}
+            {/* ── Stats Grid ── */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {quickStats.map((stat) => (
-                    <div
-                        key={stat.label}
-                        className="glass-card rounded-xl p-5 hover:scale-[1.02] transition-all duration-300"
-                    >
-                        <div className="flex items-start justify-between mb-3">
-                            <div
-                                className={`w-10 h-10 rounded-lg bg-gradient-to-br ${stat.color} flex items-center justify-center`}
-                            >
-                                <stat.icon className="w-5 h-5 text-white" />
-                            </div>
-                            <div className="flex flex-col items-end gap-1">
-                                {stat.trend !== undefined && stat.trend !== 0 && (
-                                    <Badge
-                                        variant="secondary"
-                                        className={`text-[10px] ${stat.trend > 0 ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'}`}
-                                    >
-                                        {stat.trend > 0 ? (
-                                            <TrendingUp className="w-3 h-3 mr-1 inline" />
-                                        ) : (
-                                            <TrendingDown className="w-3 h-3 mr-1 inline" />
-                                        )}
-                                        {Math.abs(stat.trend)}%
-                                    </Badge>
-                                )}
-                                <Badge
-                                    variant="secondary"
-                                    className="text-[10px] bg-muted/50 text-muted-foreground"
-                                >
-                                    {stat.change}
-                                </Badge>
-                            </div>
-                        </div>
-                        <div className="text-2xl font-bold">{stat.value}</div>
-                        <div className="text-xs text-muted-foreground mt-1">
-                            {stat.label}
-                        </div>
-                    </div>
-                ))}
+                <StatCard
+                    icon={FileText} label="Total Articles"
+                    value={stats?.totalArticles.toString() || "0"}
+                    sub={stats?.totalArticles ? `${stats.articlesThisMonth} this month` : "Start creating!"}
+                    trend={stats?.growthPercentage} iconColor="#FF6B35"
+                />
+                <StatCard
+                    icon={CheckCircle2} label="Published"
+                    value={stats?.publishedArticles.toString() || "0"}
+                    sub={stats?.publishedArticles ? `${stats.totalPublishLogs} total publishes` : "Connect Blogger"}
+                    iconColor="#22C55E"
+                />
+                <StatCard
+                    icon={Clock} label="Drafts"
+                    value={stats?.draftArticles.toString() || "0"}
+                    sub={stats?.draftArticles ? "Ready to publish" : "Write your first post"}
+                    iconColor="#F59E0B"
+                />
+                <StatCard
+                    icon={Globe} label="Connected Blogs"
+                    value={stats?.connectedBlogs.toString() || "0"}
+                    sub={stats?.connectedBlogs ? `${stats.activeCampaigns} active campaigns` : "Set up your blog"}
+                    iconColor="#4F8EFF"
+                />
             </div>
 
-            {/* Onboarding & Usage */}
+            {/* ── Usage + Connect Banner ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Usage Meter */}
+                {/* Usage meter */}
                 {stats && (
-                    <div className="glass-card rounded-xl p-6">
-                        <div className="flex items-center justify-between mb-2">
-                            <h3 className="font-semibold">Article Usage</h3>
-                            <Badge variant="outline" className="capitalize bg-orange-500/10 text-[#FF6600] border-[#FF6600]/20">{stats.plan} Plan</Badge>
+                    <div
+                        className="rounded-2xl p-5"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                Article Usage
+                            </h3>
+                            <span
+                                className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize"
+                                style={{ background: "rgba(255,107,53,0.12)", color: "var(--brand-orange)", border: "1px solid rgba(255,107,53,0.22)" }}
+                            >
+                                {stats.plan} Plan
+                            </span>
                         </div>
-                        <div className="w-full bg-muted rounded-full h-2.5 mb-2 mt-4 overflow-hidden">
+                        <div className="progress-bar mb-3">
                             <div
-                                className="bg-[#FF6600] h-2.5 rounded-full transition-all duration-500"
-                                style={{ width: `${Math.min(100, (stats.articlesThisMonth / stats.articleLimit) * 100)}%` }}
+                                className="progress-bar-fill transition-all duration-700"
+                                style={{
+                                    width: `${usagePct}%`,
+                                    background: usagePct > 80 ? "#ef4444" : usagePct > 60 ? "#f59e0b" : "linear-gradient(90deg,#FF6B35,#FF8C5A)",
+                                }}
                             />
                         </div>
-                        <p className="text-sm text-muted-foreground flex justify-between">
+                        <div className="flex justify-between text-xs" style={{ color: "var(--text-muted)" }}>
                             <span>{stats.articlesThisMonth} used this month</span>
                             <span>{stats.articleLimit} limit</span>
-                        </p>
+                        </div>
                     </div>
                 )}
 
-                {/* Connect Blogger Banner */}
-                {stats && stats.connectedBlogs === 0 && (
-                    <div className="glass-card rounded-xl p-6 border-[#FF6600]/30 bg-orange-500/5">
-                        <div className="flex items-start gap-4">
-                            <div className="w-10 h-10 rounded-full bg-[#FF6600]/20 flex items-center justify-center shrink-0">
-                                <Globe className="w-5 h-5 text-[#FF6600]" />
-                            </div>
-                            <div>
-                                <h3 className="font-semibold mb-1 text-foreground">Connect Your Blog</h3>
-                                <p className="text-sm text-muted-foreground mb-3">
-                                    You need to connect a Blogger account to start publishing articles automatically.
-                                </p>
-                                <Link href="/dashboard/settings">
-                                    <Button size="sm" className="bg-[#FF6600] hover:bg-orange-600 text-white border-0">
-                                        Connect Blogger
-                                    </Button>
-                                </Link>
-                            </div>
+                {/* Connect blog banner */}
+                {stats && stats.connectedBlogs === 0 ? (
+                    <div
+                        className="rounded-2xl p-5 flex items-start gap-4"
+                        style={{ background: "rgba(255,107,53,0.06)", border: "1px solid rgba(255,107,53,0.22)" }}
+                    >
+                        <div
+                            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                            style={{ background: "rgba(255,107,53,0.12)", border: "1px solid rgba(255,107,53,0.25)" }}
+                        >
+                            <Globe className="w-5 h-5" style={{ color: "var(--brand-orange)" }} />
                         </div>
+                        <div>
+                            <h3 className="text-sm font-semibold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                Connect Your Blog
+                            </h3>
+                            <p className="text-xs mb-3" style={{ color: "var(--text-secondary)" }}>
+                                Link your Blogger account to start publishing articles automatically.
+                            </p>
+                            <Link href="/dashboard/settings">
+                                <Button size="sm" className="btn-primary text-xs h-8 px-4">
+                                    Connect Blogger
+                                </Button>
+                            </Link>
+                        </div>
+                    </div>
+                ) : stats && (
+                    /* Content stats filler when blog is connected */
+                    <div
+                        className="rounded-2xl p-5 grid grid-cols-2 gap-4"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        {[
+                            { label: "Total Words", value: stats.totalWordCount.toLocaleString(), color: "#FF6B35" },
+                            { label: "Avg. Words",  value: stats.avgWordCount.toLocaleString(),   color: "#4F8EFF" },
+                            { label: "This Month",  value: stats.articlesThisMonth.toString(),    color: "#22C55E" },
+                            { label: "Campaigns",   value: stats.activeCampaigns.toString(),      color: "#7C3AED" },
+                        ].map(s => (
+                            <div key={s.label}>
+                                <div className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: s.color }}>
+                                    {s.value}
+                                </div>
+                                <div className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</div>
+                            </div>
+                        ))}
                     </div>
                 )}
             </div>
 
-            {/* Quick Actions */}
+            {/* ── Quick Actions ── */}
             <div>
-                <h2 className="text-lg font-semibold mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {QUICK_ACTIONS.map((action) => (
-                        <Link key={action.title} href={action.href}>
+                <h2 className="text-sm font-semibold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Quick Actions
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    {QUICK_ACTIONS.map((a) => (
+                        <Link key={a.title} href={a.href}>
                             <div
-                                className={`rounded-xl p-6 hover:scale-[1.02] transition-all duration-300 cursor-pointer group ${action.primary
-                                    ? "glow-button text-white"
-                                    : "glass-card"
-                                    }`}
+                                className="rounded-2xl p-5 cursor-pointer group transition-all hover:translate-y-[-2px]"
+                                style={
+                                    a.primary
+                                        ? { background: "linear-gradient(135deg,#FF6B35,#FF8C5A)", boxShadow: "0 8px 30px rgba(255,107,53,0.25)" }
+                                        : { background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }
+                                }
                             >
-                                <action.icon
-                                    className={`w-8 h-8 mb-3 ${action.primary
-                                        ? "text-white"
-                                        : "text-[#FF6600]"
-                                        }`}
+                                <a.icon
+                                    className="w-7 h-7 mb-3"
+                                    style={{ color: a.primary ? "rgba(255,255,255,0.9)" : "var(--brand-orange)" }}
                                 />
                                 <h3
-                                    className={`font-semibold mb-1 ${action.primary ? "text-white" : ""
-                                        }`}
+                                    className="text-sm font-semibold mb-1"
+                                    style={{ fontFamily: "var(--font-display)", color: a.primary ? "#fff" : "var(--text-primary)" }}
                                 >
-                                    {action.title}
+                                    {a.title}
                                 </h3>
-                                <p
-                                    className={`text-sm ${action.primary
-                                        ? "text-white/70"
-                                        : "text-muted-foreground"
-                                        }`}
-                                >
-                                    {action.description}
+                                <p className="text-xs mb-3" style={{ color: a.primary ? "rgba(255,255,255,0.7)" : "var(--text-secondary)" }}>
+                                    {a.desc}
                                 </p>
-                                <div className="flex items-center gap-1 mt-3 text-sm font-medium">
-                                    <span className={action.primary ? "text-white/90" : "text-[#FF6600]"}>
-                                        Get Started
-                                    </span>
-                                    <ArrowRight
-                                        className={`w-4 h-4 group-hover:translate-x-1 transition-transform ${action.primary ? "text-white/90" : "text-[#FF6600]"
-                                            }`}
-                                    />
+                                <div className="flex items-center gap-1 text-xs font-medium" style={{ color: a.primary ? "rgba(255,255,255,0.9)" : "var(--brand-orange)" }}>
+                                    Get Started
+                                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
                         </Link>
@@ -293,40 +276,53 @@ export default function DashboardPage() {
                 </div>
             </div>
 
-            {/* Recent Activity */}
+            {/* ── Recent Articles ── */}
             {stats && stats.recentArticles.length > 0 && (
                 <div>
-                    <h2 className="text-lg font-semibold mb-4">Recent Articles</h2>
-                    <div className="glass-card rounded-xl divide-y divide-border/50">
-                        {stats.recentArticles.map((article) => (
-                            <Link
-                                key={article.id}
-                                href={`/dashboard/articles/${article.id}`}
-                                className="block p-4 hover:bg-muted/20 transition-colors cursor-pointer"
-                            >
-                                <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center justify-between mb-3">
+                        <h2 className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                            Recent Articles
+                        </h2>
+                        <Link href="/dashboard/articles" className="text-xs font-medium transition-colors" style={{ color: "var(--brand-orange)" }}>
+                            View all →
+                        </Link>
+                    </div>
+                    <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                        {stats.recentArticles.map((article, i) => (
+                            <Link key={article.id} href={`/dashboard/articles/${article.id}`}>
+                                <div
+                                    className="flex items-start justify-between gap-4 px-5 py-3.5 transition-colors group"
+                                    style={{
+                                        borderTop: i > 0 ? "1px solid var(--border-subtle)" : "none",
+                                    }}
+                                    onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
+                                    onMouseLeave={e => (e.currentTarget.style.background = "transparent")}
+                                >
                                     <div className="flex-1 min-w-0">
-                                        <h3 className="font-medium truncate hover:text-[#FF6600] transition-colors">{article.title}</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-xs text-muted-foreground">
-                                                {article.blog?.name || "Unknown Blog"}
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">•</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {article.wordCount} words
-                                            </span>
-                                            <span className="text-xs text-muted-foreground">•</span>
-                                            <span className="text-xs text-muted-foreground">
-                                                {new Date(article.createdAt).toLocaleDateString()}
-                                            </span>
+                                        <h3
+                                            className="text-sm font-medium truncate mb-1 transition-colors group-hover:text-[#FF6B35]"
+                                            style={{ color: "var(--text-primary)" }}
+                                        >
+                                            {article.title}
+                                        </h3>
+                                        <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--text-muted)" }}>
+                                            <span>{article.blog?.name || "Unknown Blog"}</span>
+                                            <span>·</span>
+                                            <span>{article.wordCount?.toLocaleString() || 0} words</span>
+                                            <span>·</span>
+                                            <span>{new Date(article.createdAt).toLocaleDateString()}</span>
                                         </div>
                                     </div>
-                                    <Badge
-                                        variant={article.status === "published" ? "default" : "secondary"}
-                                        className={article.status === "published" ? "bg-emerald-500/20 text-emerald-400" : ""}
+                                    <span
+                                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full flex-shrink-0 mt-0.5"
+                                        style={
+                                            article.status === "published"
+                                                ? { background: "rgba(34,197,94,0.12)", color: "#22C55E", border: "1px solid rgba(34,197,94,0.22)" }
+                                                : { background: "rgba(255,255,255,0.06)", color: "var(--text-secondary)", border: "1px solid var(--border-subtle)" }
+                                        }
                                     >
                                         {article.status}
-                                    </Badge>
+                                    </span>
                                 </div>
                             </Link>
                         ))}
@@ -334,101 +330,74 @@ export default function DashboardPage() {
                 </div>
             )}
 
-            {/* Additional Stats */}
-            {stats && stats.totalWordCount > 0 && (
-                <div className="glass-card rounded-xl p-6">
-                    <h3 className="text-lg font-semibold mb-4">Content Statistics</h3>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-                        <div>
-                            <div className="text-2xl font-bold text-[#FF6600]">
-                                {stats.totalWordCount.toLocaleString()}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                Total Words Generated
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-[#FF6600]">
-                                {stats.avgWordCount.toLocaleString()}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                Avg. Words per Article
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-[#FF6600]">
-                                {stats.articlesThisMonth}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                Articles This Month
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-2xl font-bold text-[#FF6600]">
-                                {stats.activeCampaigns}
-                            </div>
-                            <div className="text-xs text-muted-foreground mt-1">
-                                Active Campaigns
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Tool shortcuts */}
+            {/* ── Tool Shortcuts ── */}
             <div>
-                <h2 className="text-lg font-semibold mb-4">Your Tools</h2>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+                <h2 className="text-sm font-semibold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                    Your Tools
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                     {TOOL_SHORTCUTS.map((tool) => (
                         <Link key={tool.title} href={tool.href}>
-                            <div className="glass-card rounded-xl p-5 text-center hover:scale-[1.03] transition-all duration-300 cursor-pointer group">
-                                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${tool.color} flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform`}>
-                                    <tool.icon className="w-5 h-5 text-white" />
+                            <div
+                                className="rounded-2xl p-4 text-center cursor-pointer group transition-all hover:translate-y-[-2px]"
+                                style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                            >
+                                <div
+                                    className="w-9 h-9 rounded-xl flex items-center justify-center mx-auto mb-2.5 transition-transform group-hover:scale-110"
+                                    style={{ background: `${tool.color}18`, border: `1px solid ${tool.color}30` }}
+                                >
+                                    <tool.icon className="w-4 h-4" style={{ color: tool.color }} />
                                 </div>
-                                <h4 className="text-sm font-medium mb-1">{tool.title}</h4>
-                                <p className="text-xs text-muted-foreground">
-                                    {tool.description}
-                                </p>
+                                <h4 className="text-xs font-semibold mb-0.5" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                    {tool.title}
+                                </h4>
+                                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{tool.desc}</p>
                             </div>
                         </Link>
                     ))}
                 </div>
             </div>
 
-            {/* Getting Started Guide */}
+            {/* ── Getting Started (no articles yet) ── */}
             {(!stats || stats.totalArticles === 0) && (
-                <div className="gradient-border rounded-xl">
-                    <div className="bg-card rounded-xl p-8">
-                        <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
-                            <div className="flex-1">
-                                <h3 className="text-lg font-semibold mb-2">
-                                    🚀 Getting Started
+                <div
+                    className="rounded-2xl p-6"
+                    style={{ background: "rgba(255,107,53,0.06)", border: "1px solid rgba(255,107,53,0.20)" }}
+                >
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
+                        <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-2">
+                                <Rocket className="w-4 h-4" style={{ color: "var(--brand-orange)" }} />
+                                <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                    Getting Started
                                 </h3>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Follow these 3 steps to publish your first article:
-                                </p>
-                                <ol className="space-y-2">
-                                    {[
-                                        "Connect your Google / Blogger account in Settings",
-                                        "Create a new article with any keyword",
-                                        "Review, add labels, and publish!",
-                                    ].map((step, i) => (
-                                        <li key={i} className="flex items-center gap-2 text-sm">
-                                            <span className="w-5 h-5 rounded-full bg-orange-500/20 text-[#FF6600] flex items-center justify-center text-xs font-bold shrink-0">
-                                                {i + 1}
-                                            </span>
-                                            {step}
-                                        </li>
-                                    ))}
-                                </ol>
                             </div>
-                            <Link href="/dashboard/new">
-                                <Button className="glow-button text-white border-0 px-6">
-                                    <PenTool className="w-4 h-4 mr-2" />
-                                    Write Your First Article
-                                </Button>
-                            </Link>
+                            <p className="text-xs mb-3" style={{ color: "var(--text-secondary)" }}>
+                                Follow these 3 steps to publish your first article:
+                            </p>
+                            <ol className="space-y-1.5">
+                                {[
+                                    "Connect your Google / Blogger account in Settings",
+                                    "Create a new article with any keyword",
+                                    "Review, add labels, and publish!",
+                                ].map((step, i) => (
+                                    <li key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+                                        <span
+                                            className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+                                            style={{ background: "rgba(255,107,53,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
+                                        >
+                                            {i + 1}
+                                        </span>
+                                        {step}
+                                    </li>
+                                ))}
+                            </ol>
                         </div>
+                        <Link href="/dashboard/new">
+                            <Button className="btn-primary gap-2">
+                                <PenTool className="w-4 h-4" /> Write First Article
+                            </Button>
+                        </Link>
                     </div>
                 </div>
             )}
