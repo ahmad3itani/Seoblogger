@@ -100,51 +100,66 @@ function TiltCard({ children, className = "" }: { children: React.ReactNode; cla
 
 // ─── Data ────────────────────────────────────────────────────────
 
-const FEATURES = [
+// icon accent color values (static — no dynamic class names)
+const C = {
+  orange: { bg: "rgba(255,107,53,0.12)", border: "rgba(255,107,53,0.25)", text: "#FF6B35" },
+  blue:   { bg: "rgba(79,142,255,0.10)",  border: "rgba(79,142,255,0.22)",  text: "#4F8EFF" },
+  purple: { bg: "rgba(124,58,237,0.10)", border: "rgba(124,58,237,0.22)", text: "#7C3AED" },
+  green:  { bg: "rgba(34,197,94,0.10)",   border: "rgba(34,197,94,0.20)",   text: "#22C55E" },
+} as const;
+type CKey = keyof typeof C;
+
+// span: 1 = single column, 2 = double column (lg:col-span-2 applied via ternary)
+const FEATURES: Array<{
+  icon: any; title: string; span: 1 | 2; desc: string;
+  badge: string; color: CKey;
+  preview?: Array<{ label: string; val: string }>;
+  stat?: { val: number; suffix: string; label: string };
+}> = [
   {
-    icon: Brain, title: "AI Article Writer", size: "col-span-7",
+    icon: Brain, title: "AI Article Writer", span: 2,
     desc: "Generate complete, 3000+ word SEO articles from a single keyword. Real SERP data. E-E-A-T signals. Blogger-ready HTML in one click.",
     badge: "Most Popular", color: "orange",
     preview: [
       { label: "Keyword", val: "best running shoes 2026" },
-      { label: "Words", val: "3,200" },
-      { label: "SEO Score", val: "94/100" },
+      { label: "Words",   val: "3,200" },
+      { label: "SEO Score", val: "94 / 100" },
     ],
   },
   {
-    icon: Gauge, title: "Full Site Audit", size: "col-span-5",
+    icon: Gauge, title: "Full Site Audit", span: 1,
     desc: "Scan 50+ SEO signals — technical issues, broken links, thin content, missing meta. Smart fix suggestions included.",
     badge: "Free", color: "blue",
     stat: { val: 50, suffix: "+", label: "SEO checks" },
   },
   {
-    icon: Target, title: "Keyword Research", size: "col-span-5",
+    icon: Target, title: "Keyword Research", span: 1,
     desc: "Find high-opportunity keywords with real search volume, difficulty scores, and topic cluster suggestions.",
     badge: "Free", color: "purple",
     stat: { val: 10, suffix: "k+", label: "Keywords scanned" },
   },
   {
-    icon: Layers, title: "Bulk Generator", size: "col-span-7",
+    icon: Layers, title: "Bulk Generator", span: 2,
     desc: "Generate 10, 50, or 100 articles in a single batch. Schedule them across weeks. Your content pipeline runs itself.",
     badge: "Pro", color: "orange",
     preview: [
       { label: "Articles queued", val: "47" },
-      { label: "Published", val: "23" },
-      { label: "Scheduled", val: "24" },
+      { label: "Published",       val: "23" },
+      { label: "Scheduled",       val: "24" },
     ],
   },
   {
-    icon: Sparkles, title: "Quality Pass", size: "col-span-4",
-    desc: "3-stage editorial engine — improves clarity, originality, and trustworthiness. Makes AI content indistinguishable.",
+    icon: Sparkles, title: "Quality Pass", span: 1,
+    desc: "3-stage editorial engine — improves clarity, originality, and trustworthiness. Makes AI content read like a human wrote it.",
     badge: "Pro", color: "blue",
   },
   {
-    icon: Send, title: "1-Click Publish", size: "col-span-4",
+    icon: Send, title: "1-Click Publish", span: 1,
     desc: "Publish to Blogger as draft or live. Set labels, schedule future dates, and update existing posts.",
     badge: "Free", color: "green",
   },
   {
-    icon: Image, title: "AI Image Studio", size: "col-span-4",
+    icon: Image, title: "AI Image Studio", span: 1,
     desc: "FLUX.1 Schnell photorealistic images. Auto-embed with SEO alt text. Hosted on Cloudflare.",
     badge: "Free", color: "purple",
   },
@@ -657,44 +672,36 @@ export default function LandingPage() {
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {FEATURES.map((f, i) => {
               const Icon = f.icon;
-              const badgeColors: Record<string, string> = {
-                orange: "rgba(255,107,53,0.12)", blue: "rgba(79,142,255,0.10)",
-                purple: "rgba(124,58,237,0.10)", green: "rgba(34,197,94,0.10)",
-              };
-              const badgeText: Record<string, string> = {
-                orange: "#FF6B35", blue: "#4F8EFF", purple: "#7C3AED", green: "#22C55E",
-              };
-
+              const c = C[f.color];
               return (
                 <Reveal
                   key={f.title}
                   delay={i * 60}
-                  className={`md:${f.size}`}
+                  className={f.span === 2 ? "lg:col-span-2" : "lg:col-span-1"}
                 >
-                  <TiltCard className="bento-card h-full min-h-[200px]">
+                  <TiltCard className="bento-card h-full flex flex-col">
                     {/* Badge */}
-                    {f.badge && (
-                      <span
-                        className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-4 uppercase tracking-wider"
-                        style={{ background: badgeColors[f.color], color: badgeText[f.color] }}
-                      >
-                        {f.badge === "Pro" && <Crown className="w-2.5 h-2.5" />}
-                        {f.badge}
-                      </span>
-                    )}
+                    <span
+                      className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full mb-4 self-start uppercase tracking-wider"
+                      style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                    >
+                      {f.badge === "Pro" && <Crown className="w-2.5 h-2.5" />}
+                      {f.badge}
+                    </span>
 
                     {/* Icon + title */}
-                    <div className="flex items-start gap-3 mb-3">
+                    <div className="flex items-center gap-3 mb-3">
                       <div
-                        className={`icon-badge icon-badge-${f.color === "green" ? "green" : f.color === "blue" ? "blue" : f.color === "purple" ? "purple" : "orange"}`}
+                        className="icon-badge flex-shrink-0"
+                        style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
                       >
                         <Icon className="w-5 h-5" />
                       </div>
                       <h3
-                        className="text-lg font-semibold pt-0.5"
+                        className="text-base font-semibold"
                         style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
                       >
                         {f.title}
@@ -708,13 +715,13 @@ export default function LandingPage() {
                     {/* Preview rows */}
                     {f.preview && (
                       <div
-                        className="rounded-xl p-3 space-y-2 border text-xs mt-auto"
-                        style={{ background: "rgba(255,255,255,0.02)", borderColor: "rgba(255,255,255,0.06)" }}
+                        className="rounded-xl p-3 space-y-2 text-xs mt-auto"
+                        style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.07)" }}
                       >
                         {f.preview.map(r => (
                           <div key={r.label} className="flex justify-between">
                             <span style={{ color: "var(--text-muted)" }}>{r.label}</span>
-                            <span style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{r.val}</span>
+                            <span style={{ color: c.text, fontFamily: "var(--font-display)", fontWeight: 600 }}>{r.val}</span>
                           </div>
                         ))}
                       </div>
@@ -722,10 +729,10 @@ export default function LandingPage() {
 
                     {/* Stat */}
                     {f.stat && (
-                      <div className="mt-auto pt-4">
+                      <div className="mt-auto pt-3">
                         <span
                           className="text-3xl font-bold"
-                          style={{ fontFamily: "var(--font-display)", color: badgeText[f.color] }}
+                          style={{ fontFamily: "var(--font-display)", color: c.text }}
                         >
                           <Counter target={f.stat.val} suffix={f.stat.suffix} />
                         </span>
