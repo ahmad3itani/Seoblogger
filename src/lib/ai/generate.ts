@@ -1,3 +1,10 @@
+// ─────────────────────────────────────────────────────────────────────────────
+// DEPRECATED: Legacy Generation Engine
+// The core article generation and outlining functions have been moved to 
+// @/lib/ai/v2-engine for strictly enforcing #1 ranking Blogger SEO quality.
+// Functions here (like generateTitles) are maintained only for backward compatibility.
+// ─────────────────────────────────────────────────────────────────────────────
+
 import { SYSTEM_PROMPTS } from "./prompts";
 import { generateAndHostImage } from "../cloudflare/image-generator";
 import { openai, getModelForPlan, getFastModel, getHumanizerModel, getArticleModel } from "./client";

@@ -22,6 +22,7 @@ import {
   getStyleGuideSuggestionPrompt,
   getHumanizerPrompt,
 } from "./prompts";
+import { generateTopicalOutline, generateArticleDraft, humanizeDraft, V2GenerationOptions } from "../v2-engine";
 
 // ─── AI CALL HELPER ─────────────────────────────────────────────────
 async function callAI(
@@ -428,28 +429,39 @@ export async function executeOutline(
   const draft = await getDraft(draftId, userId);
   if (!draft) throw new Error("Draft not found");
 
-  let style: StyleGuideSettings | undefined;
-  if (draft.styleGuideId && draft.styleGuide) {
-    style = dbStyleToSettings(draft.styleGuide);
-  }
+  const options: V2GenerationOptions = {
+    title: draft.title || "",
+    keyword: draft.keyword || "",
+    wordCount: draft.wordCount,
+    language: draft.language,
+    tone: "informational", // default tone since single writer UI doesn't explicitly store tone
+    niche: draft.niche || "general",
+    articleType: draft.articleType || "blog-post",
+    userPlan,
+    includeFaq: true,
+  };
 
-  const sources = (draft.approvedSources as ResearchSource[] | null) || [];
+  const v2Outline = await generateTopicalOutline(options);
 
-  const prompt = getOutlinePrompt(
-    draft.title || "",
-    draft.thesis || "",
-    draft.keyword || "",
-    draft.wordCount,
-    draft.language,
-    style,
-    sources.length > 0 ? sources : undefined
-  );
+  // Map back to the UI's expected format
+  const mappedOutline = v2Outline.sections.map((sec: any) => ({
+    heading: sec.heading,
+    points: sec.points || [],
+    subsections: sec.subsections || [],
+    type: "standard",
+    wordCount: Math.floor(v2Outline.totalWordCount / v2Outline.sections.length),
+    status: "pending"
+  }));
 
-  const raw = await callAI(prompt, userPlan, { maxTokens: 4096 });
-  const result = safeParseJSON(raw, { outline: [], totalWordCount: 0, suggestedLabels: [] });
+  const result = {
+    outline: mappedOutline,
+    faqs: v2Outline.faqs,
+    suggestedLabels: v2Outline.suggestedLabels,
+    totalWordCount: v2Outline.totalWordCount
+  };
 
   await updateDraft(draftId, userId, {
-    outline: result.outline,
+    outline: mappedOutline,
     phase: "sections",
   });
 
@@ -475,31 +487,35 @@ export async function executeWriteFull(
   const draft = await getDraft(draftId, userId);
   if (!draft) throw new Error("Draft not found");
 
-  let style: StyleGuideSettings | undefined;
-  if (draft.styleGuideId && draft.styleGuide) {
-    style = dbStyleToSettings(draft.styleGuide);
-  }
-
-  const sources = (draft.approvedSources as ResearchSource[] | null) || [];
   const outline = (draft.outline as OutlineItem[] | null) || [];
 
-  const prompt = getWriteFullPrompt(
-    draft.title || "",
-    draft.thesis || "",
-    outline,
-    draft.keyword || "",
-    draft.wordCount,
-    draft.language,
-    style,
-    sources.length > 0 ? sources : undefined,
-    draft.includeCitations
-  );
+  const options: V2GenerationOptions = {
+    title: draft.title || "",
+    keyword: draft.keyword || "",
+    wordCount: draft.wordCount,
+    language: draft.language,
+    tone: "informational",
+    niche: draft.niche || "general",
+    articleType: draft.articleType || "blog-post",
+    userPlan,
+    includeFaq: true,
+  };
 
-  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 32000, temperature: 0.75 });
+  // Format the draft outline to match V2 engine expectations
+  const v2OutlineFormat = {
+    sections: outline.map(o => ({
+      heading: o.heading,
+      points: o.points,
+    })),
+    faqs: [], // if we stored faqs in draft we'd pass them, but for now we skip FAQ injection in V2 here or we let V2 generate it if stored
+    suggestedLabels: [],
+    totalWordCount: draft.wordCount
+  };
 
-  // Run the Humanizer pass immediately (per user requirement for earlier humanizer integration)
-  const humanizerPrompt = getHumanizerPrompt(raw);
-  const finalContent = await callAIRaw(humanizerPrompt, userPlan, { maxTokens: 32000, temperature: 0.8 });
+  const raw = await generateArticleDraft(v2OutlineFormat, options);
+
+  // Run the Humanizer pass immediately
+  const finalContent = await humanizeDraft(raw);
 
   // Build sections object from outline
   const sections: Record<string, string> = {};
@@ -594,13 +610,12 @@ export async function executeEditorPass(
     return { skipped: true, content: draft.draftContent };
   }
 
-  // Use the new Humanizer layer instead of the generic editor pass
-  const prompt = getHumanizerPrompt(draft.draftContent || "");
-  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 16000, temperature: 0.8 });
+  // Use the new Humanizer layer from the V2 Engine
+  const raw = await humanizeDraft(draft.draftContent || "");
 
   await updateDraft(draftId, userId, {
     editorContent: raw,
-    editorSuggestions: { summary: "Humanizer pass applied to break AI patterns." },
+    editorSuggestions: { summary: "Humanizer pass applied by V2 Engine to break AI patterns." },
     phase: "metadata",
   });
 

@@ -2,14 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import {
     generateTitles,
-    generateOutline,
-    generateArticle,
-    humanizeArticle,
     generateFAQ,
     generateMeta,
     generateFeaturedImage,
     type GenerationOptions,
 } from "@/lib/ai/generate";
+import { generateTopicalOutline, generateArticleDraft, humanizeDraft, V2GenerationOptions } from "@/lib/ai/v2-engine";
 import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
 import { requireAuth, checkUsageLimit, trackUsage } from "@/lib/supabase/auth-helpers";
 import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
@@ -117,7 +115,18 @@ export async function POST(req: Request) {
                         { status: 400 }
                     );
                 }
-                const generatedOutline = await generateOutline(selectedTitle, options);
+                const v2Options: V2GenerationOptions = {
+                    title: selectedTitle,
+                    keyword: keyword,
+                    wordCount: options.wordCount || 2000,
+                    language: options.language || "en",
+                    tone: options.tone || "informational",
+                    niche: options.niche || "general",
+                    articleType: options.articleType || "blog-post",
+                    userPlan: options.userPlan,
+                    includeFaq: options.includeFaq,
+                };
+                const generatedOutline = await generateTopicalOutline(v2Options);
                 return NextResponse.json({ outline: generatedOutline });
             }
 
@@ -251,20 +260,24 @@ export async function POST(req: Request) {
                         console.warn("SERP intelligence fetch failed (non-blocking):", serpErr);
                     }
                 }
+                const v2Options: V2GenerationOptions = {
+                    title: selectedTitle,
+                    keyword: keyword,
+                    wordCount: options.wordCount || 2000,
+                    language: options.language || "en",
+                    tone: options.tone || "informational",
+                    niche: options.niche || "general",
+                    articleType: options.articleType || "blog-post",
+                    userPlan: options.userPlan,
+                    includeFaq: options.includeFaq,
+                };
 
-                const rawArticle = await generateArticle(selectedTitle, outline, options);
+                const rawArticle = await generateArticleDraft(outline, v2Options);
 
                 // ─── HUMANIZER PASS ─────────────────────────────────────────
                 // Always run the humanizer to make content undetectable as AI
                 console.log("🧠 Running humanizer pass...");
-                const article = await humanizeArticle(rawArticle, {
-                    keyword,
-                    articleType,
-                    niche,
-                    tone,
-                    language,
-                    userPlan: options.userPlan,
-                });
+                const article = await humanizeDraft(rawArticle);
 
                 // Generate FAQs if requested
                 // Prioritize real PAA questions from SERP for better featured snippet targeting
