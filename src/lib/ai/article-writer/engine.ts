@@ -20,6 +20,7 @@ import {
   getEditorPassPrompt,
   getMetadataPrompt,
   getStyleGuideSuggestionPrompt,
+  getHumanizerPrompt,
 } from "./prompts";
 
 // ─── AI CALL HELPER ─────────────────────────────────────────────────
@@ -588,26 +589,17 @@ export async function executeEditorPass(
     return { skipped: true, content: draft.draftContent };
   }
 
-  let style: StyleGuideSettings | undefined;
-  if (draft.styleGuideId && draft.styleGuide) {
-    style = dbStyleToSettings(draft.styleGuide);
-  }
-
-  const prompt = getEditorPassPrompt(draft.draftContent || "", style);
-  const raw = await callAI(prompt, userPlan, { maxTokens: 16000 });
-  const result = safeParseJSON(raw, {
-    editedContent: draft.draftContent || "",
-    changes: {},
-    summary: "No changes applied",
-  });
+  // Use the new Humanizer layer instead of the generic editor pass
+  const prompt = getHumanizerPrompt(draft.draftContent || "");
+  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 16000, temperature: 0.8 });
 
   await updateDraft(draftId, userId, {
-    editorContent: result.editedContent,
-    editorSuggestions: result.changes,
+    editorContent: raw,
+    editorSuggestions: { summary: "Humanizer pass applied to break AI patterns." },
     phase: "metadata",
   });
 
-  return result;
+  return { editedContent: raw, changes: {}, summary: "Humanizer pass applied." };
 }
 
 export async function executeMetadata(

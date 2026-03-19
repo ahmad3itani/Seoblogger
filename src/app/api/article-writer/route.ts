@@ -335,14 +335,13 @@ export async function POST(req: Request) {
         return NextResponse.json({ success: true });
       }
 
-      // ─── PHASE 12: EXPORT & PUBLISH ───────────────────────
       case "export": {
         if (!params.draftId) return NextResponse.json({ error: "draftId required" }, { status: 400 });
 
         const draft = await getDraft(params.draftId, authUser.id);
         if (!draft) return NextResponse.json({ error: "Draft not found" }, { status: 404 });
 
-        const finalContent = draft.editorContent || draft.draftContent || "";
+        let finalContent = draft.editorContent || draft.draftContent || "";
         const sources = (draft.approvedSources as any[] | null) || [];
 
         // Build references section if citations are included
@@ -355,8 +354,92 @@ export async function POST(req: Request) {
           referencesHtml += "\n</ol>";
         }
 
-        // Format for Blogger using existing formatter
-        const formattedContent = formatForBlogger(finalContent + referencesHtml, {
+        let featuredImageHtml = "";
+        const generatedImages: any[] = [];
+        const blogIdToUse = params.blogId || draft.blogId;
+
+        // Generate Images if requested
+        if (params.includeImages) {
+          try {
+            const { generateFeaturedImage } = await import("@/lib/ai/generate");
+            
+            // 1. Generate Featured Image
+            const imgResult = await generateFeaturedImage(draft.title || draft.keyword || "blog post", draft.keyword || "blog", "featured");
+            if (imgResult && imgResult.url) {
+              featuredImageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${imgResult.url}" alt="${imgResult.altText || draft.title}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;" /></div>\n`;
+              generatedImages.push({ ...imgResult, type: "featured" });
+            }
+
+            // 2. Process Inline [IMAGE: ...] placeholders
+            const imageRegex = /\[IMAGE:\s*(.*?)\]/gi;
+            const matches = [...finalContent.matchAll(imageRegex)];
+            
+            for (let i = 0; i < matches.length; i++) {
+              const fullMatch = matches[i][0];
+              const description = matches[i][1];
+              try {
+                const inlineImg = await generateFeaturedImage(description, draft.keyword || "blog", "content", undefined, i + 1);
+                if (inlineImg && inlineImg.url) {
+                  const inlineHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${inlineImg.url}" alt="${inlineImg.altText || description}" style="max-width: 100%; border-radius: 8px; margin-top: 20px; margin-bottom: 20px;" /></div>\n`;
+                  finalContent = finalContent.replace(fullMatch, inlineHtml);
+                  generatedImages.push({ ...inlineImg, type: "content" });
+                } else {
+                  finalContent = finalContent.replace(fullMatch, "");
+                }
+              } catch (e) {
+                console.error("Failed to generate inline image:", e);
+                finalContent = finalContent.replace(fullMatch, "");
+              }
+            }
+          } catch (imgError) {
+            console.error("Failed to generate images:", imgError);
+          }
+        }
+
+        // Internal Linking Engine
+        if (blogIdToUse) {
+          try {
+            const cachedPosts = await prisma.cachedPost.findMany({
+              where: { blogId: blogIdToUse },
+              take: 20,
+              orderBy: { publishedAt: 'desc' },
+              select: { title: true, url: true }
+            });
+
+            if (cachedPosts.length > 0) {
+              const { getModelForPlan, openai } = await import("@/lib/ai/client");
+              const model = getModelForPlan(undefined);
+              
+              const prompt = `You are an expert internal linking engine.
+I will provide you with a completed HTML article and a list of published blog posts (Titles and URLs).
+Your task is to identify 3 to 5 highly relevant text phrases in the HTML article and turn them into internal links referring to the provided URLs.
+Only use the URLs from the provided list. Do not modify the rest of the HTML.
+
+PUBLISHED POSTS:
+${cachedPosts.map(p => `- Title: "${p.title}" | URL: ${p.url}`).join("\n")}
+
+Return ONLY the fully updated raw HTML article with the new <a href="..."> tags inserted naturally. Do not wrap in markdown code fences.`;
+
+              const res = await openai.chat.completions.create({
+                model,
+                messages: [
+                  { role: "system", content: prompt },
+                  { role: "user", content: finalContent }
+                ],
+                temperature: 0.2, // Keep low to prevent hallucination of HTML changes
+              });
+
+              if (res.choices[0]?.message?.content) {
+                finalContent = res.choices[0].message.content.replace(/^```html?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+              }
+            }
+          } catch (linkError) {
+            console.error("Internal Linking Engine failed:", linkError);
+          }
+        }
+
+        // Format for Blogger
+        const formattedContent = formatForBlogger(featuredImageHtml + finalContent + referencesHtml, {
           includeToc: params.includeToc ?? true,
           keyword: draft.keyword || "",
           showReadTime: true,
@@ -375,6 +458,42 @@ export async function POST(req: Request) {
           articleStatus = "published";
         }
 
+        // Publish directly to Blogger API
+        let bloggerPostId = null;
+        let labelsToPost: string[] = [];
+        if (params.metaKeywords && Array.isArray(params.metaKeywords)) {
+          labelsToPost = params.metaKeywords;
+        } else if (draft.metaKeywords && Array.isArray(draft.metaKeywords)) {
+          labelsToPost = draft.metaKeywords as string[];
+        }
+
+        if (blogIdToUse) {
+          try {
+            const { getValidAccessToken } = await import("@/lib/google");
+            const { createPost } = await import("@/lib/blogger");
+            const accessToken = await getValidAccessToken(authUser.id);
+
+            const bPost = await createPost(
+              blogIdToUse,
+              {
+                title: draft.title || "Untitled",
+                content: formattedContent,
+                labels: labelsToPost,
+                isDraft: articleStatus !== "published",
+              },
+              accessToken
+            );
+
+            bloggerPostId = bPost.id || null;
+            if (bPost.url && articleStatus === "published") {
+              articleStatus = "published";
+            }
+          } catch (e: any) {
+            console.error("Failed to publish to Blogger API:", e);
+            if (articleStatus === "published") articleStatus = "failed_to_publish";
+          }
+        }
+
         // Save to Article model
         const savedArticle = await prisma.article.create({
           data: {
@@ -383,14 +502,24 @@ export async function POST(req: Request) {
             outline: draft.outline ? JSON.stringify(draft.outline) : null,
             metaDescription: draft.metaDescription,
             excerpt: draft.metaDescription?.substring(0, 200),
-            labels: params.labels?.join(",") || "",
+            labels: labelsToPost.join(",") || "",
             tone: "professional",
             articleType: draft.articleType,
             wordCount: wordCountResult,
             status: articleStatus,
             scheduledFor,
-            blogId: params.blogId || draft.blogId || undefined,
+            bloggerPostId,
+            blogId: blogIdToUse,
             userId: authUser.id,
+            ...(generatedImages.length > 0 ? {
+              images: {
+                create: generatedImages.map(img => ({
+                  url: img.url,
+                  altText: img.altText,
+                  type: img.type,
+                }))
+              }
+            } : {})
           },
         });
 

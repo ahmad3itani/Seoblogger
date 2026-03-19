@@ -515,6 +515,7 @@ function ArticleWriterContent() {
         draftId,
         publishAction,
         includeToc: true,
+        includeImages,
         includeCitationsInExport: includeCitations,
       });
       setSavedArticle(data.savedArticle);

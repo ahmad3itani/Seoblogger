@@ -228,85 +228,67 @@ export function getWriteFullPrompt(
   language: string,
   style?: StyleGuideSettings,
   sources?: ResearchSource[],
-  includeCitations?: boolean
+  includeCitations?: boolean,
+  numImages?: number
 ): string {
   const outlineText = outline.map((s, i) =>
     `${i + 1}. ${s.heading}${s.type ? ` (${s.type})` : ""}\n${(s.points || []).map(p => `   - ${p}`).join("\n")}`
   ).join("\n\n");
 
-  let prompt = `You are an expert article writer producing a high-quality, SEO-optimized blog article.
+  let prompt = `You are an expert SEO content writer in 2026, specialized in writing high-ranking blog posts for Google and Blogger platform.
+Your task is to generate a COMPLETE, SEO-OPTIMIZED, HUMAN-LIKE blog article.
 
+=== INPUT ===
+Main Keyword: "${keyword}"
 Title: "${title}"
 Thesis: "${thesis}"
-Primary Keyword: "${keyword}"
-Target Word Count: ${wordCount}
+Target Audience: ${style?.context?.audienceRole || "General Readers"}
+Article Length: at least ${wordCount} words
 Language: ${language}
 
 OUTLINE:
-${outlineText}`;
+${outlineText}
+
+=== OUTPUT REQUIREMENTS ===
+
+1. INTRODUCTION
+- Hook the reader in the first 2 lines
+- Clearly match search intent for "${keyword}"
+- Keep it human, conversational
+
+2. MAIN CONTENT
+- Use the H2 headings provided in the outline. Use H3 headings for sub-sections.
+- Include bullet points, real-life examples, and data-backed insights where appropriate.
+- Maintain natural keyword usage (NO stuffing). Include LSI and semantic keywords organically.
+
+3. IMAGE PLACEMENT
+- Add exactly ${numImages || 3} image placeholders throughout the article (roughly one every 300–500 words).
+- VERY IMPORTANT: Format the placeholder EXACTLY like this on its own line:
+  [IMAGE: highly detailed visual description of the scene, cinematic lighting, realistic]
+- Do not use markdown image tags, ONLY the explicit bracketed placeholder.
+
+4. CONCLUSION & FAQ
+- The outline handles the structure, but ensure you summarize key points and add a clear CTA.
+- If the outline contains an FAQ section, optimize it for featured snippets.
+
+5. BLOGGER FORMAT
+- Output clean HTML compatible with Blogger
+- Use: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>
+- DO NOT wrap the output in markdown code fences (\`\`\`html). Just output the raw HTML.
+`;
 
   if (style) {
-    prompt += `\n\n${formatStyleContext(style)}`;
-
-    prompt += `\n\nWRITING RULES based on style guide:`;
-    // Emoji rules
-    if (style.formatting.emojis === 0) {
-      prompt += `\n- NO emojis anywhere`;
-    } else if (style.formatting.emojis <= 3) {
-      prompt += `\n- Max 1-2 emojis in entire article`;
-    } else if (style.formatting.emojis <= 6) {
-      prompt += `\n- Occasional emoji use in headers or key points`;
-    } else {
-      prompt += `\n- Liberal emoji use throughout`;
-    }
-    // Em dash rules
-    if (style.formatting.emDashes <= 2) {
-      prompt += `\n- Avoid em dashes — use commas, parentheses, or periods instead`;
-    } else if (style.formatting.emDashes <= 5) {
-      prompt += `\n- Use em dashes sparingly (max 1-2 per article)`;
-    }
-    // Visual breaks
-    if (style.structure.visualBreaks === "minimal") {
-      prompt += `\n- Dense prose, longer paragraphs (5-8 sentences)`;
-    } else if (style.structure.visualBreaks === "generous") {
-      prompt += `\n- Short paragraphs (2-4 sentences), frequent breaks, single-sentence paragraphs for impact`;
-    } else {
-      prompt += `\n- Standard paragraph lengths (3-5 sentences)`;
-    }
-    // Examples
-    if (style.structure.examples === "many") {
-      prompt += `\n- Include many examples throughout (${style.structure.exampleTypes.join(", ")})`;
-    } else if (style.structure.examples === "some") {
-      prompt += `\n- Include occasional examples where helpful`;
-    }
+    prompt += `\n\n=== STYLE REQUIREMENTS ==>\n${formatStyleContext(style)}`;
   }
 
   if (sources && sources.length > 0) {
-    prompt += `\n${formatSourcesContext(sources)}`;
+    prompt += `\n\n=== RESEARCH SOURCES ===\n${formatSourcesContext(sources)}`;
     if (includeCitations) {
-      prompt += `\n\nCITATION RULES:
-- Insert inline citation markers [^1], [^2], etc. when referencing source data
-- Number citations sequentially by first appearance
-- Same source reused = same citation number
-- All REQUIRED sources must be cited at least once`;
+      prompt += `\n- Insert inline citation markers [^1], [^2], etc. when referencing source data.`;
     } else {
-      prompt += `\n\nUse these sources to inform your writing but do NOT insert citation markers.`;
+      prompt += `\n- Use these sources to inform your writing but do NOT insert citation markers.`;
     }
   }
-
-  prompt += `
-
-CRITICAL REQUIREMENTS:
-1. Write the COMPLETE article in clean HTML format with proper <h2>, <h3>, <p>, <ul>, <ol>, <strong>, <em> tags
-2. The primary keyword "${keyword}" must appear naturally in the first paragraph, in at least 2 H2 headings, and throughout the article
-3. Write at least ${wordCount} words — DO NOT cut short
-4. Every section from the outline must be covered thoroughly
-5. Use transition sentences between sections for smooth flow
-6. NO AI filler phrases like "It's important to note", "In today's world", "Additionally" (vary transitions)
-7. Write in a way that is engaging, original, and impossible to detect as AI-generated
-8. Include a compelling hook in the opening paragraph
-
-Output the full article HTML content only. No markdown fences or explanation.`;
 
   return prompt;
 }
@@ -326,8 +308,9 @@ export function getWriteSectionPrompt(
   sources?: ResearchSource[],
   includeCitations?: boolean
 ): string {
-  let prompt = `You are writing one section of an article.
+  let prompt = `You are an expert SEO content writer in 2026 writing one section of an article.
 
+=== INPUT ===
 Article Title: "${title}"
 Thesis: "${thesis}"
 Primary Keyword: "${keyword}"
@@ -340,21 +323,42 @@ Key Points to Cover:
 ${sectionPoints.map(p => `- ${p}`).join("\n")}
 Target Word Count: ~${sectionWordCount} words
 
-${previousSections ? `PREVIOUS SECTIONS (for context and flow):\n${previousSections.substring(0, 2000)}...\n` : "This is the first section."}`;
+${previousSections ? `PREVIOUS SECTIONS (for flow):\n${previousSections.substring(0, 2000)}...\n` : "This is the first section."}
 
-  if (style) prompt += `\n\n${formatStyleContext(style)}`;
+=== OUTPUT REQUIREMENTS ===
+- Output clean HTML (<h2> for the main heading, <h3> for subheadings, <p>, <ul>).
+- Write human-like, conversational prose. No AI filler phrases.
+- Add an image placeholder if appropriate for this section length: [IMAGE: highly detailed visual description, 4k]
+`;
+  if (style) prompt += `\n\n=== STYLE ===\n${formatStyleContext(style)}`;
   if (sources && sources.length > 0) {
-    prompt += `\n${formatSourcesContext(sources)}`;
-    if (includeCitations) {
-      prompt += `\nInsert [^N] citation markers when referencing source data.`;
-    }
+    prompt += `\n\n=== RESEARCH ===\n${formatSourcesContext(sources)}`;
   }
-
-  prompt += `
-
-Write this section in clean HTML. Include the <h2> heading. NO AI filler phrases. Match the voice and tone of previous sections for consistency.`;
-
   return prompt;
+}
+
+// ─── PHASE: HUMANIZER PASS ──────────────────────────────────────────
+export function getHumanizerPrompt(
+  articleContent: string
+): string {
+  return `You are an expert editor and content humanizer. Your task is to rewrite this article to sound 100% human.
+
+ARTICLE HTML TO REWRITE:
+${articleContent}
+
+=== HUMANIZER REQUIREMENTS ===
+- Break predictable sentence patterns and vary sentence length (short + long)
+- Add personality, natural imperfections, and a natural tone
+- Use conversational shortcuts occasionally (don't, it's, etc.)
+- Add occasional rhetorical questions or human phrasing ("Let's be honest…", "Here's the thing…", "Most people don't realize…")
+- Remove all robotic transitions ("In conclusion", "Furthermore", "Moreover", "It's important to note", "Additionally")
+- Slightly vary paragraph length to avoid walls of text. Short 1-2 sentence paragraphs stand out.
+
+CRITICAL:
+- Keep the SEO structure intact (H2s and H3s).
+- Do NOT remove or modify keywords.
+- Preserve all existing HTML elements exactly (headings, lists, [IMAGE: ...] placeholders, anchor links).
+- Return ONLY the clean HTML, with no markdown code fences like \`\`\`html.`;
 }
 
 // ─── PHASE 10: EDITOR PASS ──────────────────────────────────────────
