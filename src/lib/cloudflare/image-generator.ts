@@ -157,18 +157,11 @@ export async function generateAndHostImage(
     console.log(`✅ Image ready: ${imageUrl}`);
     return { url: imageUrl, altText: finalAltText, base64 };
   } catch (error) {
-    console.error("❌ Image pipeline failed:", error);
-
-    // Last-resort: return base64 data URL so article isn't blocked
-    try {
-      const base64 = await generateImageWithCloudflare(prompt, accountId, apiToken, negativePrompt);
-      return {
-        url: `data:image/png;base64,${base64}`,
-        altText: finalAltText,
-        base64,
-      };
-    } catch {
-      return { url: "", altText: finalAltText };
-    }
+    // Log the failure clearly — do NOT fall back to base64 data URLs.
+    // Embedding raw base64 in article HTML creates multi-megabyte blobs
+    // that break publishing to Blogger and inflate page size massively.
+    console.error("❌ Image pipeline failed (generation or R2 upload):", error);
+    console.warn("⚠️ Image will be skipped for this article section.");
+    return { url: "", altText: finalAltText };
   }
 }
