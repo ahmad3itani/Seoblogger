@@ -220,6 +220,8 @@ function ArticleWriterContent() {
   // Phase 11: Export
   const [publishAction, setPublishAction] = useState("draft");
   const [savedArticle, setSavedArticle] = useState<any>(null);
+  const [publishError, setPublishError] = useState<string | null>(null);
+  const [publishedToBlogger, setPublishedToBlogger] = useState(false);
 
   // ─── LOAD DRAFTS ON MOUNT ───────────────────────────────────────
   useEffect(() => {
@@ -509,6 +511,8 @@ function ArticleWriterContent() {
 
   const handleExport = async () => {
     setError("");
+    setPublishError(null);
+    setPublishedToBlogger(false);
     setLoading(true);
     try {
       const data = await api("export", {
@@ -517,8 +521,11 @@ function ArticleWriterContent() {
         includeToc: true,
         includeImages,
         includeCitationsInExport: includeCitations,
+        metaKeywords,
       });
       setSavedArticle(data.savedArticle);
+      if (data.publishError) setPublishError(data.publishError);
+      if (data.publishedToBlogger) setPublishedToBlogger(true);
       setPhase("finished");
     } catch (e: any) {
       setError(e.message);
@@ -1427,15 +1434,27 @@ function ArticleWriterContent() {
         {/* ═══ FINISHED ═══ */}
         {phase === "finished" && (
           <div className="space-y-5 text-center animate-slide-up opacity-0 stagger-1">
-            <div className="w-16 h-16 rounded-full bg-green-500/15 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-8 h-8 text-green-500" />
+            <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto ${publishedToBlogger ? "bg-green-500/15" : publishError ? "bg-yellow-500/15" : "bg-green-500/15"}`}>
+              <CheckCircle2 className={`w-8 h-8 ${publishedToBlogger ? "text-green-500" : publishError ? "text-yellow-500" : "text-green-500"}`} />
             </div>
             <div>
-              <h2 className="text-xl font-bold">Article Published!</h2>
+              <h2 className="text-xl font-bold">
+                {publishedToBlogger ? "Published to Blogger!" : publishAction === "draft" ? "Article Saved!" : "Article Saved as Draft"}
+              </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                Your article has been saved successfully.
+                {publishedToBlogger
+                  ? "Your article has been published to your Blogger blog."
+                  : publishAction === "draft"
+                    ? "Your article has been saved as a draft."
+                    : "Your article has been saved. You can publish it from My Articles."}
               </p>
             </div>
+            {publishError && (
+              <div className="rounded-lg bg-yellow-500/10 p-4 border border-yellow-500/30 text-left">
+                <p className="text-sm font-medium text-yellow-400">Publishing Issue</p>
+                <p className="text-xs text-yellow-300/80 mt-1">{publishError}</p>
+              </div>
+            )}
             {savedArticle && (
               <div className="rounded-lg bg-muted/20 p-4 border border-border/30 text-left">
                 <p className="text-sm font-medium">{savedArticle.title}</p>
@@ -1446,7 +1465,7 @@ function ArticleWriterContent() {
               <Button variant="outline" onClick={() => window.location.href = "/dashboard/articles"}>
                 <FileText className="w-4 h-4 mr-1" /> View Articles
               </Button>
-              <Button onClick={() => { setPhase("ideation"); setDraftId(null); setIdeationResult(null); setTitleOptions([]); setOutline([]); setDraftContent(""); setEditorContent(""); setMetaTitle(""); setMetaDescription(""); setMetaKeywords([]); setSavedArticle(null); setSelectedTitle(""); setSelectedThesis(""); setResearchSources([]); setError(""); }} className="bg-[#F97316] hover:bg-[#F97316]/90">
+              <Button onClick={() => { setPhase("ideation"); setDraftId(null); setIdeationResult(null); setTitleOptions([]); setOutline([]); setDraftContent(""); setEditorContent(""); setMetaTitle(""); setMetaDescription(""); setMetaKeywords([]); setSavedArticle(null); setSelectedTitle(""); setSelectedThesis(""); setResearchSources([]); setError(""); setPublishError(null); setPublishedToBlogger(false); }} className="bg-[#F97316] hover:bg-[#F97316]/90">
                 <Plus className="w-4 h-4 mr-1" /> Write Another
               </Button>
             </div>

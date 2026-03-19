@@ -467,30 +467,50 @@ Return ONLY the fully updated raw HTML article with the new <a href="..."> tags 
           labelsToPost = draft.metaKeywords as string[];
         }
 
+        let publishError: string | null = null;
         if (blogIdToUse) {
           try {
-            const { getValidAccessToken } = await import("@/lib/google");
-            const { createPost } = await import("@/lib/blogger");
-            const accessToken = await getValidAccessToken(authUser.id);
+            // Look up the actual Blogger API blog ID from the Prisma blog record
+            const blogRecord = await prisma.blog.findFirst({
+              where: { id: blogIdToUse, userId: authUser.id },
+              select: { blogId: true, id: true },
+            });
 
-            const bPost = await createPost(
-              blogIdToUse,
-              {
-                title: draft.title || "Untitled",
-                content: formattedContent,
-                labels: labelsToPost,
-                isDraft: articleStatus !== "published",
-              },
-              accessToken
-            );
+            if (!blogRecord) {
+              console.error(`Blog not found: ${blogIdToUse}`);
+              publishError = "Blog not found. Please reconnect your blog in Settings.";
+              if (articleStatus === "published") articleStatus = "draft";
+            } else {
+              const { getValidAccessToken } = await import("@/lib/google");
+              const { createPost } = await import("@/lib/blogger");
+              const accessToken = await getValidAccessToken(authUser.id);
 
-            bloggerPostId = bPost.id || null;
-            if (bPost.url && articleStatus === "published") {
-              articleStatus = "published";
+              console.log(`📤 Publishing to Blogger: blogId=${blogRecord.blogId}, title="${draft.title}"`);
+
+              const bPost = await createPost(
+                blogRecord.blogId,  // Use the ACTUAL Blogger API ID, not the Prisma cuid
+                {
+                  title: draft.title || "Untitled",
+                  content: formattedContent,
+                  labels: labelsToPost,
+                  isDraft: articleStatus !== "published",
+                },
+                accessToken
+              );
+
+              bloggerPostId = bPost.id || null;
+              console.log(`✅ Published to Blogger: postId=${bPost.id}, url=${bPost.url}, status=${bPost.status}`);
             }
           } catch (e: any) {
-            console.error("Failed to publish to Blogger API:", e);
-            if (articleStatus === "published") articleStatus = "failed_to_publish";
+            console.error("❌ Failed to publish to Blogger API:", e.message);
+            publishError = e.message || "Failed to publish to Blogger";
+            if (articleStatus === "published") articleStatus = "draft";
+          }
+        } else {
+          // No blog selected — cannot publish to Blogger
+          if (articleStatus === "published") {
+            publishError = "No blog connected. Article saved as draft. Connect a blog in Settings to publish.";
+            articleStatus = "draft";
           }
         }
 
@@ -533,6 +553,8 @@ Return ONLY the fully updated raw HTML article with the new <a href="..."> tags 
           article: formattedContent,
           wordCount: wordCountResult,
           savedArticle,
+          ...(publishError ? { publishError } : {}),
+          publishedToBlogger: !!bloggerPostId,
         });
       }
 
