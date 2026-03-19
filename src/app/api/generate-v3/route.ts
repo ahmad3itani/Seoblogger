@@ -150,25 +150,39 @@ export async function POST(req: Request) {
     let featuredImage: any = null;
     const inlineImages: any[] = [];
 
-    if (includeImages) {
+    if (includeImages && numImages > 0) {
+      console.log(`🖼️ Generating ${numImages} images...`);
       try {
         // Featured image
+        console.log("  - Generating featured image...");
         featuredImage = await generateFeaturedImage(selectedTitle, keyword, "featured");
+        console.log("  ✅ Featured image:", featuredImage?.url ? "generated" : "failed");
         
         // Inline images
-        for (let i = 0; i < numImages - 1; i++) {
-          const img = await generateFeaturedImage(
-            `${keyword} illustration ${i + 1}`,
-            keyword,
-            "content",
-            undefined,
-            i + 1
-          );
-          if (img) inlineImages.push(img);
+        if (numImages > 1) {
+          for (let i = 0; i < numImages - 1; i++) {
+            console.log(`  - Generating inline image ${i + 1}/${numImages - 1}...`);
+            const img = await generateFeaturedImage(
+              `${keyword} illustration ${i + 1}`,
+              keyword,
+              "content",
+              undefined,
+              i + 1
+            );
+            if (img && img.url) {
+              inlineImages.push(img);
+              console.log(`  ✅ Inline image ${i + 1}: generated`);
+            } else {
+              console.log(`  ⚠️ Inline image ${i + 1}: failed`);
+            }
+          }
         }
-      } catch (imgError) {
-        console.error("Image generation failed:", imgError);
+        console.log(`✅ Image generation complete: ${featuredImage ? 1 : 0} featured + ${inlineImages.length} inline`);
+      } catch (imgError: any) {
+        console.error("❌ Image generation failed:", imgError.message);
       }
+    } else {
+      console.log("⏭️ Skipping image generation (disabled or numImages=0)");
     }
 
     // PHASE 7: Internal linking if requested
@@ -210,22 +224,31 @@ Return ONLY the HTML with <a href="..."> tags added. No markdown code fences.`;
     }
 
     // PHASE 8: Embed images in content
-    if (featuredImage) {
-      const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${featuredImage.url}" alt="${featuredImage.altText}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;" /></div>\n`;
+    console.log("🖼️ Embedding images in content...");
+    if (featuredImage && featuredImage.url) {
+      const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${featuredImage.url}" alt="${featuredImage.altText || selectedTitle}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;" /></div>\n`;
       fullContent = featuredHtml + fullContent;
+      console.log("  ✅ Featured image embedded");
+    } else if (featuredImage) {
+      console.log("  ⚠️ Featured image has no URL, skipping");
     }
 
     if (inlineImages.length > 0) {
       const sections = fullContent.split('</h2>');
       if (sections.length > 1) {
         const interval = Math.floor(sections.length / (inlineImages.length + 1));
+        let embedded = 0;
         for (let i = 0; i < inlineImages.length; i++) {
           const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
           const img = inlineImages[i];
-          const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${img.url}" alt="${img.altText}" style="max-width: 100%; border-radius: 8px; margin: 20px 0;" /></div>\n`;
-          sections[sectionPos] = imageHtml + sections[sectionPos];
+          if (img && img.url) {
+            const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" style="max-width: 100%; border-radius: 8px; margin: 20px 0;" /></div>\n`;
+            sections[sectionPos] = imageHtml + sections[sectionPos];
+            embedded++;
+          }
         }
         fullContent = sections.join('</h2>');
+        console.log(`  ✅ ${embedded} inline images embedded`);
       }
     }
 

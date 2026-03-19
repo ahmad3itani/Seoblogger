@@ -191,27 +191,50 @@ Return ONLY valid JSON matching the required format. No explanation.`;
 
 // ─── BUILD CONTENT-TYPE INSTRUCTIONS ────────────────────────────────────────
 function buildContentTypeInstructions(options: GenerationOptions): string {
-    let instructions = "";
-
+    let instructions = "\n\n━━━ CRITICAL CONTENT REQUIREMENTS ━━━";
+    
+    // Paragraph length enforcement
+    instructions += `\n\nPARAGRAPH LENGTH RULES (MANDATORY):
+- Each paragraph MUST be 150-250 words minimum
+- Break long paragraphs only at natural topic shifts
+- Use 3-5 sentences per paragraph minimum
+- Add depth, examples, and explanations - NO short paragraphs`;
+    
     if (options.includeComparisonTable) {
-        instructions += `\n\nCOMPARISON TABLE REQUIRED:
-Include a detailed <table> comparing 3-5 options/products/methods.
-Columns: Name | Key Features | Pros | Cons | Best For
-Place it in the most relevant section.`;
+        instructions += `\n\n✅ COMPARISON TABLE REQUIRED:
+Create a detailed HTML comparison table with <table>, <thead>, <tbody>.
+Minimum 3 columns, 5 rows. Include specific data points, not generic descriptions.
+Place after the section that discusses the items being compared.
+Example format:
+<table>
+<thead><tr><th>Feature</th><th>Option A</th><th>Option B</th></tr></thead>
+<tbody><tr><td>Price</td><td>$50</td><td>$75</td></tr></tbody>
+</table>`;
     }
     if (options.includeRecipe) {
-        instructions += `\n\nRECIPE SECTION REQUIRED:
-Include structured recipe block: Prep Time, Cook Time, Total Time, Servings.
-Ingredients as <ul> with exact measurements. Steps as <ol> with numbered actions.`;
+        instructions += `\n\n✅ RECIPE SECTION REQUIRED:
+Include complete recipe with:
+- Prep Time, Cook Time, Total Time, Servings
+- Ingredients as <ul> with exact measurements
+- Instructions as <ol> with detailed numbered steps
+- Optional: Tips section with <ul>`;
     }
     if (options.includeProsCons) {
-        instructions += `\n\nPROS & CONS SECTION REQUIRED:
-Dedicated section with ✅ Pros (<ul>, 5-7 items) and ❌ Cons (<ul>, 3-5 items). Be honest and specific.`;
+        instructions += `\n\n✅ PROS & CONS SECTION REQUIRED:
+Create dedicated "Pros and Cons" section with:
+- <h3>✅ Pros</h3> followed by <ul> with 5-7 specific advantages
+- <h3>❌ Cons</h3> followed by <ul> with 3-5 honest drawbacks
+- Each point should be 1-2 sentences explaining WHY it's a pro/con`;
     }
     if (options.includeStepByStep) {
-        instructions += `\n\nSTEP-BY-STEP GUIDE REQUIRED:
-Use <ol> with minimum 5 numbered steps. Each step: action heading + 2-3 sentence explanation + optional tip.`;
+        instructions += `\n\n✅ STEP-BY-STEP GUIDE REQUIRED:
+Create "Step-by-Step Guide" section with:
+- <ol> with minimum 7 detailed numbered steps
+- Each step: <strong>Action heading</strong> + 3-4 sentence explanation
+- Include tips, warnings, or best practices for each step`;
     }
+    
+    instructions += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
     return instructions;
 }
 
