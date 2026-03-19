@@ -51,10 +51,10 @@ async function callAIRaw(
   const response = await openai.chat.completions.create({
     model,
     messages: [
-      { role: "system", content: "You are an expert article writer. Write high-quality, engaging content. Output only the requested content, no explanations or markdown fences." },
+      { role: "system", content: "You are a world-class SEO content writer. Write highly engaging, professional, and human-like content that ranks on Google. Output ONLY the requested HTML or JSON. No explanations, no markdown fences, no preamble." },
       { role: "user", content: systemPrompt },
     ],
-    temperature: options?.temperature ?? 0.7,
+    temperature: options?.temperature ?? 0.75,
     max_tokens: options?.maxTokens ?? 8192,
   });
   return response.choices[0]?.message?.content || "";
@@ -495,7 +495,11 @@ export async function executeWriteFull(
     draft.includeCitations
   );
 
-  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 16000, temperature: 0.75 });
+  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 32000, temperature: 0.75 });
+
+  // Run the Humanizer pass immediately (per user requirement for earlier humanizer integration)
+  const humanizerPrompt = getHumanizerPrompt(raw);
+  const finalContent = await callAIRaw(humanizerPrompt, userPlan, { maxTokens: 32000, temperature: 0.8 });
 
   // Build sections object from outline
   const sections: Record<string, string> = {};
@@ -506,12 +510,13 @@ export async function executeWriteFull(
 
   await updateDraft(draftId, userId, {
     writingMode: "full",
-    draftContent: raw,
+    draftContent: finalContent, // Store the humanized version directly
+    editorContent: finalContent, // Also populate editor content so the next phase is seamless
     sections,
     phase: "approval",
   });
 
-  return { content: raw, wordCount: raw.split(/\s+/).length };
+  return { content: finalContent, wordCount: finalContent.split(/\s+/).length };
 }
 
 export async function executeWriteSection(
@@ -549,7 +554,7 @@ export async function executeWriteSection(
     draft.includeCitations
   );
 
-  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 4096 });
+  const raw = await callAIRaw(prompt, userPlan, { maxTokens: 8192, temperature: 0.75 });
 
   // Update section status and append to draft
   const updatedOutline = [...outline];

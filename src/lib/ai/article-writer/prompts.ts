@@ -218,7 +218,7 @@ Return JSON:
   return prompt;
 }
 
-// ─── PHASE 7: WRITE ARTICLE (FULL DRAFT) ────────────────────────────
+// --- PHASE 7: WRITE ARTICLE (FULL DRAFT) -----------------------------------
 export function getWriteFullPrompt(
   title: string,
   thesis: string,
@@ -231,69 +231,111 @@ export function getWriteFullPrompt(
   includeCitations?: boolean,
   numImages?: number
 ): string {
-  const outlineText = outline.map((s, i) =>
-    `${i + 1}. ${s.heading}${s.type ? ` (${s.type})` : ""}\n${(s.points || []).map(p => `   - ${p}`).join("\n")}`
-  ).join("\n\n");
+  const toSlug = (text: string) =>
+    text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 
-  let prompt = `You are an expert SEO content writer in 2026, specialized in writing high-ranking blog posts for Google and Blogger platform.
-Your task is to generate a COMPLETE, SEO-OPTIMIZED, HUMAN-LIKE blog article.
+  // Pre-build the TOC HTML so AI uses exact slugs that match the H2 ids we require
+  const tocLines = outline.map((s) => {
+    const slug = toSlug(s.heading);
+    return `    <li class="toc-h2"><a href="#${slug}">${s.heading}</a></li>`;
+  }).join("\n");
+  const tocHtml = `<div class="toc">\n<h3>Table of Contents</h3>\n<ul>\n${tocLines}\n</ul>\n</div>`;
 
-=== INPUT ===
-Main Keyword: "${keyword}"
-Title: "${title}"
-Thesis: "${thesis}"
-Target Audience: ${style?.context?.audienceRole || "General Readers"}
-Article Length: at least ${wordCount} words
-Language: ${language}
+  // Outline with slugs so AI knows the exact id= value to use on each H2
+  const outlineText = outline.map((s, i) => {
+    const slug = toSlug(s.heading);
+    const pts = (s.points || []).map((p) => `   - ${p}`).join("\n");
+    return `${i + 1}. ${s.heading} [h2 id="${slug}"]${s.type ? ` (${s.type})` : ""}${pts ? "\n" + pts : ""}`;
+  }).join("\n\n");
 
-OUTLINE:
+  const toneLabel = style?.voice?.tone
+    ? style.voice.tone <= 3 ? "casual and conversational"
+      : style.voice.tone <= 6 ? "balanced and professional"
+      : "authoritative and expert"
+    : "engaging, informative, and conversational";
+
+  const perSectionWords = Math.round(wordCount / Math.max(outline.length, 1));
+
+  let prompt = `You are a world-class SEO content writer in 2026. Write a COMPLETE, PROFESSIONAL blog article that ranks #1 on Google.
+
+=== ARTICLE BRIEF ===
+Main Keyword : "${keyword}"
+Title        : "${title}"
+Thesis       : "${thesis}"
+Tone         : ${toneLabel}
+Audience     : ${style?.context?.audienceRole || "General readers seeking practical information"}
+Min Length   : ${wordCount} words - DO NOT stop early, write every section fully
+Language     : ${language}
+
+=== OUTLINE (H2 headings with required anchor IDs) ===
 ${outlineText}
 
-=== OUTPUT REQUIREMENTS ===
+=== REQUIRED OUTPUT STRUCTURE - follow in this exact order ===
 
-1. INTRODUCTION
-- Hook the reader in the first 2 lines
-- Clearly match search intent for "${keyword}"
-- Keep it human, conversational
+STEP 1 - TABLE OF CONTENTS (output this exact HTML verbatim):
+${tocHtml}
 
-2. MAIN CONTENT
-- Use the H2 headings provided in the outline. Use H3 headings for sub-sections.
-- Include bullet points, real-life examples, and data-backed insights where appropriate.
-- Maintain natural keyword usage (NO stuffing). Include LSI and semantic keywords organically.
+STEP 2 - FEATURED IMAGE PLACEHOLDER (right after TOC):
+[IMAGE: professional photorealistic scene related to "${keyword}", bright natural lighting, 4k]
 
-3. IMAGE PLACEMENT
-- Add exactly ${numImages || 3} image placeholders throughout the article (roughly one every 300–500 words).
-- VERY IMPORTANT: Format the placeholder EXACTLY like this on its own line:
-  [IMAGE: highly detailed visual description of the scene, cinematic lighting, realistic]
-- Do not use markdown image tags, ONLY the explicit bracketed placeholder.
+STEP 3 - INTRODUCTION (150-200 words)
+- Open with a HOOK: bold statement, surprising stat, or relatable scenario. NOT "In this article..."
+- State the reader's problem or desire clearly
+- Promise what they will learn
+- Include "${keyword}" naturally within the first 100 words
+- Close with a sentence that flows into the first section
 
-4. CONCLUSION & FAQ
-- The outline handles the structure, but ensure you summarize key points and add a clear CTA.
-- If the outline contains an FAQ section, optimize it for featured snippets.
+STEP 4 - BODY SECTIONS (approx ${perSectionWords} words each)
+For EACH section in the outline:
+- Use: <h2 id="[slug]">[Heading]</h2> - the slug MUST match the id shown in the outline above
+- Use <h3> for subsections (no id needed)
+- Write expert content: real examples, statistics, comparisons, actionable advice
+- Use <p> for paragraphs, <ul><li> for lists, <strong> for key terms on first mention
+- Vary sentence length: mix short punchy sentences with longer explanatory ones
+- Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words
+- BANNED: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world", "In conclusion", "It's worth mentioning"
 
-5. BLOGGER FORMAT
-- Output clean HTML compatible with Blogger
-- Use: <h2>, <h3>, <p>, <ul>, <li>, <strong>, <em>
-- DO NOT wrap the output in markdown code fences (\`\`\`html). Just output the raw HTML.
+STEP 5 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
+<div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
+  <h2 id="faq">Frequently Asked Questions</h2>
+  <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+    <h3 itemprop="name">[Question]</h3>
+    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+      <p itemprop="text">[Direct 2-4 sentence answer]</p>
+    </div>
+  </div>
+</div>
+
+STEP 6 - CONCLUSION (150-200 words)
+- Summarize the 2-3 most important takeaways
+- Include a specific CTA ("Start by...", "Try this today...", "Share if this helped...")
+- End with a motivating or thought-provoking final sentence
+
+=== CRITICAL OUTPUT RULES ===
+1. Output ONLY raw HTML - NO markdown fences (no triple backticks), NO text before or after
+2. Every H2 MUST have id="[slug]" exactly matching the outline slugs - TOC links depend on this
+3. Write at least ${wordCount} words - do not stop short
+4. Write real content only - no placeholder text, no [insert statistic here]
+5. Article starts directly with the TOC div - no title tag at the top
 `;
 
   if (style) {
-    prompt += `\n\n=== STYLE REQUIREMENTS ==>\n${formatStyleContext(style)}`;
+    prompt += `\n=== STYLE GUIDE ===\n${formatStyleContext(style)}`;
   }
 
   if (sources && sources.length > 0) {
-    prompt += `\n\n=== RESEARCH SOURCES ===\n${formatSourcesContext(sources)}`;
+    prompt += `\n=== RESEARCH SOURCES (use to enrich content with real data) ===\n${formatSourcesContext(sources)}`;
     if (includeCitations) {
-      prompt += `\n- Insert inline citation markers [^1], [^2], etc. when referencing source data.`;
+      prompt += `\nInsert inline citation markers [^1], [^2], etc. when directly referencing source data.`;
     } else {
-      prompt += `\n- Use these sources to inform your writing but do NOT insert citation markers.`;
+      prompt += `\nUse these sources to inform your writing but do NOT insert citation markers in the text.`;
     }
   }
 
   return prompt;
 }
 
-// ─── PHASE 7: WRITE SECTION ─────────────────────────────────────────
+// --- PHASE 7: WRITE SECTION ------------------------------------------------
 export function getWriteSectionPrompt(
   title: string,
   thesis: string,
@@ -308,31 +350,49 @@ export function getWriteSectionPrompt(
   sources?: ResearchSource[],
   includeCitations?: boolean
 ): string {
-  let prompt = `You are an expert SEO content writer in 2026 writing one section of an article.
+  const slug = sectionHeading.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const toneLabel = style?.voice?.tone
+    ? style.voice.tone <= 3 ? "casual and conversational" : style.voice.tone <= 6 ? "balanced and professional" : "authoritative and expert"
+    : "engaging and conversational";
 
-=== INPUT ===
-Article Title: "${title}"
-Thesis: "${thesis}"
-Primary Keyword: "${keyword}"
-Language: ${language}
+  let prompt = `You are a world-class SEO content writer. Write ONE section of a professional blog post that ranks on Google.
 
-CURRENT SECTION:
-Heading: "${sectionHeading}"
-Type: ${sectionType || "body"}
+=== SECTION BRIEF ===
+Article Title : "${title}"
+Thesis        : "${thesis}"
+Keyword       : "${keyword}"
+Language      : ${language}
+Tone          : ${toneLabel}
+
+THIS SECTION:
+Heading : "${sectionHeading}"
+Anchor ID for h2 tag: "${slug}"
+Type    : ${sectionType || "body"}
+Target  : ${sectionWordCount} words minimum - write substantively, do NOT stop short
+
 Key Points to Cover:
-${sectionPoints.map(p => `- ${p}`).join("\n")}
-Target Word Count: ~${sectionWordCount} words
+${sectionPoints.map((p) => `- ${p}`).join("\n")}
 
-${previousSections ? `PREVIOUS SECTIONS (for flow):\n${previousSections.substring(0, 2000)}...\n` : "This is the first section."}
+${previousSections ? `PREVIOUS CONTENT (context only - do NOT repeat it):\n${previousSections.substring(0, 1500)}...
+` : "This is the opening section of the article."}
 
-=== OUTPUT REQUIREMENTS ===
-- Output clean HTML (<h2> for the main heading, <h3> for subheadings, <p>, <ul>).
-- Write human-like, conversational prose. No AI filler phrases.
-- Add an image placeholder if appropriate for this section length: [IMAGE: highly detailed visual description, 4k]
+=== OUTPUT RULES ===
+1. Open with exactly: <h2 id="${slug}">${sectionHeading}</h2>
+2. Use <h3> for sub-topics (no id needed)
+3. Use <p> for paragraphs, <ul><li> for bullet lists, <strong> for key terms on first mention
+4. Write ${sectionWordCount} words of real, expert content - no filler, no generic advice
+5. Vary sentence length: mix short punchy sentences with longer explanatory ones
+6. If section is over 250 words, add ONE image placeholder: [IMAGE: detailed photorealistic scene of [topic], 4k]
+7. BANNED words/phrases: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world"
+8. Output ONLY raw HTML - no markdown fences, no preamble text before the <h2>
 `;
-  if (style) prompt += `\n\n=== STYLE ===\n${formatStyleContext(style)}`;
+
+  if (style) prompt += `\n=== STYLE GUIDE ===\n${formatStyleContext(style)}`;
   if (sources && sources.length > 0) {
-    prompt += `\n\n=== RESEARCH ===\n${formatSourcesContext(sources)}`;
+    prompt += `\n=== RESEARCH SOURCES ===\n${formatSourcesContext(sources)}`;
+    if (includeCitations) {
+      prompt += `\nAdd citation markers [^1], [^2] when directly referencing source data.`;
+    }
   }
   return prompt;
 }
