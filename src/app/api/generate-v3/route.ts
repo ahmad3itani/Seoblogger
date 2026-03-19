@@ -9,9 +9,13 @@ import { createPost } from "@/lib/blogger";
 
 export async function POST(req: Request) {
   try {
+    console.log("🚀 Generate V3 API called");
+    
     const authResult = await requireAuth();
     if (authResult instanceof NextResponse) return authResult;
     const { user: authUser } = authResult;
+    
+    console.log("✅ Auth successful:", authUser.id);
 
     // Rate limit: 5 generations per minute
     const rl = checkRateLimit(`generate-v3:${authUser.id}`, 5, 60_000);
@@ -118,14 +122,20 @@ export async function POST(req: Request) {
     };
 
     // PHASE 1: Generate titles
+    console.log("📝 Generating titles for:", keyword);
     const titles = await generateTitles(options);
     const selectedTitle = titles[0]?.replace(/["']/g, "") || `Article about ${keyword}`;
+    console.log("✅ Title selected:", selectedTitle);
 
     // PHASE 2: Generate outline
+    console.log("📋 Generating outline...");
     const outline = await generateOutline(selectedTitle, options);
+    console.log("✅ Outline generated with", outline.sections?.length || 0, "sections");
 
     // PHASE 3: Generate article content
+    console.log("✍️ Generating article content...");
     const article = await generateArticle(selectedTitle, outline, options);
+    console.log("✅ Article generated:", article.length, "characters");
 
     // PHASE 4: Generate FAQs if requested
     let faqs: any[] = [];
@@ -318,9 +328,19 @@ Return ONLY the HTML with <a href="..."> tags added. No markdown code fences.`;
       publishError,
     });
   } catch (error: any) {
-    console.error("Generate V3 API error:", error);
+    console.error("❌ Generate V3 API error:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Error details:", {
+      message: error.message,
+      name: error.name,
+      cause: error.cause
+    });
+    
     return NextResponse.json(
-      { error: "Generation failed: " + error.message },
+      { 
+        error: error.message || "Generation failed",
+        details: process.env.NODE_ENV === "development" ? error.stack : undefined
+      },
       { status: 500 }
     );
   }
