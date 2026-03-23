@@ -113,6 +113,8 @@ export async function POST(req: Request) {
       includeFaq,
       includeImages,
       numInlineImages: numImages,
+      includeToc,
+      includeInternalLinks,
       includeComparisonTable,
       includeRecipe,
       includeProsCons,
@@ -152,11 +154,13 @@ export async function POST(req: Request) {
 
     if (includeImages && numImages > 0) {
       console.log(`🖼️ Generating ${numImages} images...`);
+      console.log(`  - Cloudflare Account ID: ${process.env.CLOUDFLARE_ACCOUNT_ID ? "SET" : "❌ MISSING"}`);
+      console.log(`  - Cloudflare API Token: ${process.env.CLOUDFLARE_API_TOKEN ? "SET" : "❌ MISSING"}`);
       try {
         // Featured image
         console.log("  - Generating featured image...");
         featuredImage = await generateFeaturedImage(selectedTitle, keyword, "featured");
-        console.log("  ✅ Featured image:", featuredImage?.url ? "generated" : "failed");
+        console.log("  ✅ Featured image:", featuredImage?.url ? `generated (${featuredImage.url.substring(0, 60)}...)` : "failed - no URL returned");
         
         // Inline images
         if (numImages > 1) {

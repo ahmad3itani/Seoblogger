@@ -58,6 +58,8 @@ export interface GenerationOptions {
     includeFaq?: boolean;
     includeImages?: boolean;
     numInlineImages?: number;
+    includeToc?: boolean;
+    includeInternalLinks?: boolean;
     includeComparisonTable?: boolean;
     includeRecipe?: boolean;
     includeProsCons?: boolean;
@@ -190,51 +192,69 @@ Return ONLY valid JSON matching the required format. No explanation.`;
 }
 
 // ─── BUILD CONTENT-TYPE INSTRUCTIONS ────────────────────────────────────────
+// Dynamically enables/disables features based on user's toggle selections
 function buildContentTypeInstructions(options: GenerationOptions): string {
-    let instructions = "\n\n━━━ CRITICAL CONTENT REQUIREMENTS ━━━";
+    let instructions = "\n\n━━━ CONTENT FEATURE INSTRUCTIONS (FROM USER SELECTIONS) ━━━";
     
-    // Paragraph length enforcement
-    instructions += `\n\nPARAGRAPH LENGTH RULES (MANDATORY):
-- Each paragraph MUST be 150-250 words minimum
-- Break long paragraphs only at natural topic shifts
-- Use 3-5 sentences per paragraph minimum
-- Add depth, examples, and explanations - NO short paragraphs`;
-    
+    // === TABLE OF CONTENTS ===
+    if (options.includeToc !== false) {
+        instructions += `\n\n✅ TABLE OF CONTENTS: INCLUDE\nAdd a Table of Contents after the introduction with anchor links to all main H2 sections.\nEXCLUDE FAQ and Conclusion from TOC.`;
+    } else {
+        instructions += `\n\n⛔ TABLE OF CONTENTS: SKIP — Do NOT include a Table of Contents.`;
+    }
+
+    // === FAQ ===
+    if (options.includeFaq !== false) {
+        instructions += `\n\n✅ FAQ SECTION: INCLUDE\nAdd 4-6 FAQ questions with clear direct answers (40-60 words each).\nInclude keyword variations. Target "People Also Ask" queries.`;
+    } else {
+        instructions += `\n\n⛔ FAQ SECTION: SKIP — Do NOT include an FAQ section.`;
+    }
+
+    // === IMAGES ===
+    if (options.includeImages !== false) {
+        const count = options.numInlineImages || 3;
+        instructions += `\n\n✅ IMAGE PLACEHOLDERS: INCLUDE (minimum ${Math.max(count, 4)} images)\nInsert [IMAGE: ultra realistic detailed description] placeholders.\nFirst image after intro, then every 2 sections.\nDescriptions must be detailed and match section context.`;
+    } else {
+        instructions += `\n\n⛔ IMAGE PLACEHOLDERS: SKIP — Do NOT include any [IMAGE:] placeholders.`;
+    }
+
+    // === INTERNAL LINKS ===
+    if (options.includeInternalLinks !== false) {
+        instructions += `\n\n✅ INTERNAL LINKS: INCLUDE (3-5 links)\nSame niche/topic cluster ONLY. Contextually relevant. <a href="URL">anchor text</a>`;
+    } else {
+        instructions += `\n\n⛔ INTERNAL LINKS: SKIP — Do NOT include internal links.`;
+    }
+
+    // === EXTERNAL LINKS ===
+    if (options.includeExternalLinks !== false) {
+        instructions += `\n\n✅ EXTERNAL LINKS: INCLUDE (2-3 authority links)\nOnly trusted sources (Wikipedia, official sites, major publications).`;
+    } else {
+        instructions += `\n\n⛔ EXTERNAL LINKS: SKIP — Do NOT include external links.`;
+    }
+
+    // === COMPARISON TABLE ===
     if (options.includeComparisonTable) {
-        instructions += `\n\n✅ COMPARISON TABLE REQUIRED:
-Create a detailed HTML comparison table with <table>, <thead>, <tbody>.
-Minimum 3 columns, 5 rows. Include specific data points, not generic descriptions.
-Place after the section that discusses the items being compared.
-Example format:
-<table>
-<thead><tr><th>Feature</th><th>Option A</th><th>Option B</th></tr></thead>
-<tbody><tr><td>Price</td><td>$50</td><td>$75</td></tr></tbody>
-</table>`;
+        instructions += `\n\n✅ COMPARISON TABLE: INCLUDE\nCreate a detailed HTML comparison table with <table>, <thead>, <tbody>.\nMinimum 3 columns, 4+ rows. Include specific data points.\nAlso include pros/cons for each compared option.`;
+    } else {
+        instructions += `\n\n⛔ COMPARISON TABLE: SKIP — Do NOT include a comparison table.`;
     }
+
+    // === RECIPE FORMAT ===
     if (options.includeRecipe) {
-        instructions += `\n\n✅ RECIPE SECTION REQUIRED:
-Include complete recipe with:
-- Prep Time, Cook Time, Total Time, Servings
-- Ingredients as <ul> with exact measurements
-- Instructions as <ol> with detailed numbered steps
-- Optional: Tips section with <ul>`;
+        instructions += `\n\n✅ RECIPE FORMAT: INCLUDE\nInclude complete recipe with:\n- Prep Time, Cook Time, Total Time, Servings\n- Ingredients as <ul> with exact measurements\n- Instructions as <ol> with detailed numbered steps`;
     }
+
+    // === PROS & CONS ===
     if (options.includeProsCons) {
-        instructions += `\n\n✅ PROS & CONS SECTION REQUIRED:
-Create dedicated "Pros and Cons" section with:
-- <h3>✅ Pros</h3> followed by <ul> with 5-7 specific advantages
-- <h3>❌ Cons</h3> followed by <ul> with 3-5 honest drawbacks
-- Each point should be 1-2 sentences explaining WHY it's a pro/con`;
+        instructions += `\n\n✅ PROS & CONS SECTION: INCLUDE\nCreate dedicated section with:\n- Pros: <ul> with 5-7 specific advantages\n- Cons: <ul> with 3-5 honest drawbacks\n- Each point: 1-2 sentences explaining WHY`;
     }
+
+    // === STEP-BY-STEP ===
     if (options.includeStepByStep) {
-        instructions += `\n\n✅ STEP-BY-STEP GUIDE REQUIRED:
-Create "Step-by-Step Guide" section with:
-- <ol> with minimum 7 detailed numbered steps
-- Each step: <strong>Action heading</strong> + 3-4 sentence explanation
-- Include tips, warnings, or best practices for each step`;
+        instructions += `\n\n✅ STEP-BY-STEP GUIDE: INCLUDE\nCreate numbered guide with <ol>:\n- Minimum 7 detailed steps\n- Each step: <strong>Action heading</strong> + explanation\n- Include tips and best practices per step`;
     }
     
-    instructions += "\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━";
+    instructions += "\n\n━━━ END CONTENT FEATURES ━━━";
     return instructions;
 }
 
