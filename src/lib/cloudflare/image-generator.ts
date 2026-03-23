@@ -122,9 +122,10 @@ export async function uploadToCloudflareR2(
     throw new Error(`R2 upload error ${response.status}: ${err}`);
   }
 
-  const r2PublicUrl =
-    process.env.CLOUDFLARE_R2_PUBLIC_URL ||
-    `https://pub-153f654887954c46b572eef9cc43ec55.r2.dev`;
+  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+  if (!r2PublicUrl) {
+    throw new Error("CLOUDFLARE_R2_PUBLIC_URL environment variable is required for image hosting");
+  }
   return `${r2PublicUrl}/${fileName}`;
 }
 

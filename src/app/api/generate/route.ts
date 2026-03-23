@@ -14,6 +14,7 @@ import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/en
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { sanitizeString, sanitizeNumber } from "@/lib/security/validate";
 import { fetchSerpIntelligence, formatSourcesForPrompt, formatPAAForFAQ } from "@/lib/seo/serp-sources";
+import type { BlogRecord } from "@/types/api";
 
 export async function POST(req: Request) {
     try {
@@ -154,7 +155,8 @@ export async function POST(req: Request) {
 
                 let activeBlogId = blogId;
                 if (!activeBlogId && currentUser?.blogs) {
-                    activeBlogId = currentUser.blogs.find((b: any) => b.isDefault)?.id || currentUser.blogs[0]?.id;
+                    const blogs = currentUser.blogs as BlogRecord[];
+                    activeBlogId = blogs.find((b) => b.isDefault)?.id || blogs[0]?.id;
                 }
 
                 // Smart internal linking: find relevant existing posts by keyword similarity (if enabled)
@@ -172,10 +174,11 @@ export async function POST(req: Request) {
                             try {
                                 const { getValidAccessToken } = await import("@/lib/google");
                                 const { listPosts } = await import("@/lib/blogger");
-                                const blog = currentUser.blogs?.find((b: any) => b.id === activeBlogId);
+                                const userBlogs = currentUser.blogs as BlogRecord[];
+                                const blog = userBlogs?.find((b) => b.id === activeBlogId);
                                 if (blog) {
                                     const accessToken = await getValidAccessToken(currentUser.id);
-                                    const postsData = await listPosts((blog as any).blogId, accessToken, 50);
+                                    const postsData = await listPosts(blog.blogId, accessToken, 50);
                                     const posts = postsData.items || [];
                                     console.log(`📝 Fetched ${posts.length} posts from Blogger API for caching`);
                                     

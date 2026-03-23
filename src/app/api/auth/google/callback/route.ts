@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { google } from "googleapis";
 import { prisma } from "@/lib/prisma";
+import { encryptTokenSafe } from "@/lib/security/encryption";
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
@@ -81,12 +82,16 @@ export async function GET(request: Request) {
         where: { id: userId },
       });
 
+      // Encrypt tokens before storing
+      const encryptedAccessToken = encryptTokenSafe(tokens.access_token);
+      const encryptedRefreshToken = encryptTokenSafe(tokens.refresh_token);
+
       if (existingUser) {
         await prisma.user.update({
           where: { id: userId },
           data: {
-            googleAccessToken: tokens.access_token,
-            googleRefreshToken: tokens.refresh_token || undefined,
+            googleAccessToken: encryptedAccessToken,
+            googleRefreshToken: encryptedRefreshToken || undefined,
             googleTokenExpiry: expiryDate,
           },
         });
@@ -97,8 +102,8 @@ export async function GET(request: Request) {
           data: {
             id: userId,
             email: "", // Will be updated on next sync
-            googleAccessToken: tokens.access_token,
-            googleRefreshToken: tokens.refresh_token || undefined,
+            googleAccessToken: encryptedAccessToken,
+            googleRefreshToken: encryptedRefreshToken || undefined,
             googleTokenExpiry: expiryDate,
           },
         });

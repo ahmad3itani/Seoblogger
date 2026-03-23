@@ -505,7 +505,8 @@ export async function executeWriteFull(
   const v2OutlineFormat = {
     sections: outline.map(o => ({
       heading: o.heading,
-      points: o.points,
+      level: 2 as const, // All top-level outline items are H2
+      points: o.points || [],
     })),
     faqs: [], // if we stored faqs in draft we'd pass them, but for now we skip FAQ injection in V2 here or we let V2 generate it if stored
     suggestedLabels: [],

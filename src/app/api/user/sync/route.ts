@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { encryptTokenSafe } from "@/lib/security/encryption";
 
 export async function POST(request: Request) {
   try {
@@ -15,12 +16,13 @@ export async function POST(request: Request) {
     console.log("📋 User metadata:", JSON.stringify(user.user_metadata));
 
     // Parse optional body (Google tokens from OAuth callback)
-    let googleAccessToken: string | undefined;
-    let googleRefreshToken: string | undefined;
+    let encryptedAccessToken: string | null = null;
+    let encryptedRefreshToken: string | null = null;
     try {
       const body = await request.json();
-      googleAccessToken = body.googleAccessToken;
-      googleRefreshToken = body.googleRefreshToken;
+      // Encrypt tokens before storing
+      encryptedAccessToken = encryptTokenSafe(body.googleAccessToken);
+      encryptedRefreshToken = encryptTokenSafe(body.googleRefreshToken);
     } catch {
       // No body is fine
     }
@@ -40,9 +42,9 @@ export async function POST(request: Request) {
         email: user.email || "",
         name: fallbackName,
         avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-        ...(googleAccessToken && { googleAccessToken }),
-        ...(googleRefreshToken && { googleRefreshToken }),
-        ...(googleAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
+        ...(encryptedAccessToken && { googleAccessToken: encryptedAccessToken }),
+        ...(encryptedRefreshToken && { googleRefreshToken: encryptedRefreshToken }),
+        ...(encryptedAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
       },
       create: {
         id: user.id,
@@ -51,9 +53,9 @@ export async function POST(request: Request) {
         avatarUrl: user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
         role: "user",
         // planId intentionally left null — user must select a plan
-        ...(googleAccessToken && { googleAccessToken }),
-        ...(googleRefreshToken && { googleRefreshToken }),
-        ...(googleAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
+        ...(encryptedAccessToken && { googleAccessToken: encryptedAccessToken }),
+        ...(encryptedRefreshToken && { googleRefreshToken: encryptedRefreshToken }),
+        ...(encryptedAccessToken && { googleTokenExpiry: new Date(Date.now() + 3600 * 1000) }),
       },
       include: { plan: true },
     });

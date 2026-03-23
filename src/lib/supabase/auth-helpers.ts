@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { decryptTokenSafe } from "@/lib/security/encryption";
 
 export interface AuthUser {
   id: string;
@@ -79,7 +80,9 @@ export async function requireFeature(feature: string): Promise<{ user: AuthUser 
     return NextResponse.json({ error: "Plan not found" }, { status: 500 });
   }
 
-  const hasFeature = (plan as any)[feature];
+  // Access feature flag dynamically from plan object
+  const planRecord = plan as Record<string, unknown>;
+  const hasFeature = Boolean(planRecord[feature]);
   if (!hasFeature) {
     return NextResponse.json(
       { error: `This feature requires a higher plan. Current: ${result.user.planName}` },
@@ -144,14 +147,26 @@ export async function checkUsageLimit(
 /**
  * Increment usage after a successful action
  */
+type PrismaIncrement = { increment: number };
+interface UsageUpdateFields {
+  articlesGenerated?: PrismaIncrement;
+  imagesGenerated?: PrismaIncrement;
+  apiCallsCount?: PrismaIncrement;
+  wordsGenerated?: PrismaIncrement;
+  totalArticles?: PrismaIncrement;
+  totalImages?: PrismaIncrement;
+  totalWords?: PrismaIncrement;
+  totalApiCalls?: PrismaIncrement;
+}
+
 export async function trackUsage(
   userId: string,
   type: "article" | "image" | "apiCall",
   count: number = 1,
   words: number = 0
 ): Promise<void> {
-  const updates: any = {};
-  const totalUpdates: any = {};
+  const updates: UsageUpdateFields = {};
+  const totalUpdates: UsageUpdateFields = {};
 
   switch (type) {
     case "article":
@@ -190,7 +205,8 @@ export async function trackUsage(
 }
 
 /**
- * Get Google OAuth tokens for Blogger API
+ * Get Google OAuth tokens for Blogger API.
+ * Tokens are stored encrypted and decrypted on retrieval.
  */
 export async function getGoogleTokens(userId: string): Promise<{
   accessToken: string | null;
@@ -203,8 +219,9 @@ export async function getGoogleTokens(userId: string): Promise<{
 
   if (!user) return null;
 
+  // Decrypt tokens before returning
   return {
-    accessToken: user.googleAccessToken,
-    refreshToken: user.googleRefreshToken,
+    accessToken: decryptTokenSafe(user.googleAccessToken),
+    refreshToken: decryptTokenSafe(user.googleRefreshToken),
   };
 }

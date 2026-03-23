@@ -7,7 +7,8 @@
 
 import { SYSTEM_PROMPTS } from "./prompts";
 import { generateAndHostImage } from "../cloudflare/image-generator";
-import { openai, getModelForPlan, getFastModel, getHumanizerModel, getArticleModel } from "./client";
+import { openai, getFastModel, getHumanizerModel, getArticleModel } from "./client";
+import type { CompetitorData, CompetitorHeading } from "@/types/api";
 
 // Helper to inject variables into prompt templates
 function injectVars(prompt: string, vars: Record<string, string>): string {
@@ -54,7 +55,7 @@ export interface GenerationOptions {
     brandVoice?: string;
     existingPostsList?: string;
     affiliateLinks?: string[];
-    competitorData?: any;
+    competitorData?: CompetitorData;
     includeFaq?: boolean;
     includeImages?: boolean;
     numInlineImages?: number;
@@ -125,8 +126,10 @@ Return ONLY a JSON array of 5 title strings. No explanation, no markdown.`;
             temperature: 0.8,
             max_tokens: 512,
         });
-    } catch (err: any) {
-        console.error("Title generation error:", err.message, err.status);
+    } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        const status = (err as { status?: number })?.status;
+        console.error("Title generation error:", message, status);
         throw err;
     }
 
@@ -163,7 +166,7 @@ COMPETITOR INTELLIGENCE — BUILD A SUPERIOR OUTLINE:
 Competitor Title: ${options.competitorData.title}
 Competitor Description: ${options.competitorData.description}
 Competitor Headings:
-${options.competitorData.headings?.map((h: any) => `- [${h.level?.toUpperCase?.() || "H2"}] ${h.text}`).join("\n") || "N/A"}
+${options.competitorData.headings?.map((h: CompetitorHeading) => `- [${h.level?.toUpperCase?.() || "H2"}] ${h.text}`).join("\n") || "N/A"}
 
 Analyze what they cover, find gaps in their content, and create a MORE comprehensive outline. Your headings should be more engaging and better optimized for search intent.
 ` : ""}
