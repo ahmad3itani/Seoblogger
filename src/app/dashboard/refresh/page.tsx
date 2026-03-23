@@ -252,7 +252,7 @@ export default function ContentRefreshPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#6C4CF1]" />
             </div>
         );
     }
@@ -263,7 +263,7 @@ export default function ContentRefreshPage() {
             <div className="flex items-start justify-between gap-4 flex-wrap">
                 <div>
                     <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <RefreshCw className="w-6 h-6 text-[#F97316]" />
+                        <RefreshCw className="w-6 h-6 text-[#6C4CF1]" />
                         Content Refresh Engine
                     </h1>
                     <p className="text-sm text-muted-foreground mt-1">
@@ -296,7 +296,7 @@ export default function ContentRefreshPage() {
                     {selectedCandidate && (
                         <>
                             <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                            <button onClick={() => setStage("diagnosis")} className={stage === "diagnosis" ? "font-medium text-[#F97316]" : "text-muted-foreground hover:text-foreground"}>
+                            <button onClick={() => setStage("diagnosis")} className={stage === "diagnosis" ? "font-medium text-[#6C4CF1]" : "text-muted-foreground hover:text-foreground"}>
                                 Diagnosis
                             </button>
                         </>
@@ -304,7 +304,7 @@ export default function ContentRefreshPage() {
                     {(stage === "plan" || stage === "preview" || stage === "apply") && (
                         <>
                             <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                            <button onClick={() => setStage("plan")} className={stage === "plan" ? "font-medium text-[#F97316]" : "text-muted-foreground hover:text-foreground"}>
+                            <button onClick={() => setStage("plan")} className={stage === "plan" ? "font-medium text-[#6C4CF1]" : "text-muted-foreground hover:text-foreground"}>
                                 Plan
                             </button>
                         </>
@@ -312,7 +312,7 @@ export default function ContentRefreshPage() {
                     {(stage === "preview" || stage === "apply") && (
                         <>
                             <ChevronRight className="w-3 h-3 text-muted-foreground" />
-                            <button onClick={() => setStage("preview")} className={stage === "preview" ? "font-medium text-[#F97316]" : "text-muted-foreground hover:text-foreground"}>
+                            <button onClick={() => setStage("preview")} className={stage === "preview" ? "font-medium text-[#6C4CF1]" : "text-muted-foreground hover:text-foreground"}>
                                 Preview
                             </button>
                         </>
@@ -356,7 +356,7 @@ export default function ContentRefreshPage() {
                                 <div className="text-xs text-muted-foreground">Weak Legacy</div>
                             </div>
                             <div className="glass-card rounded-xl p-4 text-center">
-                                <div className="text-2xl font-bold text-[#F97316]">{stats.avgScore}</div>
+                                <div className="text-2xl font-bold text-[#6C4CF1]">{stats.avgScore}</div>
                                 <div className="text-xs text-muted-foreground">Avg Score</div>
                             </div>
                         </div>
@@ -371,7 +371,7 @@ export default function ContentRefreshPage() {
                                     key={t}
                                     onClick={() => setFilterTier(t)}
                                     className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
-                                        filterTier === t ? "bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316] font-medium" : "border-border/50 text-muted-foreground hover:border-border"
+                                        filterTier === t ? "bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1] font-medium" : "border-border/50 text-muted-foreground hover:border-border"
                                     }`}
                                 >
                                     {t === "all" ? "All" : t === "1" ? "Best" : t === "2" ? "Declining" : "Legacy"}
@@ -386,7 +386,7 @@ export default function ContentRefreshPage() {
 
                     {isScanning && scanProgress && (
                         <div className="glass-card rounded-xl p-6 text-center">
-                            <Loader2 className="w-8 h-8 animate-spin text-[#F97316] mx-auto mb-3" />
+                            <Loader2 className="w-8 h-8 animate-spin text-[#6C4CF1] mx-auto mb-3" />
                             <p className="font-medium">{scanProgress}</p>
                             <p className="text-xs text-muted-foreground mt-1">Fetching posts, crawling pages, analyzing content...</p>
                         </div>
@@ -395,8 +395,8 @@ export default function ContentRefreshPage() {
                     {/* Empty State */}
                     {!isScanning && candidates.length === 0 && (
                         <div className="glass-card rounded-2xl p-16 text-center border-dashed">
-                            <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <RefreshCw className="w-10 h-10 text-[#F97316] opacity-50" />
+                            <div className="w-20 h-20 bg-[#6C4CF1]/10 rounded-full flex items-center justify-center mx-auto mb-6">
+                                <RefreshCw className="w-10 h-10 text-[#6C4CF1] opacity-50" />
                             </div>
                             <h3 className="text-xl font-bold mb-2">No Refresh Candidates Yet</h3>
                             <p className="text-muted-foreground max-w-md mx-auto mb-6">
@@ -415,7 +415,7 @@ export default function ContentRefreshPage() {
                                 const tierCfg = TIER_CONFIG[c.tier] || TIER_CONFIG[3];
                                 const TierIcon = tierCfg.icon;
                                 return (
-                                    <div key={c.id} className="glass-card rounded-xl p-4 hover:border-[#F97316]/30 transition-colors cursor-pointer group" onClick={() => handleSelectCandidate(c)}>
+                                    <div key={c.id} className="glass-card rounded-xl p-4 hover:border-[#6C4CF1]/30 transition-colors cursor-pointer group" onClick={() => handleSelectCandidate(c)}>
                                         <div className="flex items-start gap-4">
                                             <div className={`w-12 h-12 rounded-xl ${tierCfg.bg} flex items-center justify-center shrink-0`}>
                                                 <TierIcon className={`w-5 h-5 ${tierCfg.color}`} />
@@ -423,14 +423,14 @@ export default function ContentRefreshPage() {
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0">
-                                                        <h3 className="font-semibold text-sm truncate group-hover:text-[#F97316] transition-colors">{c.title}</h3>
+                                                        <h3 className="font-semibold text-sm truncate group-hover:text-[#6C4CF1] transition-colors">{c.title}</h3>
                                                         <p className="text-xs text-muted-foreground truncate mt-0.5">{c.url}</p>
                                                     </div>
                                                     <div className="flex items-center gap-2 shrink-0">
                                                         <div className={`text-lg font-bold ${c.refreshScore >= 60 ? "text-emerald-600" : c.refreshScore >= 35 ? "text-orange-600" : "text-yellow-600"}`}>
                                                             {c.refreshScore}
                                                         </div>
-                                                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#F97316] transition-colors" />
+                                                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-[#6C4CF1] transition-colors" />
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center gap-3 mt-2 flex-wrap">
@@ -483,12 +483,12 @@ export default function ContentRefreshPage() {
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-lg font-bold">{selectedCandidate.title}</h2>
-                                <a href={selectedCandidate.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#F97316] hover:underline flex items-center gap-1 mt-1">
+                                <a href={selectedCandidate.url} target="_blank" rel="noopener noreferrer" className="text-xs text-[#6C4CF1] hover:underline flex items-center gap-1 mt-1">
                                     {selectedCandidate.url} <ExternalLink className="w-3 h-3" />
                                 </a>
                             </div>
                             <div className="text-right shrink-0">
-                                <div className="text-3xl font-bold text-[#F97316]">{selectedCandidate.refreshScore}</div>
+                                <div className="text-3xl font-bold text-[#6C4CF1]">{selectedCandidate.refreshScore}</div>
                                 <div className="text-xs text-muted-foreground">Refresh Score</div>
                             </div>
                         </div>
@@ -517,14 +517,14 @@ export default function ContentRefreshPage() {
                     {selectedCandidate.reasonSummary && (
                         <div className="glass-card rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                                <HelpCircle className="w-4 h-4 text-[#F97316]" /> Why Refresh This Post?
+                                <HelpCircle className="w-4 h-4 text-[#6C4CF1]" /> Why Refresh This Post?
                             </h3>
                             <p className="text-sm text-muted-foreground">{selectedCandidate.reasonSummary}</p>
                         </div>
                     )}
 
                     {/* Action: Generate Plan */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#F97316]/20">
+                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Ready to create a refresh plan?</h3>
                             <p className="text-xs text-muted-foreground mt-1">We'll analyze the full content and propose what to add, expand, and rewrite.</p>
@@ -548,7 +548,7 @@ export default function ContentRefreshPage() {
                     <div className="glass-card rounded-xl p-6">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <h2 className="text-lg font-bold flex items-center gap-2">
-                                <BookOpen className="w-5 h-5 text-[#F97316]" /> Refresh Plan
+                                <BookOpen className="w-5 h-5 text-[#6C4CF1]" /> Refresh Plan
                             </h2>
                             <Badge variant="outline" className={`${plan.expectedImpact === "high" ? "bg-emerald-500/10 text-emerald-600" : plan.expectedImpact === "medium" ? "bg-orange-500/10 text-orange-600" : "bg-yellow-500/10 text-yellow-600"} border-0`}>
                                 {plan.expectedImpact} impact
@@ -567,7 +567,7 @@ export default function ContentRefreshPage() {
                     {plan.proposedOutline?.length > 0 && (
                         <div className="glass-card rounded-xl p-6">
                             <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <ListChecks className="w-4 h-4 text-[#F97316]" /> Proposed Outline
+                                <ListChecks className="w-4 h-4 text-[#6C4CF1]" /> Proposed Outline
                             </h3>
                             <div className="space-y-2">
                                 {plan.proposedOutline.map((o: any, i: number) => (
@@ -591,7 +591,7 @@ export default function ContentRefreshPage() {
                     {plan.proposedFaqs?.length > 0 && (
                         <div className="glass-card rounded-xl p-6">
                             <h3 className="font-semibold mb-3 flex items-center gap-2">
-                                <HelpCircle className="w-4 h-4 text-[#F97316]" /> Proposed FAQs ({plan.proposedFaqs.length})
+                                <HelpCircle className="w-4 h-4 text-[#6C4CF1]" /> Proposed FAQs ({plan.proposedFaqs.length})
                             </h3>
                             <div className="space-y-3">
                                 {plan.proposedFaqs.map((f: any, i: number) => (
@@ -610,13 +610,13 @@ export default function ContentRefreshPage() {
                             <h3 className="font-semibold text-sm mb-2">Suggested Title</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="text-sm"><span className="text-muted-foreground text-xs block mb-1">Current:</span> {selectedCandidate?.title}</div>
-                                <div className="text-sm"><span className="text-[#F97316] text-xs block mb-1">Suggested:</span> {plan.suggestedTitle}</div>
+                                <div className="text-sm"><span className="text-[#6C4CF1] text-xs block mb-1">Suggested:</span> {plan.suggestedTitle}</div>
                             </div>
                         </div>
                     )}
 
                     {/* Actions */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#F97316]/20">
+                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Generate Refreshed Content</h3>
                             <p className="text-xs text-muted-foreground mt-1">Choose section-level (safer) or full rewrite mode.</p>
@@ -626,7 +626,7 @@ export default function ContentRefreshPage() {
                                 {isGeneratingContent ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
                                 Section Refresh
                             </Button>
-                            <Button onClick={() => handleGenerateContent("full")} disabled={isGeneratingContent} variant="outline" className="border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316]/5">
+                            <Button onClick={() => handleGenerateContent("full")} disabled={isGeneratingContent} variant="outline" className="border-[#6C4CF1]/30 text-[#6C4CF1] hover:bg-[#6C4CF1]/5">
                                 Full Rewrite
                             </Button>
                         </div>
@@ -647,8 +647,8 @@ export default function ContentRefreshPage() {
                             <div className="text-lg font-bold">{version.changeSummary?.wordCountBefore || 0}</div>
                             <div className="text-[10px] text-muted-foreground">Words Before</div>
                         </div>
-                        <div className="glass-card rounded-xl p-4 text-center border-[#F97316]/20">
-                            <div className="text-lg font-bold text-[#F97316]">{version.changeSummary?.wordCountAfter || 0}</div>
+                        <div className="glass-card rounded-xl p-4 text-center border-[#6C4CF1]/20">
+                            <div className="text-lg font-bold text-[#6C4CF1]">{version.changeSummary?.wordCountAfter || 0}</div>
                             <div className="text-[10px] text-muted-foreground">Words After</div>
                         </div>
                         <div className="glass-card rounded-xl p-4 text-center">
@@ -671,7 +671,7 @@ export default function ContentRefreshPage() {
                             <h3 className="font-semibold text-sm mb-2">Title Change</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div><span className="text-[10px] text-muted-foreground block mb-1">Before:</span><span className="text-sm opacity-70">{version.oldTitle}</span></div>
-                                <div><span className="text-[10px] text-[#F97316] block mb-1">After:</span><span className="text-sm font-medium">{version.newTitle}</span></div>
+                                <div><span className="text-[10px] text-[#6C4CF1] block mb-1">After:</span><span className="text-sm font-medium">{version.newTitle}</span></div>
                             </div>
                         </div>
                     )}
@@ -702,8 +702,8 @@ export default function ContentRefreshPage() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Badge variant="outline" className="w-full justify-center bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]">Refreshed</Badge>
-                            <div className="glass-card border-[#F97316]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <Badge variant="outline" className="w-full justify-center bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1]">Refreshed</Badge>
+                            <div className="glass-card border-[#6C4CF1]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: version.newHtml }} />
                                 ) : (
@@ -728,7 +728,7 @@ export default function ContentRefreshPage() {
                     )}
 
                     {/* Apply Bar */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#F97316]/20">
+                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold flex items-center gap-2">
                                 <Shield className="w-4 h-4 text-emerald-500" /> Push to Blogger
@@ -737,7 +737,7 @@ export default function ContentRefreshPage() {
                                 This will update the existing post. The URL stays the same. You can rollback anytime.
                             </p>
                         </div>
-                        <Button onClick={() => handleApply(false)} disabled={isApplying} className="bg-gradient-to-r from-orange-500 to-[#F97316] text-white border-0 shrink-0">
+                        <Button onClick={() => handleApply(false)} disabled={isApplying} className="bg-gradient-to-r from-orange-500 to-[#6C4CF1] text-white border-0 shrink-0">
                             {isApplying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
                             {isApplying ? "Applying..." : "Update Live Post"}
                         </Button>
@@ -760,7 +760,7 @@ export default function ContentRefreshPage() {
                                 ? "The content has been updated and verified on Blogger. The URL remains unchanged."
                                 : "The content update was sent to Blogger. Verification is pending."}
                         </p>
-                        <a href={applyResult.postUrl} target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline text-sm flex items-center justify-center gap-1 mb-6">
+                        <a href={applyResult.postUrl} target="_blank" rel="noopener noreferrer" className="text-[#6C4CF1] hover:underline text-sm flex items-center justify-center gap-1 mb-6">
                             View Live Post <ExternalLink className="w-3 h-3" />
                         </a>
                         <div className="flex gap-3 justify-center">
@@ -812,7 +812,7 @@ function PlanSection({ title, content }: { title: string; content: string }) {
     if (!content) return null;
     return (
         <div>
-            <h4 className="text-xs font-medium text-[#F97316] mb-1">{title}</h4>
+            <h4 className="text-xs font-medium text-[#6C4CF1] mb-1">{title}</h4>
             <p className="text-sm text-muted-foreground">{content}</p>
         </div>
     );

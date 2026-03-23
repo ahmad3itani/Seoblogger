@@ -247,7 +247,7 @@ export default function QualityPassPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center py-24">
-                <Loader2 className="w-8 h-8 animate-spin text-[#F97316]" />
+                <Loader2 className="w-8 h-8 animate-spin text-[#6C4CF1]" />
             </div>
         );
     }
@@ -275,7 +275,7 @@ export default function QualityPassPage() {
                     </Button>
                 </div>
                 <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-[#F97316]" />
+                    <Sparkles className="w-6 h-6 text-[#6C4CF1]" />
                     Human Quality Pass
                 </h1>
                 <p className="text-sm text-muted-foreground mt-1">
@@ -310,7 +310,7 @@ export default function QualityPassPage() {
                         {/* Configuration */}
                         <div className="glass-card rounded-xl p-6 space-y-4">
                             <h3 className="font-semibold text-sm flex items-center gap-2">
-                                <Target className="w-4 h-4 text-[#F97316]" /> Quality Pass Settings
+                                <Target className="w-4 h-4 text-[#6C4CF1]" /> Quality Pass Settings
                             </h3>
                             <div>
                                 <Label className="text-xs">Primary Topic</Label>
@@ -326,12 +326,12 @@ export default function QualityPassPage() {
                             </div>
 
                             {/* Optional user context */}
-                            <button onClick={() => setShowUserContext(!showUserContext)} className="flex items-center gap-1 text-xs text-[#F97316] hover:underline">
+                            <button onClick={() => setShowUserContext(!showUserContext)} className="flex items-center gap-1 text-xs text-[#6C4CF1] hover:underline">
                                 {showUserContext ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
                                 Make it more real (optional)
                             </button>
                             {showUserContext && (
-                                <div className="space-y-3 pl-2 border-l-2 border-[#F97316]/20">
+                                <div className="space-y-3 pl-2 border-l-2 border-[#6C4CF1]/20">
                                     <div>
                                         <Label className="text-[10px]">Personal Example</Label>
                                         <Textarea className="mt-1 bg-muted/30 text-xs h-16" value={personalExample} onChange={(e) => setPersonalExample(e.target.value)} placeholder="Share a real example to include..." />
@@ -358,7 +358,7 @@ export default function QualityPassPage() {
             {/* ═══ STAGE: ANALYZING ═══ */}
             {stage === "analyzing" && (
                 <div className="glass-card rounded-2xl p-16 text-center">
-                    <Loader2 className="w-12 h-12 animate-spin text-[#F97316] mx-auto mb-4" />
+                    <Loader2 className="w-12 h-12 animate-spin text-[#6C4CF1] mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2">Analyzing Your Article</h3>
                     <p className="text-muted-foreground max-w-md mx-auto text-sm">
                         Running readability checks, repetition detection, helpfulness analysis, originality scoring, trust evaluation, and Blogger safety validation...
@@ -421,12 +421,12 @@ export default function QualityPassPage() {
                         <div className="glass-card rounded-xl p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-semibold flex items-center gap-2">
-                                    <AlertTriangle className="w-4 h-4 text-[#F97316]" />
+                                    <AlertTriangle className="w-4 h-4 text-[#6C4CF1]" />
                                     Issues Found ({flags.length})
                                 </h3>
                                 <div className="flex gap-1">
                                     {["all", "critical", "warning", "suggestion"].map((sev) => (
-                                        <button key={sev} onClick={() => setFlagFilter(sev)} className={`px-2.5 py-1 text-[10px] rounded-md border transition-colors ${flagFilter === sev ? "bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316] font-medium" : "border-border/50 text-muted-foreground"}`}>
+                                        <button key={sev} onClick={() => setFlagFilter(sev)} className={`px-2.5 py-1 text-[10px] rounded-md border transition-colors ${flagFilter === sev ? "bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1] font-medium" : "border-border/50 text-muted-foreground"}`}>
                                             {sev === "all" ? "All" : sev.charAt(0).toUpperCase() + sev.slice(1)}
                                         </button>
                                     ))}
@@ -466,7 +466,7 @@ export default function QualityPassPage() {
                     )}
 
                     {/* Action: Run Rewrite */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#F97316]/20">
+                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Ready to improve this article?</h3>
                             <p className="text-xs text-muted-foreground mt-1">This will fix the issues above, improve clarity, specificity, and flow while preserving your content structure.</p>
@@ -481,7 +481,7 @@ export default function QualityPassPage() {
             {/* ═══ STAGE: REWRITING ═══ */}
             {stage === "rewriting" && (
                 <div className="glass-card rounded-2xl p-16 text-center">
-                    <Loader2 className="w-12 h-12 animate-spin text-[#F97316] mx-auto mb-4" />
+                    <Loader2 className="w-12 h-12 animate-spin text-[#6C4CF1] mx-auto mb-4" />
                     <h3 className="text-xl font-bold mb-2">Improving Your Article</h3>
                     <p className="text-muted-foreground max-w-md mx-auto text-sm">
                         Rewriting for clarity, fixing awkward phrasing, boosting specificity, improving flow, and polishing for Blogger...
@@ -495,7 +495,7 @@ export default function QualityPassPage() {
                     {/* Score Comparison */}
                     {scoresBefore && scoresAfter && (
                         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
-                            {[...SCORE_CATEGORIES, { key: "overall", label: "Overall", icon: BarChart3, color: "text-[#F97316]", bg: "bg-[#F97316]" }].map((cat) => {
+                            {[...SCORE_CATEGORIES, { key: "overall", label: "Overall", icon: BarChart3, color: "text-[#6C4CF1]", bg: "bg-[#6C4CF1]" }].map((cat) => {
                                 const before = scoresBefore[cat.key] || 0;
                                 const after = scoresAfter[cat.key] || 0;
                                 const delta = after - before;
@@ -530,7 +530,7 @@ export default function QualityPassPage() {
                     {changeSummary && (
                         <div className="glass-card rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                                <RefreshCw className="w-4 h-4 text-[#F97316]" /> What Changed
+                                <RefreshCw className="w-4 h-4 text-[#6C4CF1]" /> What Changed
                             </h3>
                             <p className="text-sm text-muted-foreground">{changeSummary}</p>
                             {changesApplied.length > 0 && (
@@ -552,7 +552,7 @@ export default function QualityPassPage() {
                             <h3 className="font-semibold text-sm mb-2">Title Improvement</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div><span className="text-[10px] text-muted-foreground block mb-1">Before:</span><span className="text-sm opacity-60">{article.title}</span></div>
-                                <div><span className="text-[10px] text-[#F97316] block mb-1">After:</span><span className="text-sm font-medium">{newTitle}</span></div>
+                                <div><span className="text-[10px] text-[#6C4CF1] block mb-1">After:</span><span className="text-sm font-medium">{newTitle}</span></div>
                             </div>
                         </div>
                     )}
@@ -583,8 +583,8 @@ export default function QualityPassPage() {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Badge variant="outline" className="w-full justify-center bg-[#F97316]/10 border-[#F97316]/30 text-[#F97316]">Polished Version</Badge>
-                            <div className="glass-card border-[#F97316]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <Badge variant="outline" className="w-full justify-center bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1]">Polished Version</Badge>
+                            <div className="glass-card border-[#6C4CF1]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: newHtml }} />
                                 ) : (
@@ -611,7 +611,7 @@ export default function QualityPassPage() {
                     )}
 
                     {/* Apply bar */}
-                    <div className="glass-card rounded-xl p-6 border-[#F97316]/20">
+                    <div className="glass-card rounded-xl p-6 border-[#6C4CF1]/20">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
                                 <h3 className="font-semibold flex items-center gap-2">
@@ -627,7 +627,7 @@ export default function QualityPassPage() {
                                     Save to Article
                                 </Button>
                                 {article.blog && article.bloggerPostId && (
-                                    <Button onClick={() => handleApply(true)} disabled={isApplying} variant="outline" className="border-[#F97316]/30 text-[#F97316] hover:bg-[#F97316]/5">
+                                    <Button onClick={() => handleApply(true)} disabled={isApplying} variant="outline" className="border-[#6C4CF1]/30 text-[#6C4CF1] hover:bg-[#6C4CF1]/5">
                                         <Send className="w-4 h-4 mr-2" /> Save & Push to Blogger
                                     </Button>
                                 )}
@@ -648,7 +648,7 @@ export default function QualityPassPage() {
                         Your article has been updated with the improved version ({applyResult.wordCount} words).
                     </p>
                     {applyResult.bloggerResult?.success && (
-                        <a href={applyResult.bloggerResult.postUrl} target="_blank" rel="noopener noreferrer" className="text-[#F97316] hover:underline text-sm flex items-center justify-center gap-1 mb-4">
+                        <a href={applyResult.bloggerResult.postUrl} target="_blank" rel="noopener noreferrer" className="text-[#6C4CF1] hover:underline text-sm flex items-center justify-center gap-1 mb-4">
                             View on Blogger <ExternalLink className="w-3 h-3" />
                         </a>
                     )}

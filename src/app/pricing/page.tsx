@@ -253,18 +253,18 @@ export default function PricingPage() {
           {PLANS.map((plan) => (
             <div
               key={plan.name}
-              className={`glass-card rounded-2xl p-6 relative flex flex-col ${plan.popular ? "border-[#F97316]/50 ring-1 ring-[#F97316]/20" : ""
+              className={`glass-card rounded-2xl p-6 relative flex flex-col ${plan.popular ? "border-[#6C4CF1]/50 ring-1 ring-[#6C4CF1]/20" : ""
                 }`}
             >
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge className="bg-[#F97316] text-white border-0 px-3">Most Popular</Badge>
+                  <Badge className="bg-[#6C4CF1] text-white border-0 px-3">Most Popular</Badge>
                 </div>
               )}
 
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-2">
-                  <plan.icon className={`w-5 h-5 ${plan.color === "violet" ? "text-[#F97316]" :
+                  <plan.icon className={`w-5 h-5 ${plan.color === "violet" ? "text-[#6C4CF1]" :
                       plan.color === "amber" ? "text-amber-400" :
                         plan.color === "blue" ? "text-blue-400" : "text-zinc-400"
                     }`} />

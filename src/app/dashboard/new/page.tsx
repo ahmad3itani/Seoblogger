@@ -236,7 +236,7 @@ export default function NewArticlePageV3() {
       <div className="max-w-5xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold flex items-center gap-3">
-            <Sparkles className="w-8 h-8 text-[#F97316]" />
+            <Sparkles className="w-8 h-8 text-[#6C4CF1]" />
             Article Generator
           </h1>
           <p className="text-sm text-muted-foreground mt-2">
@@ -410,7 +410,7 @@ export default function NewArticlePageV3() {
                     onClick={() => opt.setter(!opt.value)}
                     className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm transition-all ${
                       opt.value
-                        ? "bg-[#F97316]/20 text-orange-300 border border-[#F97316]/30"
+                        ? "bg-[#6C4CF1]/20 text-orange-300 border border-[#6C4CF1]/30"
                         : "bg-muted/20 text-muted-foreground border border-border/50"
                     }`}
                   >
@@ -448,22 +448,22 @@ export default function NewArticlePageV3() {
                   onClick={() => setPublishAction("draft")}
                   className={`p-4 rounded-lg border text-center ${
                     publishAction === "draft"
-                      ? "border-[#F97316] bg-[#F97316]/10"
+                      ? "border-[#6C4CF1] bg-[#6C4CF1]/10"
                       : "border-border/30 bg-muted/20"
                   }`}
                 >
-                  <FileText className="w-5 h-5 mx-auto mb-1.5 text-[#F97316]" />
+                  <FileText className="w-5 h-5 mx-auto mb-1.5 text-[#6C4CF1]" />
                   <p className="text-sm font-medium">Save as Draft</p>
                 </button>
                 <button
                   onClick={() => setPublishAction("publish")}
                   className={`p-4 rounded-lg border text-center ${
                     publishAction === "publish"
-                      ? "border-[#F97316] bg-[#F97316]/10"
+                      ? "border-[#6C4CF1] bg-[#6C4CF1]/10"
                       : "border-border/30 bg-muted/20"
                   }`}
                 >
-                  <Globe className="w-5 h-5 mx-auto mb-1.5 text-[#F97316]" />
+                  <Globe className="w-5 h-5 mx-auto mb-1.5 text-[#6C4CF1]" />
                   <p className="text-sm font-medium">Publish to Blogger</p>
                 </button>
               </div>
@@ -479,7 +479,7 @@ export default function NewArticlePageV3() {
             <Button
               onClick={handleGenerate}
               disabled={loading}
-              className="w-full bg-[#F97316] hover:bg-[#F97316]/90 h-12 text-base"
+              className="w-full bg-[#6C4CF1] hover:bg-[#6C4CF1]/90 h-12 text-base"
             >
               {loading ? (
                 <>
@@ -536,7 +536,7 @@ export default function NewArticlePageV3() {
                   <FileText className="w-4 h-4 mr-2" />
                   View Articles
                 </Button>
-                <Button onClick={handleReset} className="bg-[#F97316] hover:bg-[#F97316]/90">
+                <Button onClick={handleReset} className="bg-[#6C4CF1] hover:bg-[#6C4CF1]/90">
                   <Plus className="w-4 h-4 mr-2" />
                   Write Another
                 </Button>

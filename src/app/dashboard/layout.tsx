@@ -97,9 +97,9 @@ const NAV_SECTIONS: NavSection[] = [
 const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
 const PLAN_COLORS: Record<string, { bg: string; text: string; border: string }> = {
-    free:       { bg: "rgba(255,255,255,0.06)", text: "#8B9BB4",   border: "rgba(255,255,255,0.10)" },
-    starter:    { bg: "rgba(59,130,246,0.10)",  text: "#3B82F6",   border: "rgba(59,130,246,0.25)"  },
-    pro:        { bg: "rgba(249,115,22,0.12)",  text: "#F97316",   border: "rgba(249,115,22,0.25)"  },
+    free:       { bg: "rgba(255,255,255,0.06)", text: "#94A3B8",   border: "rgba(255,255,255,0.10)" },
+    starter:    { bg: "rgba(0,194,255,0.10)",   text: "#00C2FF",   border: "rgba(0,194,255,0.25)"   },
+    pro:        { bg: "rgba(108,76,241,0.12)",  text: "#6C4CF1",   border: "rgba(108,76,241,0.25)"  },
     enterprise: { bg: "rgba(139,92,246,0.12)",  text: "#8B5CF6",   border: "rgba(139,92,246,0.25)"  },
 };
 
@@ -171,7 +171,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         return (
             <div className="flex h-screen items-center justify-center" style={{ background: "var(--bg-space)" }}>
                 <div className="flex flex-col items-center gap-3">
-                    <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--brand-orange)", borderTopColor: "transparent" }} />
+                    <div className="w-8 h-8 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: "var(--brand-primary)", borderTopColor: "transparent" }} />
                     <p className="text-sm" style={{ color: "var(--text-muted)" }}>Loading...</p>
                 </div>
             </div>
@@ -185,9 +185,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <div className="max-w-2xl mx-auto px-4 text-center">
                     <div
                         className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-6"
-                        style={{ background: "rgba(249,115,22,0.10)", border: "1px solid rgba(249,115,22,0.25)" }}
+                        style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.25)" }}
                     >
-                        <Crown className="w-8 h-8" style={{ color: "var(--brand-orange)" }} />
+                        <Crown className="w-8 h-8" style={{ color: "var(--brand-primary)" }} />
                     </div>
                     <h1 className="text-2xl font-bold mb-2" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
                         Choose Your Plan
@@ -217,10 +217,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </div>
                         <div
                             className="rounded-xl p-5 text-left relative"
-                            style={{ background: "var(--bg-card)", border: "1px solid rgba(249,115,22,0.35)", boxShadow: "0 0 30px rgba(249,115,22,0.08)" }}
+                            style={{ background: "var(--bg-card)", border: "1px solid rgba(108,76,241,0.35)", boxShadow: "0 0 30px rgba(108,76,241,0.08)" }}
                         >
                             <div className="absolute -top-2.5 left-1/2 -translate-x-1/2">
-                                <span className="text-[10px] font-bold px-3 py-1 rounded-full" style={{ background: "var(--brand-orange)", color: "#fff" }}>
+                                <span className="text-[10px] font-bold px-3 py-1 rounded-full" style={{ background: "var(--brand-primary)", color: "#fff" }}>
                                     Recommended
                                 </span>
                             </div>
@@ -231,7 +231,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <ul className="space-y-1.5 mb-4 text-xs" style={{ color: "var(--text-secondary)" }}>
                                 {["More articles & images", "Bulk gen & scheduling", "All Pro tools"].map(f => (
                                     <li key={f} className="flex items-center gap-1.5">
-                                        <CheckCircle2 className="w-3 h-3 shrink-0" style={{ color: "var(--brand-orange)" }} />{f}
+                                        <CheckCircle2 className="w-3 h-3 shrink-0" style={{ color: "var(--brand-primary)" }} />{f}
                                     </li>
                                 ))}
                             </ul>
@@ -290,7 +290,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-150 group"
                                             style={
                                                 isActive
-                                                    ? { background: "rgba(249,115,22,0.12)", color: "var(--brand-orange)", borderLeft: "2px solid var(--brand-orange)" }
+                                                    ? { background: "rgba(108,76,241,0.12)", color: "var(--brand-primary)", borderLeft: "2px solid var(--brand-primary)" }
                                                     : isLocked
                                                         ? { color: "var(--text-muted)", paddingLeft: "14px" }
                                                         : { color: "var(--text-secondary)", paddingLeft: "14px" }
@@ -299,14 +299,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             <item.icon
                                                 className="w-3.5 h-3.5 flex-shrink-0"
                                                 style={{
-                                                    color: isActive ? "var(--brand-orange)" : isLocked ? "rgba(139,155,180,0.3)" : "rgba(139,155,180,0.6)",
+                                                    color: isActive ? "var(--brand-primary)" : isLocked ? "rgba(139,155,180,0.3)" : "rgba(139,155,180,0.6)",
                                                 }}
                                             />
                                             <span className={isLocked ? "opacity-50" : ""}>{item.label}</span>
                                             {isLocked ? (
                                                 <Lock className="w-2.5 h-2.5 ml-auto" style={{ color: "#8B5CF6", opacity: 0.6 }} />
                                             ) : isActive ? (
-                                                <ChevronRight className="w-3 h-3 ml-auto" style={{ color: "var(--brand-orange)" }} />
+                                                <ChevronRight className="w-3 h-3 ml-auto" style={{ color: "var(--brand-primary)" }} />
                                             ) : null}
                                         </div>
                                     </Link>
@@ -331,7 +331,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     className="progress-bar-fill"
                                     style={{
                                         width: `${Math.min(100, profile.credits.percentUsed)}%`,
-                                        background: profile.credits.percentUsed > 80 ? "#ef4444" : profile.credits.percentUsed > 50 ? "#f59e0b" : "linear-gradient(90deg,#F97316,#FB923C)",
+                                        background: profile.credits.percentUsed > 80 ? "#ef4444" : profile.credits.percentUsed > 50 ? "#f59e0b" : "linear-gradient(90deg,#6C4CF1,#8B6CF2)",
                                     }}
                                 />
                             </div>
@@ -345,11 +345,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <Link href="/pricing">
                             <div
                                 className="p-3 rounded-xl cursor-pointer transition-all hover:brightness-110"
-                                style={{ background: "rgba(249,115,22,0.07)", border: "1px solid rgba(249,115,22,0.18)" }}
+                                style={{ background: "rgba(108,76,241,0.07)", border: "1px solid rgba(108,76,241,0.18)" }}
                             >
                                 <div className="flex items-center gap-1.5 mb-1">
-                                    <Crown className="w-3 h-3" style={{ color: "var(--brand-orange)" }} />
-                                    <span className="text-[11px] font-semibold" style={{ color: "var(--brand-orange)" }}>Upgrade Plan</span>
+                                    <Crown className="w-3 h-3" style={{ color: "var(--brand-primary)" }} />
+                                    <span className="text-[11px] font-semibold" style={{ color: "var(--brand-primary)" }}>Upgrade Plan</span>
                                 </div>
                                 <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
                                     Unlock bulk gen, campaigns & more
@@ -372,7 +372,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <Avatar className="w-7 h-7 cursor-pointer">
                                 <AvatarFallback
                                     className="text-white text-xs font-semibold"
-                                    style={{ background: "linear-gradient(135deg, #F97316, #8B5CF6)", fontSize: "11px" }}
+                                    style={{ background: "linear-gradient(135deg, #6C4CF1, #8B5CF6)", fontSize: "11px" }}
                                 >
                                     {userInitial}
                                 </AvatarFallback>
@@ -435,7 +435,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                     className="inline-flex items-center gap-2 px-3 h-8 rounded-lg text-xs font-medium transition-all outline-none"
                                     style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
                                 >
-                                    <Globe className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--brand-orange)" }} />
+                                    <Globe className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "var(--brand-primary)" }} />
                                     <span className="truncate max-w-[140px]">{activeBlog?.name || "Select Blog"}</span>
                                     <ChevronDown className="w-3 h-3 flex-shrink-0 opacity-50" />
                                 </DropdownMenuTrigger>
@@ -457,14 +457,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                         >
                                             <div className="flex items-center justify-between w-full">
                                                 <span className="text-xs font-medium truncate">{blog.name}</span>
-                                                {blog.isDefault && <Check className="w-3 h-3" style={{ color: "var(--brand-orange)" }} />}
+                                                {blog.isDefault && <Check className="w-3 h-3" style={{ color: "var(--brand-primary)" }} />}
                                             </div>
                                             <span className="text-[10px] truncate w-full" style={{ color: "var(--text-muted)" }}>{blog.url}</span>
                                         </DropdownMenuItem>
                                     ))}
                                     <DropdownMenuSeparator style={{ background: "var(--border-subtle)" }} />
                                     <DropdownMenuItem className="p-0">
-                                        <Link href="/dashboard/settings" className="w-full text-center text-xs py-2 block" style={{ color: "var(--brand-orange)" }}>
+                                        <Link href="/dashboard/settings" className="w-full text-center text-xs py-2 block" style={{ color: "var(--brand-primary)" }}>
                                             Manage Blogs
                                         </Link>
                                     </DropdownMenuItem>
@@ -477,7 +477,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             </div>
                         ) : (
                             <Link href="/dashboard/settings">
-                                <button className="text-xs font-medium px-3 h-8 rounded-lg transition-colors" style={{ color: "var(--brand-orange)", background: "rgba(249,115,22,0.08)", border: "1px solid rgba(249,115,22,0.20)" }}>
+                                <button className="text-xs font-medium px-3 h-8 rounded-lg transition-colors" style={{ color: "var(--brand-primary)", background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
                                     + Connect Blog
                                 </button>
                             </Link>
@@ -497,9 +497,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         <div className="flex flex-col items-center justify-center h-full max-w-sm mx-auto text-center">
                             <div
                                 className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6"
-                                style={{ background: "rgba(249,115,22,0.10)", border: "1px solid rgba(249,115,22,0.22)" }}
+                                style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.22)" }}
                             >
-                                <Lock className="w-8 h-8" style={{ color: "var(--brand-orange)" }} />
+                                <Lock className="w-8 h-8" style={{ color: "var(--brand-primary)" }} />
                             </div>
                             <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                                 {currentGate?.label} requires{" "}

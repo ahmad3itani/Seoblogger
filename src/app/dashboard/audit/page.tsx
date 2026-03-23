@@ -102,7 +102,7 @@ export default function AuditPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
-                        <Activity className="w-6 h-6 text-[#F97316]" />
+                        <Activity className="w-6 h-6 text-[#6C4CF1]" />
                         Content SEO Auditor
                     </h1>
                     <p className="text-sm text-muted-foreground">
@@ -132,18 +132,18 @@ export default function AuditPage() {
 
             {isLoading ? (
                 <div className="flex items-center justify-center py-20">
-                    <RefreshCw className="w-8 h-8 text-[#F97316] animate-spin" />
+                    <RefreshCw className="w-8 h-8 text-[#6C4CF1] animate-spin" />
                 </div>
             ) : !audit ? (
                 <div className="glass-card rounded-2xl p-12 text-center border-dashed">
-                    <div className="w-16 h-16 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <Search className="w-8 h-8 text-[#F97316]" />
+                    <div className="w-16 h-16 bg-[#6C4CF1]/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <Search className="w-8 h-8 text-[#6C4CF1]" />
                     </div>
                     <h3 className="text-xl font-bold mb-2">No Audits Run Yet</h3>
                     <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                         Run your first SEO content audit to discover issues holding back your search rankings.
                     </p>
-                    <Button onClick={runAudit} disabled={isRunning} className="bg-[#F97316] hover:bg-orange-600 text-white border-0">
+                    <Button onClick={runAudit} disabled={isRunning} className="bg-[#6C4CF1] hover:bg-orange-600 text-white border-0">
                         <RefreshCw className={`w-4 h-4 mr-2 ${isRunning ? "animate-spin" : ""}`} />
                         Start Deep Scan
                     </Button>
@@ -201,7 +201,7 @@ export default function AuditPage() {
                         </div>
                         <div className="bg-background/50 rounded-xl p-4 border border-border/50">
                             <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                                <FileText className="w-4 h-4 text-[#F97316]" /> Total Posts Scanned
+                                <FileText className="w-4 h-4 text-[#6C4CF1]" /> Total Posts Scanned
                             </div>
                             <div className="text-3xl font-bold">
                                 {new Set(audit.issues.map(i => i.postId)).size || "10"}
@@ -239,7 +239,7 @@ export default function AuditPage() {
                                         return weight[b.severity] - weight[a.severity];
                                     })
                                     .map((issue, idx) => (
-                                        <div key={idx} className="glass-card rounded-xl p-5 border border-border/50 hover:border-[#F97316]/30 transition-colors">
+                                        <div key={idx} className="glass-card rounded-xl p-5 border border-border/50 hover:border-[#6C4CF1]/30 transition-colors">
                                             <div className="flex flex-col sm:flex-row sm:items-start gap-4">
                                                 <div className="pt-1">{getSeverityBadge(issue.severity)}</div>
                                                 <div className="flex-1 min-w-0">
@@ -253,14 +253,14 @@ export default function AuditPage() {
                                                         <span>
                                                             <span className="font-medium">Post:</span> {issue.postTitle}
                                                         </span>
-                                                        <a href={issue.postUrl} target="_blank" rel="noreferrer" className="text-[#F97316] hover:underline shrink-0 ml-2">
+                                                        <a href={issue.postUrl} target="_blank" rel="noreferrer" className="text-[#6C4CF1] hover:underline shrink-0 ml-2">
                                                             View Live ↗
                                                         </a>
                                                     </div>
                                                 </div>
                                                 <div className="sm:self-center shrink-0 mt-4 sm:mt-0">
                                                     <Link href={`/dashboard/refresh?post=${issue.postId}`}>
-                                                        <Button variant="outline" size="sm" className="bg-[#F97316]/10 text-[#F97316] hover:bg-[#F97316] border-0 hover:text-white transition-colors w-full sm:w-auto">
+                                                        <Button variant="outline" size="sm" className="bg-[#6C4CF1]/10 text-[#6C4CF1] hover:bg-[#6C4CF1] border-0 hover:text-white transition-colors w-full sm:w-auto">
                                                             <TrendingUp className="w-4 h-4 mr-2" />
                                                             Smart Fix
                                                         </Button>

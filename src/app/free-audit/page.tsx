@@ -90,7 +90,7 @@ export default function FreeAuditPage() {
 
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 animate-in fade-in duration-500">
                 <div className="text-center max-w-3xl mx-auto mb-16">
-                    <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm glass-card border-[#F97316]/20">
+                    <Badge variant="secondary" className="mb-6 px-4 py-1.5 text-sm glass-card border-[#6C4CF1]/20">
                         <span className="w-2 h-2 rounded-full bg-green-400 inline-block mr-2 animate-pulse-dot" />
                         Free Blogger Deep Scan
                     </Badge>
@@ -108,7 +108,7 @@ export default function FreeAuditPage() {
                             <Input 
                                 type="text"
                                 placeholder="https://yourblog.blogspot.com"
-                                className="w-full pl-10 h-14 rounded-xl border-border bg-white text-base shadow-sm focus-visible:ring-[#F97316]"
+                                className="w-full pl-10 h-14 rounded-xl border-border bg-white text-base shadow-sm focus-visible:ring-[#6C4CF1]"
                                 value={url}
                                 onChange={(e) => setUrl(e.target.value)}
                                 disabled={isScanning}
@@ -117,7 +117,7 @@ export default function FreeAuditPage() {
                         <Button 
                             type="submit" 
                             disabled={isScanning || !url}
-                            className="w-full sm:w-auto h-14 px-8 text-base bg-[#F97316] hover:bg-orange-600 text-white rounded-xl shadow-lg shadow-orange-500/25 shrink-0"
+                            className="w-full sm:w-auto h-14 px-8 text-base bg-[#6C4CF1] hover:bg-violet-700 text-white rounded-xl shadow-lg shadow-violet-500/25 shrink-0"
                         >
                             {isScanning ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 mr-2 fill-current" />}
                             {isScanning ? "Scanning..." : "Audit My Site"}
@@ -132,8 +132,8 @@ export default function FreeAuditPage() {
 
                 {isScanning && (
                     <div className="glass-card rounded-2xl p-16 text-center max-w-4xl mx-auto shadow-2xl">
-                        <div className="w-20 h-20 bg-[#F97316]/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-                            <Activity className="w-10 h-10 text-[#F97316]" />
+                        <div className="w-20 h-20 bg-[#6C4CF1]/10 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                            <Activity className="w-10 h-10 text-[#6C4CF1]" />
                         </div>
                         <h2 className="text-2xl font-bold mb-4">Crawling Your Blogger Site...</h2>
                         <p className="text-muted-foreground">
@@ -147,10 +147,10 @@ export default function FreeAuditPage() {
                     <div className="space-y-8 animate-in slide-in-from-bottom-4 duration-700">
                         {/* Results Header */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <div className="glass-card p-8 rounded-2xl border-l-4 border-l-[#F97316] shadow-xl relative overflow-hidden">
-                                <Activity className="absolute right-[-20px] bottom-[-20px] w-32 h-32 text-[#F97316]/5" />
+                            <div className="glass-card p-8 rounded-2xl border-l-4 border-l-[#6C4CF1] shadow-xl relative overflow-hidden">
+                                <Activity className="absolute right-[-20px] bottom-[-20px] w-32 h-32 text-[#6C4CF1]/5" />
                                 <p className="text-sm text-muted-foreground uppercase font-semibold">Global Health Score</p>
-                                <h2 className="text-6xl font-black mt-2 text-[#F97316]">{auditData?.totalScore || 0}<span className="text-2xl text-muted-foreground font-bold">/100</span></h2>
+                                <h2 className="text-6xl font-black mt-2 text-[#6C4CF1]">{auditData?.totalScore || 0}<span className="text-2xl text-muted-foreground font-bold">/100</span></h2>
                                 <p className="text-sm mt-4 font-medium text-foreground/80">
                                     {auditData?.totalScore > 80 ? "Great job! Your site is highly optimized." : auditData?.totalScore > 50 ? "Your site is doing okay, but needs work." : "Critical SEO fixes required."}
                                 </p>
@@ -199,7 +199,7 @@ export default function FreeAuditPage() {
                                             <div className="shrink-0 flex items-center self-start md:self-center mt-4 md:mt-0 w-full md:w-auto">
                                                 {issue.fixable ? (
                                                     <Link href="/auth/register" className="w-full">
-                                                        <Button className="w-full bg-[#F97316]/10 text-[#F97316] border border-[#F97316]/20 hover:bg-[#F97316] hover:text-white transition-all group">
+                                                        <Button className="w-full bg-[#6C4CF1]/10 text-[#6C4CF1] border border-[#6C4CF1]/20 hover:bg-[#6C4CF1] hover:text-white transition-all group">
                                                             <Lock className="w-4 h-4 mr-2 opacity-50 group-hover:opacity-100" /> Unlock Smart Fix
                                                         </Button>
                                                     </Link>

@@ -35,8 +35,8 @@ const QUICK_ACTIONS = [
 ];
 
 const TOOL_SHORTCUTS = [
-    { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "#F97316" },
-    { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "#3B82F6" },
+    { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "#6C4CF1" },
+    { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "#00C2FF" },
     { icon: Activity,   title: "Site Audit",       desc: "50+ SEO checks",          href: "/dashboard/audit",     color: "#22C55E" },
     { icon: Lightbulb,  title: "Trend Ideas",      desc: "Topic discovery",         href: "/dashboard/ideas",     color: "#F59E0B" },
     { icon: ShoppingCart,title:"Amazon Writer",    desc: "Affiliate reviews",       href: "/dashboard/amazon",    color: "#10B981" },
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                     icon={FileText} label="Total Articles"
                     value={stats?.totalArticles.toString() || "0"}
                     sub={stats?.totalArticles ? `${stats.articlesThisMonth} this month` : "Start creating!"}
-                    trend={stats?.growthPercentage} iconColor="#F97316"
+                    trend={stats?.growthPercentage} iconColor="#6C4CF1"
                 />
                 <StatCard
                     icon={CheckCircle2} label="Published"
@@ -149,7 +149,7 @@ export default function DashboardPage() {
                     icon={Globe} label="Connected Blogs"
                     value={stats?.connectedBlogs.toString() || "0"}
                     sub={stats?.connectedBlogs ? `${stats.activeCampaigns} active campaigns` : "Set up your blog"}
-                    iconColor="#3B82F6"
+                    iconColor="#00C2FF"
                 />
             </div>
 
@@ -167,7 +167,7 @@ export default function DashboardPage() {
                             </h3>
                             <span
                                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize"
-                                style={{ background: "rgba(249,115,22,0.12)", color: "var(--brand-orange)", border: "1px solid rgba(249,115,22,0.22)" }}
+                                style={{ background: "rgba(108,76,241,0.12)", color: "var(--brand-orange)", border: "1px solid rgba(108,76,241,0.22)" }}
                             >
                                 {stats.plan} Plan
                             </span>
@@ -177,7 +177,7 @@ export default function DashboardPage() {
                                 className="progress-bar-fill transition-all duration-700"
                                 style={{
                                     width: `${usagePct}%`,
-                                    background: usagePct > 80 ? "#ef4444" : usagePct > 60 ? "#f59e0b" : "linear-gradient(90deg,#F97316,#FB923C)",
+                                    background: usagePct > 80 ? "#ef4444" : usagePct > 60 ? "#f59e0b" : "linear-gradient(90deg,#6C4CF1,#8B6CF2)",
                                 }}
                             />
                         </div>
@@ -192,11 +192,11 @@ export default function DashboardPage() {
                 {stats && stats.connectedBlogs === 0 ? (
                     <div
                         className="rounded-2xl p-5 flex items-start gap-4"
-                        style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.22)" }}
+                        style={{ background: "rgba(108,76,241,0.06)", border: "1px solid rgba(108,76,241,0.22)" }}
                     >
                         <div
                             className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ background: "rgba(249,115,22,0.12)", border: "1px solid rgba(249,115,22,0.25)" }}
+                            style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
                         >
                             <Globe className="w-5 h-5" style={{ color: "var(--brand-orange)" }} />
                         </div>
@@ -221,8 +221,8 @@ export default function DashboardPage() {
                         style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
                     >
                         {[
-                            { label: "Total Words", value: stats.totalWordCount.toLocaleString(), color: "#F97316" },
-                            { label: "Avg. Words",  value: stats.avgWordCount.toLocaleString(),   color: "#3B82F6" },
+                            { label: "Total Words", value: stats.totalWordCount.toLocaleString(), color: "#6C4CF1" },
+                            { label: "Avg. Words",  value: stats.avgWordCount.toLocaleString(),   color: "#00C2FF" },
                             { label: "This Month",  value: stats.articlesThisMonth.toString(),    color: "#22C55E" },
                             { label: "Campaigns",   value: stats.activeCampaigns.toString(),      color: "#8B5CF6" },
                         ].map(s => (
@@ -249,7 +249,7 @@ export default function DashboardPage() {
                                 className="rounded-2xl p-5 cursor-pointer group transition-all hover:translate-y-[-2px]"
                                 style={
                                     a.primary
-                                        ? { background: "linear-gradient(135deg,#F97316,#FB923C)", boxShadow: "0 8px 30px rgba(249,115,22,0.25)" }
+                                        ? { background: "linear-gradient(135deg,#6C4CF1,#8B6CF2)", boxShadow: "0 8px 30px rgba(108,76,241,0.25)" }
                                         : { background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }
                                 }
                             >
@@ -300,7 +300,7 @@ export default function DashboardPage() {
                                 >
                                     <div className="flex-1 min-w-0">
                                         <h3
-                                            className="text-sm font-medium truncate mb-1 transition-colors group-hover:text-[#F97316]"
+                                            className="text-sm font-medium truncate mb-1 transition-colors group-hover:text-[#6C4CF1]"
                                             style={{ color: "var(--text-primary)" }}
                                         >
                                             {article.title}
@@ -362,7 +362,7 @@ export default function DashboardPage() {
             {(!stats || stats.totalArticles === 0) && (
                 <div
                     className="rounded-2xl p-6"
-                    style={{ background: "rgba(249,115,22,0.06)", border: "1px solid rgba(249,115,22,0.20)" }}
+                    style={{ background: "rgba(108,76,241,0.06)", border: "1px solid rgba(108,76,241,0.20)" }}
                 >
                     <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
                         <div className="flex-1">
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                                     <li key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
                                         <span
                                             className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-                                            style={{ background: "rgba(249,115,22,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
+                                            style={{ background: "rgba(108,76,241,0.15)", color: "var(--brand-orange)", fontFamily: "var(--font-display)" }}
                                         >
                                             {i + 1}
                                         </span>

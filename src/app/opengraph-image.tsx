@@ -34,7 +34,7 @@ export default async function Image() {
             left: '-100px',
             width: '500px',
             height: '500px',
-            background: 'radial-gradient(circle, rgba(249,115,22,0.15) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(108,76,241,0.15) 0%, transparent 70%)',
             borderRadius: '50%',
             display: 'flex',
           }}
@@ -65,7 +65,7 @@ export default async function Image() {
             style={{
               width: '64px',
               height: '64px',
-              background: 'linear-gradient(135deg, #F97316, #EA580C)',
+              background: 'linear-gradient(135deg, #6C4CF1, #5B3DD6)',
               borderRadius: '16px',
               display: 'flex',
               alignItems: 'center',
@@ -116,11 +116,11 @@ export default async function Image() {
               key={feature}
               style={{
                 padding: '10px 24px',
-                background: 'rgba(249,115,22,0.10)',
-                border: '1px solid rgba(249,115,22,0.25)',
+                background: 'rgba(108,76,241,0.10)',
+                border: '1px solid rgba(108,76,241,0.25)',
                 borderRadius: '999px',
                 fontSize: '18px',
-                color: '#FB923C',
+                color: '#8B6CF2',
                 fontWeight: '600',
                 display: 'flex',
               }}

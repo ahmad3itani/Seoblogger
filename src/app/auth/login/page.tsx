@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#F97316] border-t-transparent rounded-full animate-spin" /></div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="w-6 h-6 border-2 border-[#6C4CF1] border-t-transparent rounded-full animate-spin" /></div>}>
       <LoginContent />
     </Suspense>
   );
@@ -95,7 +95,7 @@ function LoginContent() {
             Sign in to your account to continue
           </p>
           <p className="text-xs text-muted-foreground mt-2">
-            ✨ Trusted by <span className="font-semibold text-[#F97316]">500+ bloggers</span> growing organically
+            ✨ Trusted by <span className="font-semibold text-[#6C4CF1]">500+ bloggers</span> growing organically
           </p>
         </div>
 
@@ -141,7 +141,7 @@ function LoginContent() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F97316]/40 focus:border-[#F97316]/50"
+                  className="w-full h-10 pl-10 pr-4 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C4CF1]/40 focus:border-[#6C4CF1]/50"
                 />
               </div>
             </div>
@@ -153,7 +153,7 @@ function LoginContent() {
                 </label>
                 <Link
                   href="/auth/forgot-password"
-                  className="text-xs text-[#F97316] hover:text-orange-500"
+                  className="text-xs text-[#6C4CF1] hover:text-violet-500"
                 >
                   Forgot password?
                 </Link>
@@ -167,7 +167,7 @@ function LoginContent() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="w-full h-10 pl-10 pr-10 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#F97316]/40 focus:border-[#F97316]/50"
+                  className="w-full h-10 pl-10 pr-10 rounded-lg border border-border/50 bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-[#6C4CF1]/40 focus:border-[#6C4CF1]/50"
                 />
                 <button
                   type="button"
@@ -202,7 +202,7 @@ function LoginContent() {
         {/* Sign up link */}
         <p className="text-center text-sm text-muted-foreground mt-6">
           Don&apos;t have an account?{" "}
-          <Link href="/auth/register" className="text-[#F97316] hover:text-orange-500 font-medium">
+          <Link href="/auth/register" className="text-[#6C4CF1] hover:text-violet-500 font-medium">
             Sign up free
           </Link>
         </p>
