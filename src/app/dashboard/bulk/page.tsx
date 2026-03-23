@@ -183,316 +183,377 @@ export default function BulkGeneratePage() {
         setTotalProgress(100);
     };
 
+    const featureToggles = [
+        { label: "AI Images", value: includeImages, setter: setIncludeImages },
+        { label: "Internal Links", value: autoInterlink, setter: setAutoInterlink },
+        { label: "FAQ Section", value: includeFaq, setter: setIncludeFaq },
+        { label: "TOC", value: includeToc, setter: setIncludeToc },
+        { label: "Schema (SEO)", value: includeSchema, setter: setIncludeSchema },
+    ];
+
     return (
-        <div className="space-y-6 max-w-5xl">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Bulk Generator</h1>
-                <p className="text-muted-foreground mt-1">
-                    Paste a list of keywords to automatically generate and save multiple articles as drafts.
-                </p>
+        <div className="space-y-6 max-w-6xl">
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
+                >
+                    <Play className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                        Bulk Generator
+                    </h1>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                        Generate multiple articles from a list of keywords
+                    </p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-1 space-y-6">
-                    <Card className="glass-card">
-                        <CardHeader>
-                            <CardTitle>Global Settings</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
+                {/* Left: Settings */}
+                <div className="lg:col-span-1 space-y-5">
+                    <div
+                        className="rounded-2xl p-5 space-y-4"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                            Global Settings
+                        </h2>
+
+                        <div>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>
+                                Brand Voice
+                            </Label>
+                            <Select value={selectedProfileId} onValueChange={(v) => v && handleProfileSelect(v)}>
+                                <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                    <SelectValue placeholder="Select a voice..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="none">None (Default Style)</SelectItem>
+                                    {brandProfiles.map((p) => (
+                                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label className="flex items-center gap-1.5 mb-1.5">
-                                    Brand Voice
-                                    <Megaphone className="w-3.5 h-3.5 text-[#6C4CF1]" />
-                                </Label>
-                                <Select value={selectedProfileId} onValueChange={(v) => v && handleProfileSelect(v)}>
-                                    <SelectTrigger className="bg-[#6C4CF1]/5 border-[#6C4CF1]/20 text-violet-100">
-                                        <SelectValue placeholder="Select a voice..." />
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Language</Label>
+                                <Select value={language} onValueChange={(v) => v && setLanguage(v)}>
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                        <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="none">None (Default Style)</SelectItem>
-                                        {brandProfiles.map((p) => (
-                                            <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
-                                        ))}
+                                        <SelectItem value="en">English</SelectItem>
+                                        <SelectItem value="es">Spanish</SelectItem>
+                                        <SelectItem value="fr">French</SelectItem>
+                                        <SelectItem value="de">German</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <Label className="mb-1.5 block">Language</Label>
-                                    <Select value={language} onValueChange={(v) => v && setLanguage(v)}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="en">English</SelectItem>
-                                            <SelectItem value="es">Spanish</SelectItem>
-                                            <SelectItem value="fr">French</SelectItem>
-                                            <SelectItem value="de">German</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div>
-                                    <Label className="mb-1.5 block">Tone</Label>
-                                    <Select value={tone} onValueChange={(v) => v && setTone(v)}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="professional">Professional</SelectItem>
-                                            <SelectItem value="casual">Casual</SelectItem>
-                                            <SelectItem value="friendly">Friendly</SelectItem>
-                                            <SelectItem value="expert">Expert</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
                             <div>
-                                <Label className="mb-1.5 block">Article Type</Label>
-                                <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Tone</Label>
+                                <Select value={tone} onValueChange={(v) => v && setTone(v)}>
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                        <SelectValue />
+                                    </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="informational">🎓 Informational</SelectItem>
-                                        <SelectItem value="how-to">📝 How-To Guide</SelectItem>
-                                        <SelectItem value="listicle">📋 Listicle</SelectItem>
-                                        <SelectItem value="comparison">⚖️ Comparison</SelectItem>
-                                        <SelectItem value="review">⭐ Product Review</SelectItem>
-                                        <SelectItem value="recipe">🍳 Recipe Post</SelectItem>
-                                        <SelectItem value="local-seo">📍 Local Service</SelectItem>
+                                        <SelectItem value="professional">Professional</SelectItem>
+                                        <SelectItem value="casual">Casual</SelectItem>
+                                        <SelectItem value="friendly">Friendly</SelectItem>
+                                        <SelectItem value="expert">Expert</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
+                        </div>
 
-                            <div>
-                                <Label className="mb-1.5 block">Word Count</Label>
-                                <Select value={wordCount} onValueChange={(v) => v && setWordCount(v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="1000">1000 words</SelectItem>
-                                        <SelectItem value="1500">1500 words</SelectItem>
-                                        <SelectItem value="2000">2000 words</SelectItem>
-                                        <SelectItem value="3000">3000 words</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
+                        <div>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Article Type</Label>
+                            <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
+                                <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="informational">Informational</SelectItem>
+                                    <SelectItem value="how-to">How-To Guide</SelectItem>
+                                    <SelectItem value="listicle">Listicle</SelectItem>
+                                    <SelectItem value="comparison">Comparison</SelectItem>
+                                    <SelectItem value="review">Product Review</SelectItem>
+                                    <SelectItem value="recipe">Recipe Post</SelectItem>
+                                    <SelectItem value="local-seo">Local Service</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                            <div>
-                                <Label className="mb-1.5 block">Niche / Topic Area</Label>
-                                <Input value={niche} onChange={e => setNiche(e.target.value)} placeholder="e.g. Technology" />
-                            </div>
+                        <div>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Word Count</Label>
+                            <Select value={wordCount} onValueChange={(v) => v && setWordCount(v)}>
+                                <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="1000">1,000 words</SelectItem>
+                                    <SelectItem value="1500">1,500 words</SelectItem>
+                                    <SelectItem value="2000">2,000 words</SelectItem>
+                                    <SelectItem value="3000">3,000 words</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
 
-                            <div className="flex flex-col gap-2 relative">
+                        <div>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Niche / Topic</Label>
+                            <Input
+                                value={niche}
+                                onChange={e => setNiche(e.target.value)}
+                                placeholder="e.g. Technology"
+                                className="h-9 text-xs"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                            />
+                        </div>
+
+                        {/* Feature Toggles */}
+                        <div className="space-y-1.5">
+                            {featureToggles.map((opt) => (
                                 <button
-                                    onClick={() => setIncludeImages(!includeImages)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeImages ? "bg-orange-500/20 text-violet-300 border border-[#6C4CF1]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
-                                        }`}
+                                    key={opt.label}
+                                    onClick={() => opt.setter(!opt.value)}
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                                    style={opt.value ? {
+                                        background: "rgba(108,76,241,0.12)",
+                                        color: "#A78BFA",
+                                        border: "1px solid rgba(108,76,241,0.30)",
+                                    } : {
+                                        background: "rgba(255,255,255,0.03)",
+                                        color: "var(--text-muted)",
+                                        border: "1px solid var(--border-subtle)",
+                                    }}
                                 >
-                                    <Check className={`w-4 h-4 ${includeImages ? "opacity-100" : "opacity-0"}`} />
-                                    Generate Images
-                                </button>
-
-                                <button
-                                    onClick={() => setAutoInterlink(!autoInterlink)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${autoInterlink ? "bg-orange-500/20 text-violet-300 border border-[#6C4CF1]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
-                                        }`}
-                                >
-                                    <Check className={`w-4 h-4 ${autoInterlink ? "opacity-100" : "opacity-0"}`} />
-                                    Auto Internal Links
-                                </button>
-
-                                <button
-                                    onClick={() => setIncludeFaq(!includeFaq)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeFaq ? "bg-orange-500/20 text-violet-300 border border-[#6C4CF1]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
-                                        }`}
-                                >
-                                    <Check className={`w-4 h-4 ${includeFaq ? "opacity-100" : "opacity-0"}`} />
-                                    Include FAQ Section
-                                </button>
-
-                                <button
-                                    onClick={() => setIncludeToc(!includeToc)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeToc ? "bg-orange-500/20 text-violet-300 border border-[#6C4CF1]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
-                                        }`}
-                                >
-                                    <Check className={`w-4 h-4 ${includeToc ? "opacity-100" : "opacity-0"}`} />
-                                    Table of Contents
-                                </button>
-
-                                <button
-                                    onClick={() => setIncludeSchema(!includeSchema)}
-                                    className={`w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-sm transition-all ${includeSchema ? "bg-orange-500/20 text-violet-300 border border-[#6C4CF1]/30" : "bg-muted/20 text-muted-foreground border border-border/50"
-                                        }`}
-                                >
-                                    <Check className={`w-4 h-4 ${includeSchema ? "opacity-100" : "opacity-0"}`} />
-                                    Schema Markup (SEO)
-                                </button>
-                            </div>
-
-                            <div>
-                                <Label className="mb-1.5 block">Publish Action</Label>
-                                <Select value={publishAction} onValueChange={(v: any) => v && setPublishAction(v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="draft">💾 Save as Draft</SelectItem>
-                                        <SelectItem value="publish">🚀 Publish Immediately</SelectItem>
-                                        <SelectItem value="schedule">📅 Schedule for Later</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            {publishAction === "schedule" && (
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div>
-                                        <Label className="mb-1.5 block text-xs">Date</Label>
-                                        <Input 
-                                            type="date" 
-                                            value={scheduleDate} 
-                                            onChange={e => setScheduleDate(e.target.value)}
-                                            min={new Date().toISOString().split('T')[0]}
-                                            className="text-sm"
-                                        />
+                                    <div
+                                        className="w-3.5 h-3.5 rounded flex items-center justify-center flex-shrink-0"
+                                        style={opt.value ? {
+                                            background: "var(--brand-primary)",
+                                        } : {
+                                            background: "transparent",
+                                            border: "1.5px solid rgba(255,255,255,0.15)",
+                                        }}
+                                    >
+                                        {opt.value && <Check className="w-2.5 h-2.5 text-white" />}
                                     </div>
-                                    <div>
-                                        <Label className="mb-1.5 block text-xs">Time</Label>
-                                        <Input 
-                                            type="time" 
-                                            value={scheduleTime} 
-                                            onChange={e => setScheduleTime(e.target.value)}
-                                            className="text-sm"
-                                        />
-                                    </div>
+                                    {opt.label}
+                                </button>
+                            ))}
+                        </div>
+
+                        <div>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Publish Action</Label>
+                            <Select value={publishAction} onValueChange={(v: any) => v && setPublishAction(v)}>
+                                <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="draft">Save as Draft</SelectItem>
+                                    <SelectItem value="publish">Publish Immediately</SelectItem>
+                                    <SelectItem value="schedule">Schedule for Later</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        {publishAction === "schedule" && (
+                            <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                    <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Date</Label>
+                                    <Input 
+                                        type="date" 
+                                        value={scheduleDate} 
+                                        onChange={e => setScheduleDate(e.target.value)}
+                                        min={new Date().toISOString().split('T')[0]}
+                                        className="h-9 text-xs"
+                                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                                    />
                                 </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                <div>
+                                    <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Time</Label>
+                                    <Input 
+                                        type="time" 
+                                        value={scheduleTime} 
+                                        onChange={e => setScheduleTime(e.target.value)}
+                                        className="h-9 text-xs"
+                                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                    </div>
                 </div>
 
+                {/* Right: Keywords Input */}
                 <div className="lg:col-span-2 space-y-6">
-                    <Card className="glass-card h-full flex flex-col">
-                        <CardHeader>
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <CardTitle>Keywords</CardTitle>
-                                    <CardDescription>Enter one keyword per line or import CSV</CardDescription>
-                                </div>
-                                <div className="flex gap-2">
-                                    <Button 
-                                        variant="outline" 
-                                        size="sm" 
-                                        className="glass-card cursor-pointer"
-                                        onClick={() => document.getElementById('csv-upload')?.click()}
-                                    >
-                                        <Upload className="w-3.5 h-3.5 mr-1.5" />
-                                        Import CSV
-                                    </Button>
-                                    <input
-                                        id="csv-upload"
-                                        type="file"
-                                        accept=".csv,.txt"
-                                        className="hidden"
-                                        onChange={handleCSVImport}
-                                    />
-                                    {keywordsInput && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setKeywordsInput('')}
-                                        >
-                                            <X className="w-3.5 h-3.5" />
-                                        </Button>
-                                    )}
-                                </div>
+                    <div
+                        className="rounded-2xl h-full flex flex-col"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                            <div>
+                                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Keywords</h3>
+                                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>One keyword per line or import CSV</p>
                             </div>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col min-h-[400px]">
+                            <div className="flex gap-2">
+                                <button
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer"
+                                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
+                                    onClick={() => document.getElementById('csv-upload')?.click()}
+                                >
+                                    <Upload className="w-3 h-3" />
+                                    Import CSV
+                                </button>
+                                <input
+                                    id="csv-upload"
+                                    type="file"
+                                    accept=".csv,.txt"
+                                    className="hidden"
+                                    onChange={handleCSVImport}
+                                />
+                                {keywordsInput && (
+                                    <button
+                                        className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-xs transition-all"
+                                        style={{ color: "var(--text-muted)" }}
+                                        onClick={() => setKeywordsInput('')}
+                                    >
+                                        <X className="w-3.5 h-3.5" />
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        <div className="flex-1 flex flex-col p-5 min-h-[400px]">
                             <Textarea
                                 placeholder="best coffee machines 2025&#10;how to clean a coffee maker&#10;breville vs delonghi"
-                                className="flex-1 min-h-[200px] mb-4 font-mono text-sm leading-relaxed whitespace-pre"
+                                className="flex-1 min-h-[200px] mb-4 font-mono text-xs leading-relaxed whitespace-pre"
+                                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-subtle)" }}
                                 value={keywordsInput}
                                 onChange={(e) => setKeywordsInput(e.target.value)}
                                 disabled={isGenerating}
                             />
                             <Button
-                                size="lg"
-                                className="w-full glow-button shadow-lg text-white border-0"
+                                className="w-full h-11 text-sm font-semibold btn-primary"
                                 onClick={startBulkJob}
                                 disabled={isGenerating || !keywordsInput.trim()}
                             >
                                 {isGenerating ? (
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                                 ) : (
-                                    <Play className="w-5 h-5 mr-2" />
+                                    <Play className="w-4 h-4 mr-2" />
                                 )}
                                 {isGenerating ? "Processing Queue..." : "Start Bulk Generation"}
                             </Button>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
             </div>
 
+            {/* Generation Queue */}
             {jobs.length > 0 && (
-                <Card className="glass-card mt-8 animate-slide-up">
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle>Generation Queue</CardTitle>
-                                <CardDescription>
-                                    {jobs.filter(j => j.status === "done").length} of {jobs.length} completed
-                                    {isGenerating && ` • ${totalProgress}% complete`}
-                                </CardDescription>
+                <div
+                    className="rounded-2xl animate-slide-up"
+                    style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                >
+                    <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                        <div className="flex items-center gap-3">
+                            <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                                style={isGenerating ? {
+                                    background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)"
+                                } : {
+                                    background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)"
+                                }}
+                            >
+                                {isGenerating ? (
+                                    <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--brand-primary)" }} />
+                                ) : (
+                                    <CheckCircle2 className="w-4 h-4 text-green-400" />
+                                )}
                             </div>
+                            <div>
+                                <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Generation Queue</span>
+                                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                                    {jobs.filter(j => j.status === "done").length} of {jobs.length} completed
+                                    {isGenerating && ` \u2022 ${totalProgress}%`}
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            {isGenerating && (
+                                <div className="w-24 h-1.5 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.06)" }}>
+                                    <div
+                                        className="h-full rounded-full transition-all duration-500"
+                                        style={{ width: `${totalProgress}%`, background: "var(--brand-primary)" }}
+                                    />
+                                </div>
+                            )}
                             {!isGenerating && jobs.some(j => j.status === 'done') && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
+                                <button
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
                                     onClick={handleExportResults}
-                                    className="glass-card"
                                 >
-                                    <Download className="w-3.5 h-3.5 mr-1.5" />
-                                    Export Results
-                                </Button>
+                                    <Download className="w-3 h-3" />
+                                    Export
+                                </button>
                             )}
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {jobs.map((job, idx) => (
-                                <div key={idx} className="flex items-center justify-between p-4 rounded-lg bg-muted/20 border border-border/50 hover:bg-muted/30 transition-colors">
-                                    <div className="flex items-center gap-4 flex-1">
-                                        {job.status === "pending" && <Circle className="w-5 h-5 text-muted-foreground" />}
-                                        {job.status === "processing" && <Loader2 className="w-5 h-5 text-[#6C4CF1] animate-spin" />}
-                                        {job.status === "done" && <CheckCircle2 className="w-5 h-5 text-green-500" />}
-                                        {job.status === "error" && <div className="w-5 h-5 rounded-full bg-red-500/20 text-red-500 flex items-center justify-center font-bold text-xs">!</div>}
-
-                                        <div className="flex-1">
-                                            <p className="font-medium">{job.keyword}</p>
-                                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
-                                                {job.status === "processing" && <Clock className="w-3 h-3" />}
-                                                {job.progress}
-                                            </p>
-                                        </div>
+                    </div>
+                    <div className="p-3 space-y-1.5">
+                        {jobs.map((job, idx) => (
+                            <div
+                                key={idx}
+                                className="flex items-center justify-between px-4 py-3 rounded-xl transition-all"
+                                style={{ background: job.status === "processing" ? "rgba(108,76,241,0.06)" : "rgba(255,255,255,0.02)", border: job.status === "processing" ? "1px solid rgba(108,76,241,0.15)" : "1px solid transparent" }}
+                            >
+                                <div className="flex items-center gap-3 flex-1">
+                                    <div className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0" style={{
+                                        background: job.status === "done" ? "rgba(34,197,94,0.12)" : job.status === "processing" ? "rgba(108,76,241,0.12)" : job.status === "error" ? "rgba(239,68,68,0.12)" : "rgba(255,255,255,0.04)",
+                                    }}>
+                                        {job.status === "pending" && <Circle className="w-3 h-3" style={{ color: "var(--text-muted)" }} />}
+                                        {job.status === "processing" && <Loader2 className="w-3 h-3 animate-spin" style={{ color: "var(--brand-primary)" }} />}
+                                        {job.status === "done" && <CheckCircle2 className="w-3 h-3 text-green-400" />}
+                                        {job.status === "error" && <span className="text-[9px] font-bold text-red-400">!</span>}
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="text-xs font-mono px-2 py-1 rounded bg-background/50 border border-border/50 uppercase">
-                                            {job.status}
-                                        </div>
-                                        {job.status === "done" && job.articleId && (
-                                            <div className="flex gap-1">
-                                                <Link href={`/dashboard/articles?id=${job.articleId}`}>
-                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Edit Article">
-                                                        <Edit className="w-3.5 h-3.5" />
-                                                    </Button>
-                                                </Link>
-                                                <Link href={`/dashboard/articles?id=${job.articleId}`} target="_blank">
-                                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0" title="Open in New Tab">
-                                                        <ExternalLink className="w-3.5 h-3.5" />
-                                                    </Button>
-                                                </Link>
-                                            </div>
-                                        )}
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{job.keyword}</p>
+                                        <p className="text-[10px] flex items-center gap-1 mt-0.5" style={{ color: "var(--text-muted)" }}>
+                                            {job.status === "processing" && <Clock className="w-2.5 h-2.5" />}
+                                            {job.progress}
+                                        </p>
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-[10px] font-medium px-2 py-0.5 rounded-full uppercase" style={{
+                                        background: job.status === "done" ? "rgba(34,197,94,0.08)" : job.status === "processing" ? "rgba(108,76,241,0.08)" : job.status === "error" ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.04)",
+                                        color: job.status === "done" ? "#22C55E" : job.status === "processing" ? "var(--brand-primary)" : job.status === "error" ? "#ef4444" : "var(--text-muted)",
+                                    }}>
+                                        {job.status}
+                                    </span>
+                                    {job.status === "done" && job.articleId && (
+                                        <div className="flex gap-1">
+                                            <Link href={`/dashboard/articles?id=${job.articleId}`}>
+                                                <button className="w-7 h-7 rounded-lg flex items-center justify-center transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-muted)" }} title="Edit Article">
+                                                    <Edit className="w-3 h-3" />
+                                                </button>
+                                            </Link>
+                                            <Link href={`/dashboard/articles?id=${job.articleId}`} target="_blank">
+                                                <button className="w-7 h-7 rounded-lg flex items-center justify-center transition-all" style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-muted)" }} title="Open in New Tab">
+                                                    <ExternalLink className="w-3 h-3" />
+                                                </button>
+                                            </Link>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
         </div>
     );

@@ -149,41 +149,64 @@ export async function POST(req: Request) {
     const meta = await generateMeta(selectedTitle, article);
 
     // PHASE 6: Generate images if requested
-    let featuredImage: any = null;
-    const inlineImages: any[] = [];
+    let featuredImage: { url: string; altText: string } | null = null;
+    const inlineImages: { url: string; altText: string }[] = [];
 
     if (includeImages && numImages > 0) {
-      console.log(`🖼️ Generating ${numImages} images...`);
-      console.log(`  - Cloudflare Account ID: ${process.env.CLOUDFLARE_ACCOUNT_ID ? "SET" : "❌ MISSING"}`);
-      console.log(`  - Cloudflare API Token: ${process.env.CLOUDFLARE_API_TOKEN ? "SET" : "❌ MISSING"}`);
-      try {
-        // Featured image
-        console.log("  - Generating featured image...");
-        featuredImage = await generateFeaturedImage(selectedTitle, keyword, "featured");
-        console.log("  ✅ Featured image:", featuredImage?.url ? `generated (${featuredImage.url.substring(0, 60)}...)` : "failed - no URL returned");
-        
-        // Inline images
-        if (numImages > 1) {
-          for (let i = 0; i < numImages - 1; i++) {
-            console.log(`  - Generating inline image ${i + 1}/${numImages - 1}...`);
-            const img = await generateFeaturedImage(
-              `${keyword} illustration ${i + 1}`,
-              keyword,
-              "content",
-              undefined,
-              i + 1
-            );
-            if (img && img.url) {
-              inlineImages.push(img);
-              console.log(`  ✅ Inline image ${i + 1}: generated`);
-            } else {
-              console.log(`  ⚠️ Inline image ${i + 1}: failed`);
+      console.log(`🖼️ Starting image generation for ${numImages} images...`);
+      console.log(`  📋 Environment check:`);
+      console.log(`     - CLOUDFLARE_ACCOUNT_ID: ${process.env.CLOUDFLARE_ACCOUNT_ID ? "✅ SET" : "❌ MISSING"}`);
+      console.log(`     - CLOUDFLARE_API_TOKEN: ${process.env.CLOUDFLARE_API_TOKEN ? "✅ SET" : "❌ MISSING"}`);
+      console.log(`     - CLOUDFLARE_R2_BUCKET_NAME: ${process.env.CLOUDFLARE_R2_BUCKET_NAME || "bloggerseo-images (default)"}`);
+      console.log(`     - CLOUDFLARE_R2_PUBLIC_URL: ${process.env.CLOUDFLARE_R2_PUBLIC_URL ? "✅ SET" : "❌ MISSING"}`);
+
+      // Check for missing critical env vars
+      if (!process.env.CLOUDFLARE_ACCOUNT_ID || !process.env.CLOUDFLARE_API_TOKEN) {
+        console.error("❌ Cannot generate images: Missing Cloudflare credentials!");
+        console.error("   Set CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in .env");
+      } else if (!process.env.CLOUDFLARE_R2_PUBLIC_URL) {
+        console.error("❌ Cannot generate images: Missing R2 public URL!");
+        console.error("   Set CLOUDFLARE_R2_PUBLIC_URL in .env (e.g., https://images.yourdomain.com)");
+      } else {
+        try {
+          // Featured image
+          console.log("  🎨 Generating featured image...");
+          const featuredResult = await generateFeaturedImage(selectedTitle, keyword, "featured");
+
+          // Validate URL before accepting
+          if (featuredResult && featuredResult.url && featuredResult.url.startsWith("http")) {
+            featuredImage = featuredResult;
+            console.log(`  ✅ Featured image ready: ${featuredImage.url}`);
+          } else {
+            console.warn(`  ⚠️ Featured image generation returned invalid URL:`, featuredResult);
+          }
+
+          // Inline images
+          if (numImages > 1) {
+            for (let i = 0; i < numImages - 1; i++) {
+              console.log(`  🎨 Generating inline image ${i + 1}/${numImages - 1}...`);
+              const img = await generateFeaturedImage(
+                `${keyword} illustration ${i + 1}`,
+                keyword,
+                "content",
+                undefined,
+                i + 1
+              );
+
+              // Validate URL before adding
+              if (img && img.url && img.url.startsWith("http")) {
+                inlineImages.push(img);
+                console.log(`  ✅ Inline image ${i + 1}: ${img.url}`);
+              } else {
+                console.warn(`  ⚠️ Inline image ${i + 1} returned invalid URL:`, img);
+              }
             }
           }
+          console.log(`✅ Image generation complete: ${featuredImage ? 1 : 0} featured + ${inlineImages.length} inline`);
+        } catch (imgError: any) {
+          console.error("❌ Image generation error:", imgError.message);
+          console.error("   Stack:", imgError.stack?.split("\n").slice(0, 3).join("\n"));
         }
-        console.log(`✅ Image generation complete: ${featuredImage ? 1 : 0} featured + ${inlineImages.length} inline`);
-      } catch (imgError: any) {
-        console.error("❌ Image generation failed:", imgError.message);
       }
     } else {
       console.log("⏭️ Skipping image generation (disabled or numImages=0)");
@@ -229,31 +252,48 @@ Return ONLY the HTML with <a href="..."> tags added. No markdown code fences.`;
 
     // PHASE 8: Embed images in content
     console.log("🖼️ Embedding images in content...");
-    if (featuredImage && featuredImage.url) {
-      const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${featuredImage.url}" alt="${featuredImage.altText || selectedTitle}" style="max-width: 100%; border-radius: 8px; margin-bottom: 20px;" /></div>\n`;
+    let imagesEmbedded = 0;
+
+    // Only embed featured image if it has a valid HTTP URL
+    if (featuredImage && featuredImage.url && featuredImage.url.startsWith("http")) {
+      // Use Blogger's native image format for best compatibility
+      const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${featuredImage.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${featuredImage.url}" alt="${featuredImage.altText || selectedTitle}" width="640" /></a></div>\n`;
       fullContent = featuredHtml + fullContent;
-      console.log("  ✅ Featured image embedded");
-    } else if (featuredImage) {
-      console.log("  ⚠️ Featured image has no URL, skipping");
+      imagesEmbedded++;
+      console.log(`  ✅ Featured image embedded: ${featuredImage.url}`);
+    } else {
+      console.log("  ⚠️ No valid featured image to embed");
     }
 
+    // Only embed inline images if they have valid HTTP URLs
     if (inlineImages.length > 0) {
-      const sections = fullContent.split('</h2>');
-      if (sections.length > 1) {
-        const interval = Math.floor(sections.length / (inlineImages.length + 1));
-        let embedded = 0;
-        for (let i = 0; i < inlineImages.length; i++) {
-          const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
-          const img = inlineImages[i];
-          if (img && img.url) {
-            const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><img src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" style="max-width: 100%; border-radius: 8px; margin: 20px 0;" /></div>\n`;
+      // Filter to only valid images
+      const validImages = inlineImages.filter(img => img && img.url && img.url.startsWith("http"));
+
+      if (validImages.length > 0) {
+        const sections = fullContent.split('</h2>');
+        if (sections.length > 1) {
+          const interval = Math.max(1, Math.floor(sections.length / (validImages.length + 1)));
+
+          for (let i = 0; i < validImages.length; i++) {
+            const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
+            const img = validImages[i];
+            // Use Blogger's native image format
+            const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" width="640" /></a></div>\n`;
             sections[sectionPos] = imageHtml + sections[sectionPos];
-            embedded++;
+            imagesEmbedded++;
           }
+          fullContent = sections.join('</h2>');
+          console.log(`  ✅ ${validImages.length} inline images embedded`);
         }
-        fullContent = sections.join('</h2>');
-        console.log(`  ✅ ${embedded} inline images embedded`);
+      } else {
+        console.log("  ⚠️ No valid inline images to embed");
       }
+    }
+
+    console.log(`📸 Total images embedded in article: ${imagesEmbedded}`);
+    if (includeImages && numImages > 0 && imagesEmbedded === 0) {
+      console.warn("⚠️ WARNING: User requested images but none were embedded. Check Cloudflare credentials.");
     }
 
     // PHASE 9: Add FAQs

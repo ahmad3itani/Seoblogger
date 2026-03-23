@@ -142,6 +142,39 @@ Return ONLY a JSON array of 5 title strings. No explanation, no markdown.`;
     }
 }
 
+// ─── BUILD FEATURE-AWARE OUTLINE INSTRUCTIONS ─────────────────────────────────
+function buildOutlineFeatureInstructions(options: GenerationOptions): string {
+    const features: string[] = [];
+
+    if (options.includeComparisonTable) {
+        features.push(`COMPARISON TABLE SECTION: You MUST include a dedicated H2 section for a comparison table (e.g., "Comparing [Keyword] Options" or "[A] vs [B] vs [C]: Which is Best?"). Plan for a table with 4+ rows and 3+ columns.`);
+    }
+
+    if (options.includeRecipe) {
+        features.push(`RECIPE SECTION: You MUST include a dedicated H2 section for the recipe with subsections for: Ingredients list, Step-by-step Instructions, Prep/Cook Time, and Tips.`);
+    }
+
+    if (options.includeProsCons) {
+        features.push(`PROS & CONS SECTION: You MUST include a dedicated H2 section analyzing pros and cons (e.g., "Pros and Cons of [Keyword]" or "Advantages and Disadvantages"). Plan for 5-7 pros and 3-5 cons with explanations.`);
+    }
+
+    if (options.includeStepByStep) {
+        features.push(`STEP-BY-STEP GUIDE SECTION: You MUST include a dedicated H2 section with numbered steps (e.g., "How to [Keyword]: Step-by-Step Guide"). Plan for at least 7 detailed steps with tips per step.`);
+    }
+
+    if (features.length === 0) {
+        return "";
+    }
+
+    return `\n\n━━━ MANDATORY CONTENT FEATURES (USER SELECTED) ━━━
+The user has explicitly enabled these features. You MUST create dedicated outline sections for each:
+
+${features.map((f, i) => `${i + 1}. ${f}`).join("\n\n")}
+
+These sections are NON-NEGOTIABLE. Include them in your outline structure.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+}
+
 // ─── GENERATE OUTLINE ────────────────────────────────────────────────────────
 export async function generateOutline(
     title: string,
@@ -150,6 +183,9 @@ export async function generateOutline(
     const systemPrompt = injectVars(SYSTEM_PROMPTS.OUTLINE_GENERATOR, {
         WORD_COUNT: String(options.wordCount || 2000),
     });
+
+    // Build feature-aware instructions
+    const featureInstructions = buildOutlineFeatureInstructions(options);
 
     const userPrompt = `Create a comprehensive article outline for:
 
@@ -170,6 +206,7 @@ ${options.competitorData.headings?.map((h: CompetitorHeading) => `- [${h.level?.
 
 Analyze what they cover, find gaps in their content, and create a MORE comprehensive outline. Your headings should be more engaging and better optimized for search intent.
 ` : ""}
+${featureInstructions}
 
 Return ONLY valid JSON matching the required format. No explanation.`;
 
@@ -196,68 +233,213 @@ Return ONLY valid JSON matching the required format. No explanation.`;
 
 // ─── BUILD CONTENT-TYPE INSTRUCTIONS ────────────────────────────────────────
 // Dynamically enables/disables features based on user's toggle selections
+// THESE ARE MANDATORY — the AI MUST include enabled features
 function buildContentTypeInstructions(options: GenerationOptions): string {
-    let instructions = "\n\n━━━ CONTENT FEATURE INSTRUCTIONS (FROM USER SELECTIONS) ━━━";
-    
+    let instructions = "\n\n╔══════════════════════════════════════════════════════════════════════╗";
+    instructions += "\n║  🚨 MANDATORY CONTENT FEATURES — USER SELECTED (MUST INCLUDE)  🚨    ║";
+    instructions += "\n╚══════════════════════════════════════════════════════════════════════╝";
+    instructions += "\n\nThe following features are REQUIRED. Your article will be REJECTED if any ✅ feature is missing.";
+
     // === TABLE OF CONTENTS ===
     if (options.includeToc !== false) {
-        instructions += `\n\n✅ TABLE OF CONTENTS: INCLUDE\nAdd a Table of Contents after the introduction with anchor links to all main H2 sections.\nEXCLUDE FAQ and Conclusion from TOC.`;
+        instructions += `
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✅ TABLE OF CONTENTS — MANDATORY                                    │
+└─────────────────────────────────────────────────────────────────────┘
+REQUIREMENT: Add a Table of Contents IMMEDIATELY after the introduction.
+FORMAT: HTML list with anchor links to all main H2 sections.
+EXAMPLE:
+<div class="toc">
+<h3>📋 Table of Contents</h3>
+<ul>
+<li><a href="#section-slug">Section Title</a></li>
+</ul>
+</div>
+EXCLUDE: FAQ and Conclusion from TOC.
+⚠️ ARTICLE WILL BE REJECTED IF TOC IS MISSING.`;
     } else {
-        instructions += `\n\n⛔ TABLE OF CONTENTS: SKIP — Do NOT include a Table of Contents.`;
+        instructions += `\n\n⛔ TABLE OF CONTENTS: SKIP — Do NOT include any Table of Contents.`;
     }
 
     // === FAQ ===
     if (options.includeFaq !== false) {
-        instructions += `\n\n✅ FAQ SECTION: INCLUDE\nAdd 4-6 FAQ questions with clear direct answers (40-60 words each).\nInclude keyword variations. Target "People Also Ask" queries.`;
+        instructions += `
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✅ FAQ SECTION — MANDATORY                                          │
+└─────────────────────────────────────────────────────────────────────┘
+REQUIREMENT: Include an FAQ section with 4-6 questions BEFORE the conclusion.
+FORMAT: H2 heading "Frequently Asked Questions" followed by H3 questions.
+Each answer: 40-60 words, direct, standalone.
+Include keyword variations. Target "People Also Ask" queries.
+⚠️ ARTICLE WILL BE REJECTED IF FAQ IS MISSING.`;
     } else {
-        instructions += `\n\n⛔ FAQ SECTION: SKIP — Do NOT include an FAQ section.`;
+        instructions += `\n\n⛔ FAQ SECTION: SKIP — Do NOT include any FAQ section.`;
     }
 
     // === IMAGES ===
     if (options.includeImages !== false) {
         const count = options.numInlineImages || 3;
-        instructions += `\n\n✅ IMAGE PLACEHOLDERS: INCLUDE (minimum ${Math.max(count, 4)} images)\nInsert [IMAGE: ultra realistic detailed description] placeholders.\nFirst image after intro, then every 2 sections.\nDescriptions must be detailed and match section context.`;
+        instructions += `
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✅ IMAGE PLACEHOLDERS — MANDATORY (minimum ${Math.max(count, 4)} images)              │
+└─────────────────────────────────────────────────────────────────────┘
+REQUIREMENT: Insert [IMAGE: description] placeholders at these positions:
+- 1st image: IMMEDIATELY after introduction (before first H2)
+- Additional images: After every 2 H2 sections
+FORMAT: [IMAGE: ultra realistic, detailed scene description of [topic], professional photography, clean composition]
+Descriptions MUST be detailed (15-25 words) and match section context.
+⚠️ ARTICLE WILL BE REJECTED IF FEWER THAN ${Math.max(count, 4)} IMAGE PLACEHOLDERS.`;
     } else {
         instructions += `\n\n⛔ IMAGE PLACEHOLDERS: SKIP — Do NOT include any [IMAGE:] placeholders.`;
     }
 
     // === INTERNAL LINKS ===
     if (options.includeInternalLinks !== false) {
-        instructions += `\n\n✅ INTERNAL LINKS: INCLUDE (3-5 links)\nSame niche/topic cluster ONLY. Contextually relevant. <a href="URL">anchor text</a>`;
+        instructions += `
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✅ INTERNAL LINKS — MANDATORY (3-5 links)                           │
+└─────────────────────────────────────────────────────────────────────┘
+REQUIREMENT: Include 3-5 internal links naturally in paragraph text.
+Same niche/topic cluster ONLY. Contextually relevant anchor text.
+FORMAT: <a href="[URL]">descriptive anchor text</a>
+⚠️ If no internal URLs provided, skip this requirement.`;
     } else {
         instructions += `\n\n⛔ INTERNAL LINKS: SKIP — Do NOT include internal links.`;
     }
 
     // === EXTERNAL LINKS ===
     if (options.includeExternalLinks !== false) {
-        instructions += `\n\n✅ EXTERNAL LINKS: INCLUDE (2-3 authority links)\nOnly trusted sources (Wikipedia, official sites, major publications).`;
+        instructions += `
+
+┌─────────────────────────────────────────────────────────────────────┐
+│ ✅ EXTERNAL LINKS — MANDATORY (2-3 authority links)                 │
+└─────────────────────────────────────────────────────────────────────┘
+REQUIREMENT: Include 2-3 external links to authoritative sources.
+ONLY trusted sources: Wikipedia, official sites, major publications.
+⛔ NEVER make up URLs. Only use URLs you are 100% certain exist.`;
     } else {
         instructions += `\n\n⛔ EXTERNAL LINKS: SKIP — Do NOT include external links.`;
     }
 
     // === COMPARISON TABLE ===
     if (options.includeComparisonTable) {
-        instructions += `\n\n✅ COMPARISON TABLE: INCLUDE\nCreate a detailed HTML comparison table with <table>, <thead>, <tbody>.\nMinimum 3 columns, 4+ rows. Include specific data points.\nAlso include pros/cons for each compared option.`;
+        instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ COMPARISON TABLE — MANDATORY (User explicitly requested this!)   ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Create a DETAILED comparison table in its own H2 section.
+TITLE: Use a heading like "Comparing [Options]" or "[A] vs [B]: Full Comparison"
+FORMAT:
+<h2 id="comparison">Comparing [Topic] Options</h2>
+<table>
+  <thead><tr><th>Feature</th><th>Option A</th><th>Option B</th><th>Option C</th></tr></thead>
+  <tbody>
+    <tr><td>Feature 1</td><td>Detail</td><td>Detail</td><td>Detail</td></tr>
+    <!-- Minimum 4 rows -->
+  </tbody>
+</table>
+MINIMUM: 3 columns, 4+ rows with SPECIFIC data points.
+⚠️⚠️ CRITICAL: ARTICLE WILL BE REJECTED IF COMPARISON TABLE IS MISSING. ⚠️⚠️`;
     } else {
-        instructions += `\n\n⛔ COMPARISON TABLE: SKIP — Do NOT include a comparison table.`;
+        instructions += `\n\n⛔ COMPARISON TABLE: SKIP — Do NOT include any comparison table.`;
     }
 
     // === RECIPE FORMAT ===
     if (options.includeRecipe) {
-        instructions += `\n\n✅ RECIPE FORMAT: INCLUDE\nInclude complete recipe with:\n- Prep Time, Cook Time, Total Time, Servings\n- Ingredients as <ul> with exact measurements\n- Instructions as <ol> with detailed numbered steps`;
+        instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ RECIPE FORMAT — MANDATORY (User explicitly requested this!)      ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Include a complete recipe section with ALL of these components:
+
+<h2 id="recipe">[Recipe Name] Recipe</h2>
+<p><strong>Prep Time:</strong> X minutes | <strong>Cook Time:</strong> Y minutes | <strong>Total Time:</strong> Z minutes | <strong>Servings:</strong> N</p>
+
+<h3>Ingredients</h3>
+<ul>
+  <li>Exact measurement - ingredient</li>
+  <!-- List ALL ingredients with precise measurements -->
+</ul>
+
+<h3>Instructions</h3>
+<ol>
+  <li><strong>Step Name:</strong> Detailed instruction.</li>
+  <!-- Minimum 5 detailed steps -->
+</ol>
+
+<h3>Chef's Tips</h3>
+<ul><li>Pro tip 1</li><li>Pro tip 2</li></ul>
+
+⚠️⚠️ CRITICAL: ARTICLE WILL BE REJECTED IF RECIPE IS MISSING OR INCOMPLETE. ⚠️⚠️`;
     }
 
     // === PROS & CONS ===
     if (options.includeProsCons) {
-        instructions += `\n\n✅ PROS & CONS SECTION: INCLUDE\nCreate dedicated section with:\n- Pros: <ul> with 5-7 specific advantages\n- Cons: <ul> with 3-5 honest drawbacks\n- Each point: 1-2 sentences explaining WHY`;
+        instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ PROS & CONS — MANDATORY (User explicitly requested this!)        ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Create a dedicated Pros & Cons section:
+
+<h2 id="pros-cons">Pros and Cons of [Topic]</h2>
+
+<h3>✅ Pros (Advantages)</h3>
+<ul>
+  <li><strong>Pro Title:</strong> 1-2 sentence explanation of WHY this is an advantage.</li>
+  <!-- Include 5-7 specific advantages -->
+</ul>
+
+<h3>❌ Cons (Disadvantages)</h3>
+<ul>
+  <li><strong>Con Title:</strong> 1-2 sentence honest explanation of the drawback.</li>
+  <!-- Include 3-5 honest drawbacks -->
+</ul>
+
+⚠️⚠️ CRITICAL: ARTICLE WILL BE REJECTED IF PROS/CONS SECTION IS MISSING. ⚠️⚠️`;
     }
 
     // === STEP-BY-STEP ===
     if (options.includeStepByStep) {
-        instructions += `\n\n✅ STEP-BY-STEP GUIDE: INCLUDE\nCreate numbered guide with <ol>:\n- Minimum 7 detailed steps\n- Each step: <strong>Action heading</strong> + explanation\n- Include tips and best practices per step`;
+        instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ STEP-BY-STEP GUIDE — MANDATORY (User explicitly requested this!) ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Create a detailed step-by-step guide section:
+
+<h2 id="how-to">How to [Do Thing]: Step-by-Step Guide</h2>
+
+<ol>
+  <li>
+    <strong>Step 1: Action Title</strong>
+    <p>Detailed explanation of what to do, why it matters, and tips.</p>
+  </li>
+  <!-- MINIMUM 7 detailed steps -->
+</ol>
+
+Each step MUST include:
+- Bold action heading
+- Detailed explanation (2-4 sentences)
+- Tips or best practices where relevant
+
+⚠️⚠️ CRITICAL: ARTICLE WILL BE REJECTED IF STEP-BY-STEP GUIDE IS MISSING. ⚠️⚠️`;
     }
-    
-    instructions += "\n\n━━━ END CONTENT FEATURES ━━━";
+
+    instructions += `
+
+╔══════════════════════════════════════════════════════════════════════╗
+║                    END MANDATORY CONTENT FEATURES                    ║
+╚══════════════════════════════════════════════════════════════════════╝
+FINAL CHECK: Before outputting, verify ALL ✅ features above are present.
+Missing ANY mandatory feature = instant rejection.`;
+
     return instructions;
 }
 
@@ -457,34 +639,140 @@ function cleanMarkdown(text: string): string {
         .trim();
 }
 
+// ─── VALIDATE CONTENT FEATURES ────────────────────────────────────────────────
+function validateContentFeatures(article: string, options: GenerationOptions): {
+    valid: boolean;
+    missing: string[];
+} {
+    const missing: string[] = [];
+
+    // Check for TOC
+    if (options.includeToc !== false) {
+        const hasToc = /<div[^>]*class="toc"/.test(article) ||
+                       /Table of Contents/i.test(article) ||
+                       /<ul[^>]*>[\s\S]*?<a href="#/.test(article);
+        if (!hasToc) {
+            missing.push("Table of Contents");
+        }
+    }
+
+    // Check for comparison table
+    if (options.includeComparisonTable) {
+        const hasTable = /<table[\s\S]*?<\/table>/i.test(article);
+        if (!hasTable) {
+            missing.push("Comparison Table");
+        }
+    }
+
+    // Check for recipe
+    if (options.includeRecipe) {
+        const hasRecipe = /Prep Time|Cook Time|Ingredients/i.test(article) &&
+                          /<ol[\s\S]*?<\/ol>/i.test(article);
+        if (!hasRecipe) {
+            missing.push("Recipe Format");
+        }
+    }
+
+    // Check for pros & cons
+    if (options.includeProsCons) {
+        const hasPros = /Pros|Advantages/i.test(article);
+        const hasCons = /Cons|Disadvantages/i.test(article);
+        if (!hasPros || !hasCons) {
+            missing.push("Pros & Cons Section");
+        }
+    }
+
+    // Check for step-by-step
+    if (options.includeStepByStep) {
+        const hasSteps = /Step[\s-]?(?:by[\s-]?Step|1|One)/i.test(article) &&
+                         /<ol[\s\S]*?<\/ol>/i.test(article);
+        if (!hasSteps) {
+            missing.push("Step-by-Step Guide");
+        }
+    }
+
+    // Check for image placeholders
+    if (options.includeImages !== false) {
+        const imageCount = (article.match(/\[IMAGE:/gi) || []).length;
+        const minImages = options.numInlineImages || 3;
+        if (imageCount < Math.min(minImages, 2)) { // Allow some flexibility
+            missing.push(`Image Placeholders (found ${imageCount}, need ${minImages})`);
+        }
+    }
+
+    return {
+        valid: missing.length === 0,
+        missing
+    };
+}
+
 // ─── GENERATE ARTICLE (smart router) ─────────────────────────────────────────
 // Routes to single-pass (≤3000 words) or section-by-section (>3000 words).
+// Includes word count enforcement and feature validation with retry.
 export async function generateArticle(
     title: string,
     outline: Outline,
     options: GenerationOptions
 ): Promise<string> {
     const targetWords = options.wordCount || 2000;
+    // Use section-by-section for large articles (>3000 words)
     const useSectionBySection = targetWords > 3000;
 
-    let article: string;
+    const MAX_RETRIES = 2;
+    let bestArticle = "";
+    let bestWordCount = 0;
 
-    if (useSectionBySection) {
-        console.log(`📋 Using section-by-section generation (${targetWords} words)`);
-        article = await generateArticleSectionBySection(title, outline, options);
-    } else {
-        article = await generateArticleSinglePass(title, outline, options);
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        let article: string;
+
+        if (useSectionBySection) {
+            console.log(`📋 [Attempt ${attempt}] Using section-by-section generation (${targetWords} words)`);
+            article = await generateArticleSectionBySection(title, outline, options);
+        } else {
+            console.log(`📋 [Attempt ${attempt}] Using single-pass generation (${targetWords} words)`);
+            article = await generateArticleSinglePass(title, outline, options);
+        }
+
+        // Count words
+        const wordCount = article.replace(/<[^>]*>/g, " ").split(/\s+/).filter(w => w.length > 0).length;
+        const pct = Math.round((wordCount / targetWords) * 100);
+        console.log(`📊 [Attempt ${attempt}] Article: ${wordCount} words (${pct}% of ${targetWords} target)`);
+
+        // Track best attempt
+        if (wordCount > bestWordCount) {
+            bestWordCount = wordCount;
+            bestArticle = article;
+        }
+
+        // Validate content features
+        const featureValidation = validateContentFeatures(article, options);
+        if (!featureValidation.valid) {
+            console.warn(`⚠️ [Attempt ${attempt}] Missing features: ${featureValidation.missing.join(", ")}`);
+        }
+
+        // Check if word count is acceptable (at least 75% of target)
+        const wordCountOk = wordCount >= targetWords * 0.75;
+
+        // Check if features are present (or it's the last attempt)
+        const featuresOk = featureValidation.valid || attempt === MAX_RETRIES;
+
+        if (wordCountOk && featuresOk) {
+            console.log(`✅ Article accepted on attempt ${attempt}: ${wordCount} words`);
+            if (!featureValidation.valid) {
+                console.warn(`⚠️ Some features still missing after ${attempt} attempts: ${featureValidation.missing.join(", ")}`);
+            }
+            return article;
+        }
+
+        // Log retry reason
+        if (!wordCountOk) {
+            console.warn(`⚠️ [Attempt ${attempt}] Word count too low: ${wordCount}/${targetWords} (${pct}%). Retrying...`);
+        }
     }
 
-    // Count words and log
-    const wordCount = article.replace(/<[^>]*>/g, " ").split(/\s+/).filter(w => w.length > 0).length;
-    const pct = Math.round((wordCount / targetWords) * 100);
-    console.log(`✅ Article: ${wordCount} words (${pct}% of ${targetWords} target)`);
-    if (wordCount < targetWords * 0.75) {
-        console.warn(`⚠️ Article significantly shorter than target: ${wordCount}/${targetWords}`);
-    }
-
-    return article;
+    // Return best attempt if all retries failed
+    console.warn(`⚠️ Returning best attempt after ${MAX_RETRIES} retries: ${bestWordCount} words`);
+    return bestArticle;
 }
 
 // ─── HUMANIZE ARTICLE ────────────────────────────────────────────────────────

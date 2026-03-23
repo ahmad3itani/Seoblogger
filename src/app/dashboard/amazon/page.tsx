@@ -182,163 +182,164 @@ export default function AmazonAffiliatePage() {
         }
     };
 
+    const AMAZON_STEPS = [
+        "Researching real Amazon products...",
+        "Building affiliate links with your Store ID...",
+        "Generating SEO-optimized title...",
+        "Creating comprehensive outline...",
+        "Writing full article with affiliate links...",
+        "Generating FAQ section...",
+        "Creating meta description...",
+        "Generating product images...",
+        "Formatting for Blogger...",
+    ];
+
+    const toggleOptions = [
+        { label: "Comparison Table", value: includeTable, setter: setIncludeTable },
+        { label: "Internal Links", value: includeInternalLinks, setter: setIncludeInternalLinks },
+        { label: "External Links", value: includeExternalLinks, setter: setIncludeExternalLinks },
+    ];
+
     return (
-        <div className="space-y-8 max-w-7xl animate-in fade-in duration-500">
+        <div className="space-y-6 max-w-7xl">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 mb-2 flex items-center gap-3">
-                    <ShoppingCart className="w-8 h-8 text-[#FF9900]" />
-                    Amazon Affiliate Generator
-                </h1>
-                <p className="text-muted-foreground">
-                    Generate SEO-optimized product reviews and roundups with your Amazon affiliate links automatically embedded.
-                </p>
+            <div className="flex items-center gap-3">
+                <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(255,153,0,0.12)", border: "1px solid rgba(255,153,0,0.25)" }}
+                >
+                    <ShoppingCart className="w-5 h-5" style={{ color: "#FF9900" }} />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                        Amazon Affiliate Generator
+                    </h1>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                        SEO-optimized product reviews with embedded affiliate links
+                    </p>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Configuration */}
-                <div className="lg:col-span-1 space-y-6">
-                    <div className="glass-card rounded-2xl p-6 space-y-5">
-                        <div className="flex items-center gap-2 mb-1">
-                            <div className="w-8 h-8 rounded-lg bg-[#FF9900]/10 flex items-center justify-center">
-                                <ShoppingCart className="w-4 h-4 text-[#FF9900]" />
-                            </div>
-                            <h2 className="font-semibold">Configuration</h2>
-                        </div>
+                <div className="lg:col-span-1 space-y-5 overflow-y-auto max-h-[calc(100vh-10rem)]">
+                    <div
+                        className="rounded-2xl p-5 space-y-4"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                            Amazon Configuration
+                        </h2>
 
-                        {/* Amazon Store Region */}
                         <div>
-                            <Label className="text-sm font-medium flex items-center gap-1.5">
-                                <Globe className="w-3.5 h-3.5" />
-                                Amazon Store Region *
-                            </Label>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Store Region *</Label>
                             <Select value={storeRegion} onValueChange={(v) => v && setStoreRegion(v)}>
-                                <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
+                                <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="us">🇺🇸 United States (.com)</SelectItem>
-                                    <SelectItem value="ca">🇨🇦 Canada (.ca)</SelectItem>
-                                    <SelectItem value="uk">🇬🇧 United Kingdom (.co.uk)</SelectItem>
-                                    <SelectItem value="de">🇩🇪 Germany (.de)</SelectItem>
-                                    <SelectItem value="fr">🇫🇷 France (.fr)</SelectItem>
-                                    <SelectItem value="es">🇪🇸 Spain (.es)</SelectItem>
-                                    <SelectItem value="it">🇮🇹 Italy (.it)</SelectItem>
-                                    <SelectItem value="nl">🇳🇱 Netherlands (.nl)</SelectItem>
-                                    <SelectItem value="se">🇸🇪 Sweden (.se)</SelectItem>
-                                    <SelectItem value="pl">🇵🇱 Poland (.pl)</SelectItem>
-                                    <SelectItem value="jp">🇯🇵 Japan (.co.jp)</SelectItem>
-                                    <SelectItem value="au">🇦🇺 Australia (.com.au)</SelectItem>
-                                    <SelectItem value="in">🇮🇳 India (.in)</SelectItem>
-                                    <SelectItem value="sg">🇸🇬 Singapore (.sg)</SelectItem>
-                                    <SelectItem value="mx">🇲🇽 Mexico (.com.mx)</SelectItem>
-                                    <SelectItem value="br">🇧🇷 Brazil (.com.br)</SelectItem>
-                                    <SelectItem value="ae">🇦🇪 UAE (.ae)</SelectItem>
-                                    <SelectItem value="sa">🇸🇦 Saudi Arabia (.sa)</SelectItem>
+                                    <SelectItem value="us">United States (.com)</SelectItem>
+                                    <SelectItem value="ca">Canada (.ca)</SelectItem>
+                                    <SelectItem value="uk">United Kingdom (.co.uk)</SelectItem>
+                                    <SelectItem value="de">Germany (.de)</SelectItem>
+                                    <SelectItem value="fr">France (.fr)</SelectItem>
+                                    <SelectItem value="es">Spain (.es)</SelectItem>
+                                    <SelectItem value="it">Italy (.it)</SelectItem>
+                                    <SelectItem value="nl">Netherlands (.nl)</SelectItem>
+                                    <SelectItem value="se">Sweden (.se)</SelectItem>
+                                    <SelectItem value="pl">Poland (.pl)</SelectItem>
+                                    <SelectItem value="jp">Japan (.co.jp)</SelectItem>
+                                    <SelectItem value="au">Australia (.com.au)</SelectItem>
+                                    <SelectItem value="in">India (.in)</SelectItem>
+                                    <SelectItem value="sg">Singapore (.sg)</SelectItem>
+                                    <SelectItem value="mx">Mexico (.com.mx)</SelectItem>
+                                    <SelectItem value="br">Brazil (.com.br)</SelectItem>
+                                    <SelectItem value="ae">UAE (.ae)</SelectItem>
+                                    <SelectItem value="sa">Saudi Arabia (.sa)</SelectItem>
                                 </SelectContent>
                             </Select>
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                Select the Amazon region where your store is registered. Links will use the correct domain.
-                            </p>
                         </div>
 
-                        {/* Amazon Store ID */}
                         <div>
-                            <Label htmlFor="store-id" className="text-sm font-medium">
-                                Amazon Store ID / Affiliate Tag *
-                            </Label>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Store ID / Affiliate Tag *</Label>
                             <Input
                                 id="store-id"
                                 placeholder="e.g., mystore-20"
                                 value={storeId}
                                 onChange={(e) => setStoreId(e.target.value)}
-                                className="mt-1.5 bg-muted/30 border-border/50"
+                                className="h-9 text-xs"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             />
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                Found in your Amazon Associates account. Used in all affiliate links.
-                            </p>
+                            <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>Found in your Amazon Associates account</p>
                         </div>
 
-                        {/* Niche */}
                         <div>
-                            <Label htmlFor="niche" className="text-sm font-medium">
-                                Niche / Product Category *
-                            </Label>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Niche / Product Category *</Label>
                             <Input
                                 id="niche"
-                                placeholder="e.g., Wireless Earbuds, Standing Desks, Air Fryers"
+                                placeholder="e.g., Wireless Earbuds, Standing Desks"
                                 value={niche}
                                 onChange={(e) => setNiche(e.target.value)}
-                                className="mt-1.5 bg-muted/30 border-border/50"
+                                className="h-9 text-xs"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             />
                         </div>
 
-                        {/* Specific Product URL */}
                         <div>
-                            <Label className="text-sm font-medium flex items-center gap-1.5">
-                                <Link2 className="w-3.5 h-3.5" />
-                                Specific Product URL (optional)
-                            </Label>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Product URL (optional)</Label>
                             <Input
-                                placeholder="https://www.amazon.ca/dp/B00CH9QWOU"
+                                placeholder="https://www.amazon.com/dp/..."
                                 value={productUrl}
                                 onChange={(e) => setProductUrl(e.target.value)}
-                                className="mt-1.5 bg-muted/30 border-border/50 font-mono text-xs"
+                                className="h-9 text-xs font-mono"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             />
-                            <p className="text-[11px] text-muted-foreground mt-1">
-                                Paste an Amazon product URL to write a deep review about that specific product. Leave empty to auto-research products.
-                            </p>
                             {productUrl.trim() && (
-                                <div className="mt-2 flex items-center gap-2 text-xs text-[#FF9900] bg-[#FF9900]/5 px-3 py-1.5 rounded-lg border border-[#FF9900]/20">
+                                <div className="mt-2 flex items-center gap-2 text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,153,0,0.08)", color: "#FF9900", border: "1px solid rgba(255,153,0,0.20)" }}>
                                     <Link2 className="w-3 h-3 shrink-0" />
-                                    <span>Deep single-product review mode — will analyze this specific product + competitors</span>
+                                    <span>Deep single-product review mode</span>
                                 </div>
                             )}
                         </div>
 
-                        {/* Article Type - hidden when product URL is set */}
                         {!productUrl.trim() && (
-                        <div>
-                            <Label className="text-sm font-medium">Article Type</Label>
-                            <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
-                                <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
-                                    <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="roundup">Product Roundup (Best X of 2026)</SelectItem>
-                                    <SelectItem value="single-review">Single Product Review</SelectItem>
-                                    <SelectItem value="comparison">Product Comparison (vs)</SelectItem>
-                                    <SelectItem value="buyers-guide">Buyer&apos;s Guide</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
+                            <div>
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Article Type</Label>
+                                <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="roundup">Product Roundup</SelectItem>
+                                        <SelectItem value="single-review">Single Product Review</SelectItem>
+                                        <SelectItem value="comparison">Product Comparison</SelectItem>
+                                        <SelectItem value="buyers-guide">Buyer&apos;s Guide</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         )}
 
-                        {/* Product Count - hidden when product URL is set or single review */}
                         {!productUrl.trim() && articleType !== "single-review" && (
                             <div>
-                                <Label className="text-sm font-medium">Number of Products</Label>
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Number of Products</Label>
                                 <Select value={productCount} onValueChange={(v) => v && setProductCount(v)}>
-                                    <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {[3, 5, 7, 10].map((n) => (
-                                            <SelectItem key={n} value={String(n)}>
-                                                {n} Products
-                                            </SelectItem>
+                                            <SelectItem key={n} value={String(n)}>{n} Products</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                         )}
 
-                        {/* Language & Tone */}
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <Label className="text-sm font-medium">Language</Label>
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Language</Label>
                                 <Select value={language} onValueChange={(v) => v && setLanguage(v)}>
-                                    <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -349,240 +350,225 @@ export default function AmazonAffiliatePage() {
                                 </Select>
                             </div>
                             <div>
-                                <Label className="text-sm font-medium">Tone</Label>
+                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Tone</Label>
                                 <Select value={tone} onValueChange={(v) => v && setTone(v)}>
-                                    <SelectTrigger className="mt-1.5 bg-muted/30 border-border/50">
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {["professional", "casual", "expert", "friendly", "conversational"].map((t) => (
-                                            <SelectItem key={t} value={t}>
-                                                {t.charAt(0).toUpperCase() + t.slice(1)}
-                                            </SelectItem>
+                                            <SelectItem key={t} value={t}>{t.charAt(0).toUpperCase() + t.slice(1)}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
                             </div>
                         </div>
 
-                        {/* Include Comparison Table */}
-                        <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Include Comparison Table</Label>
-                            <button
-                                onClick={() => setIncludeTable(!includeTable)}
-                                className={`relative w-11 h-6 rounded-full transition-colors ${includeTable ? "bg-[#FF9900]" : "bg-gray-300"}`}
-                            >
-                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeTable ? "translate-x-5" : ""}`} />
-                            </button>
+                        {/* Feature Toggles */}
+                        <div className="space-y-1.5">
+                            {toggleOptions.map((opt) => (
+                                <button
+                                    key={opt.label}
+                                    onClick={() => opt.setter(!opt.value)}
+                                    className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all"
+                                    style={opt.value ? {
+                                        background: "rgba(108,76,241,0.12)",
+                                        color: "#A78BFA",
+                                        border: "1px solid rgba(108,76,241,0.30)",
+                                    } : {
+                                        background: "rgba(255,255,255,0.03)",
+                                        color: "var(--text-muted)",
+                                        border: "1px solid var(--border-subtle)",
+                                    }}
+                                >
+                                    <div
+                                        className="w-3.5 h-3.5 rounded flex items-center justify-center flex-shrink-0"
+                                        style={opt.value ? { background: "var(--brand-primary)" } : { background: "transparent", border: "1.5px solid rgba(255,255,255,0.15)" }}
+                                    >
+                                        {opt.value && <Check className="w-2.5 h-2.5 text-white" />}
+                                    </div>
+                                    {opt.label}
+                                </button>
+                            ))}
                         </div>
 
-                        {/* Include Internal Links */}
-                        <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Include Internal Links</Label>
-                            <button
-                                onClick={() => setIncludeInternalLinks(!includeInternalLinks)}
-                                className={`relative w-11 h-6 rounded-full transition-colors ${includeInternalLinks ? "bg-[#FF9900]" : "bg-gray-300"}`}
-                            >
-                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeInternalLinks ? "translate-x-5" : ""}`} />
-                            </button>
-                        </div>
-
-                        {/* Include External Links */}
-                        <div className="flex items-center justify-between">
-                            <Label className="text-sm font-medium">Include External Links</Label>
-                            <button
-                                onClick={() => setIncludeExternalLinks(!includeExternalLinks)}
-                                className={`relative w-11 h-6 rounded-full transition-colors ${includeExternalLinks ? "bg-[#FF9900]" : "bg-gray-300"}`}
-                            >
-                                <span className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${includeExternalLinks ? "translate-x-5" : ""}`} />
-                            </button>
-                        </div>
-
-                        {/* Custom Instructions */}
                         <div>
-                            <Label className="text-sm font-medium">Custom Instructions (optional)</Label>
+                            <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Custom Instructions</Label>
                             <Textarea
-                                placeholder="e.g., Focus on budget options, mention specific brands, target beginners..."
+                                placeholder="e.g., Focus on budget options, mention specific brands..."
                                 value={customInstructions}
                                 onChange={(e) => setCustomInstructions(e.target.value)}
-                                className="mt-1.5 bg-muted/30 border-border/50 min-h-[70px]"
+                                className="min-h-[60px] text-xs"
+                                style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             />
                         </div>
 
                         {error && (
-                            <div className="text-sm text-red-500 bg-red-50 p-3 rounded-lg border border-red-200">
-                                {error}
+                            <div className="rounded-lg p-3 flex items-start gap-2" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)" }}>
+                                <span className="text-xs text-red-300">{error}</span>
                             </div>
                         )}
 
                         <Button
                             onClick={handleGenerate}
                             disabled={isGenerating}
-                            className="w-full h-12 bg-gradient-to-r from-[#FF9900] to-[#6C4CF1] hover:from-[#e68a00] hover:to-[#e65c00] text-white font-semibold rounded-xl shadow-lg shadow-orange-500/25"
+                            className="w-full h-11 text-sm font-semibold btn-primary"
                         >
                             {isGenerating ? (
-                                <>
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                    Generating Article...
-                                </>
+                                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
                             ) : (
-                                <>
-                                    <Sparkles className="w-5 h-5 mr-2" />
-                                    Generate Affiliate Article
-                                </>
+                                <><Sparkles className="w-4 h-4 mr-2" />Generate Affiliate Article</>
                             )}
                         </Button>
                     </div>
 
-                    {/* How It Works */}
-                    <div className="glass-card rounded-2xl p-6">
-                        <h3 className="font-semibold mb-3 text-sm">Same Pipeline as Article Generator</h3>
-                        <div className="space-y-3 text-xs text-muted-foreground">
-                            <div className="flex gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">1</span>
-                                <span>Researches real Amazon products for your niche</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">2</span>
-                                <span>Generates SEO title → outline → 2500+ word article</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">3</span>
-                                <span>Creates product images automatically</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">4</span>
-                                <span>Affiliate links, FAQs, TOC, schema, and disclosure added</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <span className="w-5 h-5 rounded-full bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">5</span>
-                                <span>Formatted for Blogger and saved as draft automatically</span>
-                            </div>
+                    {/* Pipeline Info */}
+                    <div
+                        className="rounded-2xl p-5"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <h3 className="text-xs font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>Pipeline</h3>
+                        <div className="space-y-2.5">
+                            {["Research products", "Generate title + outline", "Write 2500+ word article", "Embed affiliate links", "Save as draft"].map((step, i) => (
+                                <div key={i} className="flex items-center gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+                                    <div className="w-4 h-4 rounded flex items-center justify-center text-[9px] font-bold" style={{ background: "rgba(255,153,0,0.10)", color: "#FF9900" }}>{i + 1}</div>
+                                    <span>{step}</span>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
 
                 {/* Right: Preview */}
-                <div className="lg:col-span-2">
+                <div className="lg:col-span-2 min-h-[500px]">
+                    {/* Empty state */}
                     {!generatedArticle && !isGenerating && (
-                        <div className="glass-card rounded-2xl p-16 text-center border-dashed h-full flex flex-col items-center justify-center">
-                            <div className="w-20 h-20 bg-[#FF9900]/10 rounded-full flex items-center justify-center mb-6">
-                                <FileText className="w-10 h-10 text-[#FF9900]" />
+                        <div
+                            className="rounded-2xl h-full flex flex-col items-center justify-center p-8 text-center"
+                            style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}
+                        >
+                            <div
+                                className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
+                                style={{ background: "rgba(255,153,0,0.08)", border: "1px solid rgba(255,153,0,0.20)" }}
+                            >
+                                <FileText className="w-9 h-9" style={{ color: "#FF9900" }} />
                             </div>
-                            <h2 className="text-2xl font-bold mb-3">Ready to Generate</h2>
-                            <p className="text-muted-foreground max-w-md">
-                                Configure your settings and click generate. A complete affiliate article will be created with embedded Amazon links using your store ID.
+                            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                Ready to Generate
+                            </h2>
+                            <p className="text-sm max-w-md" style={{ color: "var(--text-secondary)" }}>
+                                Configure your Amazon settings and hit generate. A full affiliate article will be created with embedded links using your store ID.
                             </p>
                         </div>
                     )}
 
+                    {/* Loading state */}
                     {isGenerating && (
-                        <div className="glass-card rounded-2xl p-12 h-full flex flex-col items-center justify-center">
-                            <div className="w-20 h-20 bg-[#FF9900]/10 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                                <Sparkles className="w-10 h-10 text-[#FF9900]" />
+                        <div
+                            className="rounded-2xl h-full flex flex-col items-center justify-center p-8"
+                            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                        >
+                            <div
+                                className="w-20 h-20 rounded-full animate-glow-pulse flex items-center justify-center mb-6"
+                                style={{ background: "rgba(255,153,0,0.10)", border: "1px solid rgba(255,153,0,0.25)" }}
+                            >
+                                <Sparkles className="w-9 h-9" style={{ color: "#FF9900" }} />
                             </div>
-                            <h2 className="text-2xl font-bold mb-3">Generating Article...</h2>
-                            <p className="text-muted-foreground mb-8 text-center max-w-md">
-                                Running the full article pipeline. This uses the same process as regular article generation with affiliate enhancements.
-                            </p>
-                            <div className="w-full max-w-sm space-y-3 text-sm">
-                                {[
-                                    "🔍 Researching real products on Amazon...",
-                                    "🔗 Building affiliate links with your Store ID...",
-                                    "📋 Generating SEO-optimized title...",
-                                    "📝 Creating comprehensive outline...",
-                                    "✍️ Writing full article with affiliate links...",
-                                    "❓ Generating FAQ section...",
-                                    "🔖 Creating meta description...",
-                                    "🖼️ Generating product images...",
-                                    "🎨 Formatting for Blogger...",
-                                ].map((step, i) => (
-                                    <div key={i} className="flex items-center gap-3 text-muted-foreground animate-in fade-in" style={{ animationDelay: `${i * 3}s`, animationFillMode: 'backwards' }}>
+                            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                Generating Article...
+                            </h2>
+                            <p className="text-xs mb-8" style={{ color: "var(--text-muted)" }}>Full affiliate pipeline running (60-90 seconds)</p>
+                            <div className="w-full max-w-sm space-y-2">
+                                {AMAZON_STEPS.map((step, i) => (
+                                    <div
+                                        key={i}
+                                        className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs animate-in fade-in"
+                                        style={{ color: "var(--text-secondary)", animationDelay: `${i * 3}s`, animationFillMode: 'backwards' }}
+                                    >
+                                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF9900" }} />
                                         <span>{step}</span>
                                     </div>
                                 ))}
                             </div>
-                            <p className="text-xs text-muted-foreground mt-8">
-                                This typically takes 60-90 seconds for the full pipeline.
-                            </p>
                         </div>
                     )}
 
+                    {/* Results */}
                     {generatedArticle && !isGenerating && (
                         <div className="space-y-4">
                             {/* Stats Bar */}
-                            <div className="glass-card rounded-2xl p-4">
-                                <div className="flex flex-wrap items-center gap-4">
-                                    <div className="flex items-center gap-2">
-                                        <BarChart3 className="w-4 h-4 text-muted-foreground" />
-                                        <span className="text-sm font-medium">{generatedArticle.wordCount.toLocaleString()} words</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <LinkIcon className="w-4 h-4 text-[#FF9900]" />
-                                        <span className="text-sm font-medium">{generatedArticle.affiliateLinkCount} affiliate links</span>
-                                    </div>
-                                    <Badge className="bg-[#FF9900]/10 text-[#FF9900] border-[#FF9900]/20">
+                            <div
+                                className="rounded-2xl p-4"
+                                style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                            >
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}>
+                                        {generatedArticle.wordCount.toLocaleString()} words
+                                    </span>
+                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(255,153,0,0.08)", color: "#FF9900", border: "1px solid rgba(255,153,0,0.20)" }}>
+                                        {generatedArticle.affiliateLinkCount} affiliate links
+                                    </span>
+                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
                                         {generatedArticle.articleType}
-                                    </Badge>
-                                    <Badge variant="outline">{generatedArticle.niche}</Badge>
+                                    </span>
 
-                                    <div className="ml-auto flex gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
+                                    <div className="ml-auto flex gap-1.5">
+                                        <button
                                             onClick={handleCopyHTML}
-                                            className="h-8"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
                                         >
-                                            {copied ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
-                                            {copied ? "Copied!" : "Copy HTML"}
-                                        </Button>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
+                                            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                            {copied ? "Copied!" : "Copy"}
+                                        </button>
+                                        <button
                                             onClick={() => setShowPreview(!showPreview)}
-                                            className="h-8"
+                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
                                         >
-                                            <Eye className="w-3 h-3 mr-1" />
+                                            <Eye className="w-3 h-3" />
                                             {showPreview ? "Source" : "Preview"}
-                                        </Button>
+                                        </button>
                                         <Button
                                             size="sm"
                                             onClick={handlePublish}
                                             disabled={isPublishing || publishSuccess}
-                                            className="h-8 bg-[#6C4CF1] hover:bg-orange-600 text-white"
+                                            className="h-7 text-xs btn-primary px-3"
                                         >
                                             {publishSuccess ? (
                                                 <><Check className="w-3 h-3 mr-1" /> Published!</>
                                             ) : isPublishing ? (
                                                 <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Publishing...</>
                                             ) : (
-                                                <><Send className="w-3 h-3 mr-1" /> Publish to Blog</>
+                                                <><Send className="w-3 h-3 mr-1" /> Publish</>
                                             )}
                                         </Button>
                                         {publishSuccess && publishedUrl && (
                                             <a href={publishedUrl} target="_blank" rel="noopener noreferrer">
-                                                <Button variant="outline" size="sm" className="h-8">
-                                                    <ExternalLink className="w-3 h-3 mr-1" /> View on Blogger
-                                                </Button>
+                                                <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}>
+                                                    <ExternalLink className="w-3 h-3" /> View
+                                                </button>
                                             </a>
                                         )}
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
+                                        <button
                                             onClick={handleGenerate}
-                                            className="h-8"
+                                            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-all"
+                                            style={{ color: "var(--text-muted)" }}
                                             title="Regenerate"
                                         >
                                             <RefreshCw className="w-3 h-3" />
-                                        </Button>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Products Found */}
+                            {/* Products */}
                             {generatedArticle.products && generatedArticle.products.length > 0 && (
-                                <div className="glass-card rounded-2xl p-4">
-                                    <h4 className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">Products Researched</h4>
+                                <div
+                                    className="rounded-2xl p-4"
+                                    style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                                >
+                                    <h4 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>Products Researched</h4>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                         {generatedArticle.products.map((product, i) => (
                                             <a
@@ -590,12 +576,15 @@ export default function AmazonAffiliatePage() {
                                                 href={product.affiliateUrl}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                className="flex items-start gap-2 p-2 rounded-lg border border-border/50 hover:bg-muted/30 transition-colors text-xs"
+                                                className="flex items-start gap-2 p-2.5 rounded-xl text-xs transition-all"
+                                                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-subtle)" }}
+                                                onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(255,153,0,0.30)"}
+                                                onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
                                             >
-                                                <span className="w-5 h-5 rounded bg-[#FF9900]/10 text-[#FF9900] flex items-center justify-center shrink-0 text-[10px] font-bold">{i + 1}</span>
+                                                <div className="w-5 h-5 rounded flex items-center justify-center shrink-0 text-[9px] font-bold" style={{ background: "rgba(255,153,0,0.10)", color: "#FF9900" }}>{i + 1}</div>
                                                 <div className="min-w-0">
-                                                    <p className="font-medium truncate">{product.name}</p>
-                                                    <p className="text-muted-foreground">{product.priceRange} · {product.rating}</p>
+                                                    <p className="font-medium truncate" style={{ color: "var(--text-primary)" }}>{product.name}</p>
+                                                    <p style={{ color: "var(--text-muted)" }}>{product.priceRange} · {product.rating}</p>
                                                 </div>
                                             </a>
                                         ))}
@@ -604,18 +593,18 @@ export default function AmazonAffiliatePage() {
                             )}
 
                             {/* Article Content */}
-                            <div className="glass-card rounded-2xl overflow-hidden border">
-                                <div className="bg-muted px-6 py-3 border-b">
-                                    <h3 className="font-bold text-lg">{generatedArticle.title}</h3>
+                            <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                <div className="px-5 py-3" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                                    <h3 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>{generatedArticle.title}</h3>
                                 </div>
-                                <div className="p-6 max-h-[700px] overflow-y-auto">
+                                <div className="p-5 max-h-[700px] overflow-y-auto">
                                     {showPreview ? (
                                         <div
-                                            className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-a:text-[#FF9900] prose-a:underline"
+                                            className="article-preview text-xs"
                                             dangerouslySetInnerHTML={{ __html: generatedArticle.content }}
                                         />
                                     ) : (
-                                        <pre className="text-xs bg-gray-50 p-4 rounded-lg overflow-x-auto whitespace-pre-wrap font-mono text-gray-700">
+                                        <pre className="text-xs p-4 rounded-xl overflow-x-auto whitespace-pre-wrap font-mono" style={{ background: "rgba(255,255,255,0.02)", color: "var(--text-secondary)" }}>
                                             {generatedArticle.content}
                                         </pre>
                                     )}

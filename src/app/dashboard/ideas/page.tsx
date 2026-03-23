@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Lightbulb, TrendingUp, Send, Check, ArrowUp, ArrowDown, Minus, Target, BarChart3 } from "lucide-react";
+import { Loader2, Lightbulb, TrendingUp, Send, Check, ArrowUp, ArrowDown, Minus, Target, BarChart3, Sparkles, Search } from "lucide-react";
 
 interface Idea {
     keyword: string;
@@ -41,7 +40,7 @@ export default function IdeasPage() {
             const data = await res.json();
             if (data.ideas) {
                 setIdeas(data.ideas);
-                setSelected(new Set(data.ideas.map((i: Idea) => i.keyword))); // Auto-select all
+                setSelected(new Set(data.ideas.map((i: Idea) => i.keyword)));
             }
         } catch (error) {
             console.error(error);
@@ -62,7 +61,6 @@ export default function IdeasPage() {
 
     const sendToBulk = () => {
         if (selected.size === 0) return;
-        // The bulk generator can read from sessionStorage
         const keywordsToPass = Array.from(selected).join("\n");
         sessionStorage.setItem("bulkKeywords", keywordsToPass);
         router.push("/dashboard/bulk");
@@ -70,30 +68,49 @@ export default function IdeasPage() {
 
     return (
         <div className="space-y-6 max-w-6xl">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Trend-Driven Ideas</h1>
-                <p className="text-muted-foreground mt-1">
-                    Brainstorm highly relevant, emerging topics for your niche and instantly add them to your content pipeline.
-                </p>
+            {/* Header */}
+            <div className="flex items-center gap-3">
+                <div
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
+                >
+                    <Lightbulb className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                        Trend-Driven Ideas
+                    </h1>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                        Discover emerging topics and low-competition keywords for your niche
+                    </p>
+                </div>
             </div>
 
-            <Card className="glass-card border-amber-500/20 shadow-lg shadow-amber-500/5">
-                <CardContent className="pt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                    <div className="space-y-2 lg:col-span-2">
-                        <Label>Niche / Core Topic (e.g. Tech SaaS, Vegan Baking, Ultralight Backpacking)</Label>
+            {/* Search Bar */}
+            <div
+                className="rounded-2xl p-5"
+                style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+            >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                    <div className="space-y-1.5 lg:col-span-2">
+                        <Label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Niche / Core Topic</Label>
                         <Input
                             value={niche}
                             onChange={(e) => setNiche(e.target.value)}
-                            placeholder="Enter your broad niche..."
+                            placeholder="e.g., Tech SaaS, Vegan Baking, Ultralight Backpacking"
+                            className="h-10"
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             onKeyDown={(e) => e.key === "Enter" && generateIdeas()}
                         />
                     </div>
-                    <div className="space-y-2 lg:col-span-1">
-                        <Label>Target Audience (Optional)</Label>
+                    <div className="space-y-1.5 lg:col-span-1">
+                        <Label className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Target Audience (Optional)</Label>
                         <Input
                             value={audience}
                             onChange={(e) => setAudience(e.target.value)}
-                            placeholder="e.g. Beginners, Tech Leads"
+                            placeholder="e.g., Beginners, Tech Leads"
+                            className="h-10"
+                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                             onKeyDown={(e) => e.key === "Enter" && generateIdeas()}
                         />
                     </div>
@@ -101,109 +118,154 @@ export default function IdeasPage() {
                         <Button
                             onClick={generateIdeas}
                             disabled={!niche || isLoading}
-                            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white shadow-md shadow-orange-500/20"
+                            className="w-full h-10 btn-primary text-sm"
                         >
-                            {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Lightbulb className="w-4 h-4 mr-2" />}
+                            {isLoading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Sparkles className="w-4 h-4 mr-2" />}
                             Brainstorm
                         </Button>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
 
+            {/* Loading State */}
             {isLoading && (
-                <div className="py-24 flex flex-col items-center justify-center space-y-4">
-                    <Loader2 className="w-10 h-10 animate-spin text-amber-500" />
-                    <p className="text-muted-foreground animate-pulse delay-100">Analyzing search trends and emerging queries...</p>
+                <div
+                    className="rounded-2xl p-16 flex flex-col items-center justify-center"
+                    style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                >
+                    <div
+                        className="w-16 h-16 rounded-full animate-glow-pulse flex items-center justify-center mb-6"
+                        style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.25)" }}
+                    >
+                        <Sparkles className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Analyzing search trends...</p>
+                    <p className="text-xs" style={{ color: "var(--text-muted)" }}>Discovering emerging queries and low-competition opportunities</p>
                 </div>
             )}
 
+            {/* Results */}
             {!isLoading && ideas.length > 0 && (
-                <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                    <div className="flex justify-between items-center bg-card p-4 rounded-lg border shadow-sm">
-                        <div className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-emerald-500" />
-                            <span className="font-semibold">{ideas.length} Ideas Found</span>
+                <div className="space-y-4 animate-slide-up">
+                    {/* Stats bar */}
+                    <div
+                        className="flex justify-between items-center rounded-2xl p-4"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                    >
+                        <div className="flex items-center gap-3">
+                            <div
+                                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                                style={{ background: "rgba(34,197,94,0.12)", border: "1px solid rgba(34,197,94,0.25)" }}
+                            >
+                                <TrendingUp className="w-4 h-4 text-green-400" />
+                            </div>
+                            <div>
+                                <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{ideas.length} Ideas Found</span>
+                                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{selected.size} selected</p>
+                            </div>
                         </div>
-                        <Button onClick={sendToBulk} disabled={selected.size === 0} className="bg-emerald-600 hover:bg-emerald-700">
-                            <Send className="w-4 h-4 mr-2" />
+                        <Button onClick={sendToBulk} disabled={selected.size === 0} className="btn-primary h-9 text-xs px-4">
+                            <Send className="w-3.5 h-3.5 mr-1.5" />
                             Send {selected.size} to Bulk Engine
                         </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Idea Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {ideas.map((idea, i) => {
                             const isSelected = selected.has(idea.keyword);
                             return (
-                                <Card
+                                <div
                                     key={i}
-                                    className={`cursor-pointer transition-all duration-200 ${isSelected ? 'ring-2 ring-emerald-500 bg-emerald-500/5' : 'hover:border-foreground/30'}`}
+                                    className="rounded-2xl p-4 cursor-pointer transition-all duration-200"
                                     onClick={() => toggleSelection(idea.keyword)}
+                                    style={{
+                                        background: "var(--bg-card)",
+                                        border: isSelected ? "1px solid rgba(108,76,241,0.40)" : "1px solid var(--border-subtle)",
+                                        boxShadow: isSelected ? "0 0 20px rgba(108,76,241,0.08)" : "none",
+                                    }}
+                                    onMouseEnter={e => { if (!isSelected) e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)"; }}
+                                    onMouseLeave={e => { if (!isSelected) e.currentTarget.style.borderColor = "var(--border-subtle)"; }}
                                 >
-                                    <CardHeader className="pb-2 flex flex-row items-start justify-between space-y-0">
-                                        <div className="space-y-1 pr-4 flex-1">
-                                            <div className="flex items-start gap-2">
-                                                <CardTitle className="text-lg leading-snug flex-1">{idea.title}</CardTitle>
-                                                {idea.trendDirection && (
-                                                    <div className={`shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${
-                                                        idea.trendDirection === 'rising' ? 'bg-green-500/20 text-green-400' :
-                                                        idea.trendDirection === 'declining' ? 'bg-red-500/20 text-red-400' :
-                                                        'bg-blue-500/20 text-blue-400'
-                                                    }`}>
-                                                        {idea.trendDirection === 'rising' && <ArrowUp className="w-3 h-3" />}
-                                                        {idea.trendDirection === 'declining' && <ArrowDown className="w-3 h-3" />}
-                                                        {idea.trendDirection === 'stable' && <Minus className="w-3 h-3" />}
-                                                        {idea.trendDirection}
-                                                    </div>
-                                                )}
+                                    <div className="flex items-start justify-between gap-3 mb-2">
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="text-sm font-semibold leading-snug mb-1" style={{ color: "var(--text-primary)" }}>{idea.title}</h3>
+                                            <p className="font-mono text-[11px] truncate" style={{ color: "var(--brand-primary)" }}>
+                                                {idea.keyword}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-2 shrink-0">
+                                            {idea.trendDirection && (
+                                                <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium" style={{
+                                                    background: idea.trendDirection === 'rising' ? 'rgba(34,197,94,0.12)' : idea.trendDirection === 'declining' ? 'rgba(239,68,68,0.12)' : 'rgba(0,194,255,0.12)',
+                                                    color: idea.trendDirection === 'rising' ? '#22C55E' : idea.trendDirection === 'declining' ? '#ef4444' : '#00C2FF',
+                                                }}>
+                                                    {idea.trendDirection === 'rising' && <ArrowUp className="w-2.5 h-2.5" />}
+                                                    {idea.trendDirection === 'declining' && <ArrowDown className="w-2.5 h-2.5" />}
+                                                    {idea.trendDirection === 'stable' && <Minus className="w-2.5 h-2.5" />}
+                                                    {idea.trendDirection}
+                                                </div>
+                                            )}
+                                            <div
+                                                className="w-5 h-5 rounded-full flex items-center justify-center transition-all"
+                                                style={isSelected ? {
+                                                    background: "var(--brand-primary)",
+                                                    border: "1px solid var(--brand-primary)",
+                                                } : {
+                                                    background: "transparent",
+                                                    border: "1.5px solid rgba(255,255,255,0.15)",
+                                                }}
+                                            >
+                                                {isSelected && <Check className="w-3 h-3 text-white" />}
                                             </div>
-                                            <CardDescription className="font-mono text-xs max-w-full truncate text-emerald-600 dark:text-emerald-400">
-                                                🎯 {idea.keyword}
-                                            </CardDescription>
                                         </div>
-                                        <div className={`shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isSelected ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-muted-foreground/30 text-transparent'}`}>
-                                            <Check className="w-4 h-4 stroke-[3]" />
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="text-sm text-muted-foreground pb-3">
-                                        <p>{idea.reasoning}</p>
-                                    </CardContent>
-                                    <CardFooter className="pt-0 flex flex-wrap gap-2">
-                                        <Badge variant="outline" className="capitalize text-xs bg-card/50">
-                                            {idea.intent === 'informational' && '📚'}
-                                            {idea.intent === 'commercial' && '💰'}
-                                            {idea.intent === 'transactional' && '🛒'}
-                                            {' '}{idea.intent}
-                                        </Badge>
+                                    </div>
+                                    <p className="text-xs mb-3 leading-relaxed" style={{ color: "var(--text-secondary)" }}>{idea.reasoning}</p>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        <span className="text-[10px] px-2 py-0.5 rounded-full capitalize" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                            {idea.intent}
+                                        </span>
                                         {idea.searchVolume && (
-                                            <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-400 border-blue-500/30">
-                                                <BarChart3 className="w-3 h-3 mr-1" />
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: "rgba(0,194,255,0.08)", color: "#00C2FF", border: "1px solid rgba(0,194,255,0.20)" }}>
+                                                <BarChart3 className="w-2.5 h-2.5" />
                                                 {idea.searchVolume}/mo
-                                            </Badge>
+                                            </span>
                                         )}
                                         {idea.difficulty && (
-                                            <Badge variant="outline" className={`text-xs ${
-                                                idea.difficulty === 'easy' ? 'bg-green-500/10 text-green-400 border-green-500/30' :
-                                                idea.difficulty === 'hard' ? 'bg-red-500/10 text-red-400 border-red-500/30' :
-                                                'bg-yellow-500/10 text-yellow-400 border-yellow-500/30'
-                                            }`}>
-                                                <Target className="w-3 h-3 mr-1" />
+                                            <span className="text-[10px] px-2 py-0.5 rounded-full flex items-center gap-1" style={{
+                                                background: idea.difficulty === 'easy' ? 'rgba(34,197,94,0.08)' : idea.difficulty === 'hard' ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)',
+                                                color: idea.difficulty === 'easy' ? '#22C55E' : idea.difficulty === 'hard' ? '#ef4444' : '#F59E0B',
+                                                border: `1px solid ${idea.difficulty === 'easy' ? 'rgba(34,197,94,0.20)' : idea.difficulty === 'hard' ? 'rgba(239,68,68,0.20)' : 'rgba(245,158,11,0.20)'}`,
+                                            }}>
+                                                <Target className="w-2.5 h-2.5" />
                                                 {idea.difficulty}
-                                            </Badge>
+                                            </span>
                                         )}
-                                    </CardFooter>
-                                </Card>
+                                    </div>
+                                </div>
                             );
                         })}
                     </div>
                 </div>
             )}
 
+            {/* Empty State */}
             {!isLoading && ideas.length === 0 && (
-                <div className="border border-dashed border-border/50 rounded-xl p-12 flex flex-col items-center justify-center text-center opacity-50">
-                    <TrendingUp className="w-16 h-16 text-muted-foreground/30 mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">Discover Untapped Keywords</h3>
-                    <p className="max-w-md text-muted-foreground">
-                        Enter your niche above to find emerging search trends and low-competition topics that your audience is searching for right now.
+                <div
+                    className="rounded-2xl p-16 flex flex-col items-center justify-center text-center"
+                    style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}
+                >
+                    <div
+                        className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5"
+                        style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}
+                    >
+                        <Search className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                        Discover Untapped Keywords
+                    </h3>
+                    <p className="max-w-md text-sm" style={{ color: "var(--text-secondary)" }}>
+                        Enter your niche above to find emerging search trends and low-competition topics your audience is searching for right now.
                     </p>
                 </div>
             )}
