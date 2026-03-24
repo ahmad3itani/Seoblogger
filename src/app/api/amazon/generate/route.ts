@@ -10,6 +10,9 @@ import { generateFeaturedSnippet, generateTrustSection, generateQuickVerdict } f
 import { generateComparisonTable } from "@/lib/amazon/comparison-table";
 import { detectIntent } from "@/lib/amazon/intent";
 
+// Extend timeout for article generation (default is 10s on hobby, 60s on pro)
+export const maxDuration = 120; // 2 minutes
+
 export async function POST(req: Request) {
     try {
         const authResult = await requireAuth();

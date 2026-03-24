@@ -173,6 +173,20 @@ export default function AmazonAffiliatePage() {
         setPublishSuccess(false);
 
         try {
+            // Sanitize products to ensure proper serialization
+            const sanitizedProducts = products.map(p => ({
+                name: p.name || '',
+                searchTerms: p.searchTerms || p.name || '',
+                priceRange: p.priceRange || '',
+                rating: p.rating || '4.5 out of 5',
+                keyFeatures: Array.isArray(p.keyFeatures) ? p.keyFeatures : [],
+                bestFor: p.bestFor || '',
+                affiliateUrl: p.affiliateUrl || '',
+                tier: p.tier,
+                tierLabel: p.tierLabel,
+                tierColor: p.tierColor,
+            }));
+
             const res = await fetch("/api/amazon/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -181,7 +195,7 @@ export default function AmazonAffiliatePage() {
                     storeId: storeId.trim(),
                     storeRegion,
                     productUrl: productUrl.trim() || undefined,
-                    productCount: products.length,
+                    productCount: sanitizedProducts.length,
                     articleType: productUrl.trim() ? "single-review" : articleType,
                     language,
                     tone,
@@ -190,9 +204,21 @@ export default function AmazonAffiliatePage() {
                     includeExternalLinks,
                     customInstructions: customInstructions.trim() || undefined,
                     // Pass pre-researched products to skip research phase
-                    preResearchedProducts: products,
+                    preResearchedProducts: sanitizedProducts,
                 }),
             });
+
+            if (!res.ok) {
+                const text = await res.text();
+                console.error("Generate API error:", res.status, text);
+                try {
+                    const errorData = JSON.parse(text);
+                    setError(errorData.error || `Server error: ${res.status}`);
+                } catch {
+                    setError(`Server error: ${res.status}`);
+                }
+                return;
+            }
 
             const data = await res.json();
             if (data.success && data.article) {
@@ -201,8 +227,9 @@ export default function AmazonAffiliatePage() {
             } else {
                 setError(data.error || "Failed to generate article");
             }
-        } catch (err) {
-            setError("Network error. Please try again.");
+        } catch (err: any) {
+            console.error("Generate error:", err);
+            setError(err?.message || "Network error. Please try again.");
         } finally {
             setIsGenerating(false);
         }
