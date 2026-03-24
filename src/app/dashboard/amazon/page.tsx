@@ -364,37 +364,82 @@ export default function AmazonAffiliatePage() {
     return (
         <div className="space-y-6 max-w-7xl">
             {/* Header */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center"
-                        style={{ background: "rgba(255,153,0,0.12)", border: "1px solid rgba(255,153,0,0.25)" }}
-                    >
-                        <ShoppingCart className="w-5 h-5" style={{ color: "#FF9900" }} />
-                    </div>
-                    <div>
-                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                            Amazon Affiliate SEO Engine
-                        </h1>
-                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                            High-converting product reviews with smart tier selection
-                        </p>
-                    </div>
-                </div>
+            <div
+                className="rounded-2xl p-6 relative overflow-hidden"
+                style={{
+                    background: "linear-gradient(135deg, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.06) 100%)",
+                    border: "1px solid rgba(255, 153, 0, 0.25)",
+                }}
+            >
+                {/* Decorative gradient orb */}
+                <div
+                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20 blur-3xl"
+                    style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
+                />
 
-                {/* Step indicator */}
-                <div className="flex items-center gap-2 text-xs">
-                    <span className={`px-2.5 py-1 rounded-full ${step === 'input' ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-800 text-gray-500'}`}>
-                        1. Configure
-                    </span>
-                    <ArrowRight className="w-3 h-3 text-gray-600" />
-                    <span className={`px-2.5 py-1 rounded-full ${step === 'preview' ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-800 text-gray-500'}`}>
-                        2. Preview
-                    </span>
-                    <ArrowRight className="w-3 h-3 text-gray-600" />
-                    <span className={`px-2.5 py-1 rounded-full ${step === 'result' ? 'bg-orange-500/20 text-orange-400' : 'bg-gray-800 text-gray-500'}`}>
-                        3. Generate
-                    </span>
+                <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-center gap-4">
+                        <div
+                            className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
+                            style={{
+                                background: "linear-gradient(135deg, rgba(255, 153, 0, 0.2) 0%, rgba(255, 153, 0, 0.1) 100%)",
+                                border: "1px solid rgba(255, 153, 0, 0.3)",
+                            }}
+                        >
+                            <ShoppingCart className="w-7 h-7" style={{ color: "#FF9900" }} />
+                        </div>
+                        <div>
+                            <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                Amazon Affiliate Engine
+                            </h1>
+                            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                                High-converting product reviews with smart tier selection
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Enhanced step indicator */}
+                    <div className="hidden lg:block">
+                        <div className="flex items-center gap-3">
+                            {[
+                                { num: 1, label: 'Configure', key: 'input' },
+                                { num: 2, label: 'Preview', key: 'preview' },
+                                { num: 3, label: 'Generate', key: 'result' },
+                            ].map((s, idx) => (
+                                <div key={s.key} className="flex items-center gap-3">
+                                    <div className="flex flex-col items-center gap-1">
+                                        <div
+                                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                                                step === s.key ? 'scale-110' : ''
+                                            }`}
+                                            style={{
+                                                background: step === s.key
+                                                    ? "linear-gradient(135deg, #FF9900 0%, #FF7700 100%)"
+                                                    : "rgba(255, 255, 255, 0.05)",
+                                                color: step === s.key ? "white" : "var(--text-muted)",
+                                                border: step === s.key ? "1px solid rgba(255, 153, 0, 0.5)" : "1px solid var(--border-subtle)",
+                                                boxShadow: step === s.key ? "0 4px 15px rgba(255, 153, 0, 0.3)" : "none",
+                                            }}
+                                        >
+                                            {s.num}
+                                        </div>
+                                        <span
+                                            className="text-[10px] font-medium"
+                                            style={{ color: step === s.key ? "#FF9900" : "var(--text-muted)" }}
+                                        >
+                                            {s.label}
+                                        </span>
+                                    </div>
+                                    {idx < 2 && (
+                                        <ArrowRight
+                                            className="w-4 h-4 mb-4"
+                                            style={{ color: "var(--text-muted)" }}
+                                        />
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -525,7 +570,15 @@ export default function AmazonAffiliatePage() {
                                 <Button
                                     onClick={handleResearch}
                                     disabled={isResearching}
-                                    className="flex-1 h-11 text-sm font-semibold btn-primary"
+                                    className="flex-1 h-12 text-sm font-semibold transition-all duration-300"
+                                    style={{
+                                        background: isResearching
+                                            ? "rgba(255, 153, 0, 0.2)"
+                                            : "linear-gradient(135deg, #FF9900 0%, #FF7700 100%)",
+                                        color: "white",
+                                        border: "1px solid rgba(255, 153, 0, 0.3)",
+                                        boxShadow: isResearching ? "none" : "0 4px 15px rgba(255, 153, 0, 0.3)",
+                                    }}
                                 >
                                     {isResearching ? (
                                         <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Researching...</>
@@ -548,31 +601,67 @@ export default function AmazonAffiliatePage() {
                     {/* Right: Empty state */}
                     <div className="lg:col-span-2 min-h-[500px]">
                         <div
-                            className="rounded-2xl h-full flex flex-col items-center justify-center p-8 text-center"
-                            style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}
+                            className="rounded-2xl h-full flex flex-col items-center justify-center p-12 text-center relative overflow-hidden"
+                            style={{
+                                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                border: "1px dashed var(--border-glass)",
+                            }}
                         >
+                            {/* Decorative elements */}
                             <div
-                                className="w-20 h-20 rounded-2xl flex items-center justify-center mb-6"
-                                style={{ background: "rgba(255,153,0,0.08)", border: "1px solid rgba(255,153,0,0.20)" }}
-                            >
-                                <Package className="w-9 h-9" style={{ color: "#FF9900" }} />
-                            </div>
-                            <h2 className="text-xl font-bold mb-2" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                                Two-Step Generation
-                            </h2>
-                            <p className="text-sm max-w-md mb-4" style={{ color: "var(--text-secondary)" }}>
-                                First, we&apos;ll research products for your niche. Then you can review, reorder, or remove products before generating the article.
-                            </p>
-                            <div className="flex flex-wrap justify-center gap-4 text-xs text-gray-500">
-                                <span className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-green-500" /> Budget picks
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-blue-500" /> Mid-range
-                                </span>
-                                <span className="flex items-center gap-1.5">
-                                    <span className="w-2 h-2 rounded-full bg-purple-500" /> Premium
-                                </span>
+                                className="absolute top-10 right-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
+                                style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
+                            />
+                            <div
+                                className="absolute bottom-10 left-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
+                                style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)" }}
+                            />
+
+                            <div className="relative z-10">
+                                <div
+                                    className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-xl"
+                                    style={{
+                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
+                                        border: "1px solid rgba(255, 153, 0, 0.25)",
+                                    }}
+                                >
+                                    <Package className="w-12 h-12" style={{ color: "#FF9900" }} />
+                                </div>
+                                <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                    Smart Two-Step Generation
+                                </h2>
+                                <p className="text-sm max-w-lg mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
+                                    First, we&apos;ll research and analyze products for your niche using AI. Then you can review, reorder, or customize the selection before generating your SEO-optimized article.
+                                </p>
+
+                                {/* Feature highlights */}
+                                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
+                                    <div className="p-4 rounded-xl" style={{ background: "rgba(34, 197, 94, 0.08)", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
+                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(34, 197, 94, 0.15)" }}>
+                                            <span className="text-lg">💰</span>
+                                        </div>
+                                        <div className="text-xs font-semibold mb-1" style={{ color: "#22C55E" }}>Budget Picks</div>
+                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Value options</div>
+                                    </div>
+                                    <div className="p-4 rounded-xl" style={{ background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
+                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(59, 130, 246, 0.15)" }}>
+                                            <span className="text-lg">⚖️</span>
+                                        </div>
+                                        <div className="text-xs font-semibold mb-1" style={{ color: "#3B82F6" }}>Mid-Range</div>
+                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Balanced choice</div>
+                                    </div>
+                                    <div className="p-4 rounded-xl" style={{ background: "rgba(168, 85, 247, 0.08)", border: "1px solid rgba(168, 85, 247, 0.2)" }}>
+                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(168, 85, 247, 0.15)" }}>
+                                            <span className="text-lg">👑</span>
+                                        </div>
+                                        <div className="text-xs font-semibold mb-1" style={{ color: "#A855F7" }}>Premium</div>
+                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Top quality</div>
+                                    </div>
+                                </div>
+
+                                <div className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                    ✨ AI-powered product research • 🎯 Smart tier selection • 📊 SEO optimization
+                                </div>
                             </div>
                         </div>
                     </div>

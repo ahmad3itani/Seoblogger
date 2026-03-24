@@ -37,22 +37,35 @@ export function ProductPreviewCard({
     ) : null;
 
     return (
-        <div className="group relative bg-[#111827] border border-[#1e293b] rounded-lg p-4 hover:border-[#4F8EFF]/30 transition-colors">
+        <div className="group relative rounded-xl p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl" style={{
+            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+            border: "1px solid var(--border-subtle)",
+        }}>
             {/* Drag handle */}
             {draggable && (
-                <div className="absolute left-2 top-1/2 -translate-y-1/2 cursor-grab opacity-0 group-hover:opacity-50 hover:opacity-100 transition-opacity">
-                    <GripVertical className="w-4 h-4 text-gray-500" />
+                <div className="absolute left-3 top-1/2 -translate-y-1/2 cursor-grab opacity-0 group-hover:opacity-50 hover:opacity-100 transition-opacity">
+                    <GripVertical className="w-5 h-5" style={{ color: "var(--text-muted)" }} />
                 </div>
             )}
 
             <div className={`${draggable ? 'ml-6' : ''}`}>
                 {/* Header row */}
-                <div className="flex items-start justify-between gap-2 mb-2">
+                <div className="flex items-start justify-between gap-2 mb-3">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs text-gray-500 font-medium">#{index + 1}</span>
+                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{
+                            background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
+                            color: "#FF9900",
+                            border: "1px solid rgba(255, 153, 0, 0.2)"
+                        }}>
+                            {index + 1}
+                        </div>
                         {isFirst && (
-                            <span className="px-2 py-0.5 rounded text-xs font-medium bg-green-500/20 text-green-400">
-                                Top Pick
+                            <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
+                                background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)",
+                                color: "#22C55E",
+                                border: "1px solid rgba(34, 197, 94, 0.25)"
+                            }}>
+                                ⭐ Top Pick
                             </span>
                         )}
                         {tierBadge}
@@ -95,34 +108,42 @@ export function ProductPreviewCard({
                 </div>
 
                 {/* Product name */}
-                <h4 className="font-medium text-white mb-2 leading-tight">{product.name}</h4>
+                <h4 className="font-semibold text-base mb-3 leading-snug group-hover:text-orange-400 transition-colors" style={{ color: "var(--text-primary)" }}>
+                    {product.name}
+                </h4>
 
                 {/* Details grid */}
-                <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm mb-3">
-                    <div className="flex items-center gap-1">
-                        <span className="text-gray-500">Price:</span>
-                        <span className="text-orange-400 font-medium">{product.priceRange}</span>
+                <div className="grid grid-cols-2 gap-3 mb-4">
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(255, 153, 0, 0.08)", border: "1px solid rgba(255, 153, 0, 0.15)" }}>
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>Price:</span>
+                        <span className="text-sm font-bold" style={{ color: "#FF9900" }}>{product.priceRange}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                        <span className="text-gray-500">Rating:</span>
-                        <span className="text-yellow-400">⭐ {product.rating}</span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(234, 179, 8, 0.08)", border: "1px solid rgba(234, 179, 8, 0.15)" }}>
+                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>Rating:</span>
+                        <span className="text-sm font-bold" style={{ color: "#EAB308" }}>⭐ {product.rating}</span>
                     </div>
                 </div>
 
                 {/* Best for */}
-                <p className="text-sm text-gray-400 mb-3">
-                    <span className="text-gray-500">Best for:</span> {product.bestFor}
-                </p>
+                <div className="mb-4 p-3 rounded-lg" style={{ background: "rgba(108, 76, 241, 0.05)", border: "1px solid rgba(108, 76, 241, 0.1)" }}>
+                    <div className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: "var(--text-muted)" }}>Best For</div>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{product.bestFor}</p>
+                </div>
 
                 {/* Key features */}
                 {product.keyFeatures && product.keyFeatures.length > 0 && (
-                    <div className="mb-3">
-                        <p className="text-xs text-gray-500 mb-1">Key Features:</p>
-                        <div className="flex flex-wrap gap-1">
+                    <div className="mb-4">
+                        <div className="text-[10px] uppercase tracking-wider mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Key Features</div>
+                        <div className="flex flex-wrap gap-2">
                             {product.keyFeatures.slice(0, 4).map((feature, i) => (
                                 <span
                                     key={i}
-                                    className="px-2 py-0.5 rounded bg-[#1e293b] text-gray-400 text-xs"
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+                                    style={{
+                                        background: "rgba(255, 255, 255, 0.04)",
+                                        color: "var(--text-secondary)",
+                                        border: "1px solid var(--border-subtle)"
+                                    }}
                                 >
                                     {feature}
                                 </span>
@@ -137,9 +158,14 @@ export function ProductPreviewCard({
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs text-[#4F8EFF] hover:text-[#6ba3ff] transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                        style={{
+                            background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
+                            color: "#FF9900",
+                            border: "1px solid rgba(255, 153, 0, 0.25)"
+                        }}
                     >
-                        <ExternalLink className="w-3 h-3" />
+                        <ExternalLink className="w-3.5 h-3.5" />
                         View on Amazon
                     </a>
                 )}
