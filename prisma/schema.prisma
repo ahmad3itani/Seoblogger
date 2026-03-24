@@ -54,7 +54,8 @@ model User {
   agentRuns     AgentRun[]
   articleDrafts ArticleDraft[]
   styleGuides   WritingStyleGuide[]
-  
+  autopilotSessions AutopilotSession[]
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 }
@@ -875,4 +876,38 @@ model ScanReport {
   scanDurationMs   Int       @default(0)
   completedAt      DateTime  @default(now())
   createdAt        DateTime  @default(now())
+}
+
+// ─── SEO AUTOPILOT ENGINE ────────────────────────────────────
+
+model AutopilotSession {
+  id          String   @id @default(cuid())
+  userId      String   @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Source data
+  blogId      String
+  blogName    String
+  postsAnalyzed Int    @default(0)
+
+  // Settings
+  language    String   @default("en")
+  niche       String?
+  depthLevel  String   @default("standard") // standard, aggressive
+
+  // Analysis results
+  summary     Json     @default("{}") // ContentPlanSummary
+  contentPlan Json     @default("{}") // ContentPlan (grouped by priority)
+
+  // Status
+  status      String   @default("completed") // analyzing, completed, failed
+  errorMessage String?
+  durationMs  Int      @default(0)
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([blogId])
+  @@index([createdAt(sort: Desc)])
 }

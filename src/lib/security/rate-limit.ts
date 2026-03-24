@@ -89,6 +89,8 @@ export const RATE_LIMITS = {
   api: { requests: 30, window: 60_000 },
   // Auth operations - strict to prevent brute force
   auth: { requests: 5, window: 300_000 },
+  // SEO Autopilot analysis - expensive AI operation
+  autopilot: { requests: 3, window: 60_000 },
 } as const;
 
 // ─── Main Rate Limit Function ────────────────────────────────────────────────────

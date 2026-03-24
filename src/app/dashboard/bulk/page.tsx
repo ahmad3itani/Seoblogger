@@ -6,9 +6,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Play, Loader2, CheckCircle2, Circle, Clock, Check, Megaphone, Upload, Download, X, Calendar, ExternalLink, Edit, Trash2 } from "lucide-react";
+import { Play, Loader2, CheckCircle2, Circle, Clock, Check, Megaphone, Upload, Download, X, Calendar, ExternalLink, Edit, Trash2, Sparkles, FileText } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AutopilotPanel } from "@/components/dashboard/bulk/autopilot-panel";
 
 interface BrandProfile {
     id: string;
@@ -28,6 +29,7 @@ interface BulkJob {
 }
 
 export default function BulkGeneratePage() {
+    const [activeTab, setActiveTab] = useState<"keywords" | "autopilot">("keywords");
     const [keywordsInput, setKeywordsInput] = useState("");
 
     // Global Options
@@ -191,26 +193,75 @@ export default function BulkGeneratePage() {
         { label: "Schema (SEO)", value: includeSchema, setter: setIncludeSchema },
     ];
 
+    // Handle keywords from autopilot selection
+    const handleAutopilotGenerate = (keywords: string[]) => {
+        setKeywordsInput(keywords.join("\n"));
+        setActiveTab("keywords");
+    };
+
     return (
         <div className="space-y-6 max-w-6xl">
             {/* Header */}
-            <div className="flex items-center gap-3">
-                <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
-                >
-                    <Play className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
+                    >
+                        <Play className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                            Bulk Generator
+                        </h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                            Generate multiple articles from a list of keywords
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                        Bulk Generator
-                    </h1>
-                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
-                        Generate multiple articles from a list of keywords
-                    </p>
+
+                {/* Tab Switcher */}
+                <div
+                    className="flex rounded-xl p-1"
+                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-subtle)" }}
+                >
+                    <button
+                        onClick={() => setActiveTab("keywords")}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all"
+                        style={activeTab === "keywords" ? {
+                            background: "var(--brand-primary)",
+                            color: "white",
+                        } : {
+                            color: "var(--text-muted)",
+                        }}
+                    >
+                        <FileText className="w-3.5 h-3.5" />
+                        Keywords
+                    </button>
+                    <button
+                        onClick={() => setActiveTab("autopilot")}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium transition-all"
+                        style={activeTab === "autopilot" ? {
+                            background: "var(--brand-primary)",
+                            color: "white",
+                        } : {
+                            color: "var(--text-muted)",
+                        }}
+                    >
+                        <Sparkles className="w-3.5 h-3.5" />
+                        SEO Autopilot
+                    </button>
                 </div>
             </div>
 
+            {/* Autopilot Tab Content */}
+            {activeTab === "autopilot" && (
+                <AutopilotPanel onGenerateSelected={handleAutopilotGenerate} />
+            )}
+
+            {/* Keywords Tab Content */}
+            {activeTab === "keywords" && (
+            <>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Left: Settings */}
                 <div className="lg:col-span-1 space-y-5">
@@ -554,6 +605,8 @@ export default function BulkGeneratePage() {
                         ))}
                     </div>
                 </div>
+            )}
+            </>
             )}
         </div>
     );
