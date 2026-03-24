@@ -919,65 +919,114 @@ export default function AmazonAffiliatePage() {
                         <>
                             {/* Stats Bar */}
                             <div
-                                className="rounded-2xl p-4"
-                                style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                                className="rounded-2xl p-5 relative overflow-hidden"
+                                style={{
+                                    background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                    border: "1px solid var(--border-subtle)"
+                                }}
                             >
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-primary)", border: "1px solid var(--border-subtle)" }}>
-                                        {generatedArticle.wordCount.toLocaleString()} words
-                                    </span>
-                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(255,153,0,0.08)", color: "#FF9900", border: "1px solid rgba(255,153,0,0.20)" }}>
-                                        {generatedArticle.affiliateLinkCount} affiliate links
-                                    </span>
-                                    <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
-                                        {generatedArticle.articleType}
-                                    </span>
+                                {/* Decorative gradient */}
+                                <div
+                                    className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
+                                    style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
+                                />
 
-                                    <div className="ml-auto flex gap-1.5">
+                                <div className="flex flex-wrap items-center gap-3 relative z-10">
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{
+                                        background: "rgba(255, 255, 255, 0.04)",
+                                        border: "1px solid var(--border-subtle)"
+                                    }}>
+                                        <span className="text-xs font-medium" style={{ color: "var(--text-muted)" }}>Words:</span>
+                                        <span className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>
+                                            {generatedArticle.wordCount.toLocaleString()}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{
+                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.06) 100%)",
+                                        border: "1px solid rgba(255, 153, 0, 0.25)"
+                                    }}>
+                                        <span className="text-xs font-medium" style={{ color: "rgba(255, 153, 0, 0.8)" }}>Links:</span>
+                                        <span className="text-sm font-bold" style={{ color: "#FF9900" }}>
+                                            {generatedArticle.affiliateLinkCount}
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 px-4 py-2 rounded-xl" style={{
+                                        background: "linear-gradient(135deg, rgba(108, 76, 241, 0.12) 0%, rgba(108, 76, 241, 0.06) 100%)",
+                                        border: "1px solid rgba(108, 76, 241, 0.25)"
+                                    }}>
+                                        <span className="text-xs font-medium" style={{ color: "rgba(108, 76, 241, 0.8)" }}>Type:</span>
+                                        <span className="text-sm font-bold" style={{ color: "var(--brand-primary)" }}>
+                                            {generatedArticle.articleType}
+                                        </span>
+                                    </div>
+
+                                    <div className="ml-auto flex gap-2">
                                         <button
                                             onClick={handleCopyHTML}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                                            style={{
+                                                background: copied ? "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)" : "rgba(255, 255, 255, 0.04)",
+                                                border: copied ? "1px solid rgba(34, 197, 94, 0.25)" : "1px solid var(--border-subtle)",
+                                                color: copied ? "#22C55E" : "var(--text-secondary)"
+                                            }}
                                         >
-                                            {copied ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                                            {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                                             {copied ? "Copied!" : "Copy"}
                                         </button>
                                         <button
                                             onClick={() => setShowPreview(!showPreview)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
-                                            style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}
+                                            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105"
+                                            style={{
+                                                background: "rgba(255, 255, 255, 0.04)",
+                                                border: "1px solid var(--border-subtle)",
+                                                color: "var(--text-secondary)"
+                                            }}
                                         >
-                                            <Eye className="w-3 h-3" />
+                                            <Eye className="w-3.5 h-3.5" />
                                             {showPreview ? "Source" : "Preview"}
                                         </button>
                                         <Button
                                             size="sm"
                                             onClick={handlePublish}
                                             disabled={isPublishing || publishSuccess}
-                                            className="h-7 text-xs btn-primary px-3"
+                                            className="h-9 text-xs font-semibold px-4 transition-all hover:scale-105"
+                                            style={{
+                                                background: publishSuccess
+                                                    ? "linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(34, 197, 94, 0.1) 100%)"
+                                                    : isPublishing
+                                                    ? "rgba(255, 153, 0, 0.2)"
+                                                    : "linear-gradient(135deg, #FF9900 0%, #FF7700 100%)",
+                                                color: "white",
+                                                border: publishSuccess ? "1px solid rgba(34, 197, 94, 0.3)" : "1px solid rgba(255, 153, 0, 0.3)",
+                                                boxShadow: publishSuccess || isPublishing ? "none" : "0 4px 15px rgba(255, 153, 0, 0.3)"
+                                            }}
                                         >
                                             {publishSuccess ? (
-                                                <><Check className="w-3 h-3 mr-1" /> Published!</>
+                                                <><Check className="w-3.5 h-3.5 mr-1.5" /> Published!</>
                                             ) : isPublishing ? (
-                                                <><Loader2 className="w-3 h-3 mr-1 animate-spin" /> Publishing...</>
+                                                <><Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> Publishing...</>
                                             ) : (
-                                                <><Send className="w-3 h-3 mr-1" /> Publish</>
+                                                <><Send className="w-3.5 h-3.5 mr-1.5" /> Publish</>
                                             )}
                                         </Button>
                                         {publishSuccess && publishedUrl && (
                                             <a href={publishedUrl} target="_blank" rel="noopener noreferrer">
-                                                <button className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}>
-                                                    <ExternalLink className="w-3 h-3" /> View
+                                                <button className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold transition-all hover:scale-105" style={{
+                                                    background: "rgba(255, 255, 255, 0.04)",
+                                                    border: "1px solid var(--border-subtle)",
+                                                    color: "var(--text-secondary)"
+                                                }}>
+                                                    <ExternalLink className="w-3.5 h-3.5" /> View
                                                 </button>
                                             </a>
                                         )}
                                         <button
                                             onClick={handleStartOver}
-                                            className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs transition-all"
+                                            className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs transition-all hover:scale-105"
                                             style={{ color: "var(--text-muted)" }}
                                             title="Start Over"
                                         >
-                                            <RefreshCw className="w-3 h-3" />
+                                            <RefreshCw className="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                 </div>
@@ -986,27 +1035,59 @@ export default function AmazonAffiliatePage() {
                             {/* Products summary */}
                             {generatedArticle.products && generatedArticle.products.length > 0 && (
                                 <div
-                                    className="rounded-2xl p-4"
-                                    style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                                    className="rounded-2xl p-5 relative overflow-hidden"
+                                    style={{
+                                        background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                        border: "1px solid var(--border-subtle)"
+                                    }}
                                 >
-                                    <h4 className="text-[10px] font-semibold uppercase tracking-wider mb-3" style={{ color: "var(--text-muted)" }}>Products Featured</h4>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                                        {generatedArticle.products.map((product, i) => (
-                                            <a
-                                                key={i}
-                                                href={product.affiliateUrl}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="flex items-start gap-2 p-2.5 rounded-xl text-xs transition-all"
-                                                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-subtle)" }}
-                                            >
-                                                <div className="w-5 h-5 rounded flex items-center justify-center shrink-0 text-[9px] font-bold" style={{ background: "rgba(255,153,0,0.10)", color: "#FF9900" }}>{i + 1}</div>
-                                                <div className="min-w-0">
-                                                    <p className="font-medium truncate" style={{ color: "var(--text-primary)" }}>{product.name}</p>
-                                                    <p style={{ color: "var(--text-muted)" }}>{product.priceRange} · {product.rating}</p>
-                                                </div>
-                                            </a>
-                                        ))}
+                                    {/* Decorative gradient */}
+                                    <div
+                                        className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
+                                        style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)" }}
+                                    />
+
+                                    <div className="relative z-10">
+                                        <div className="flex items-center gap-2 mb-4">
+                                            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
+                                                background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
+                                                border: "1px solid rgba(255, 153, 0, 0.2)"
+                                            }}>
+                                                <Package className="w-4 h-4" style={{ color: "#FF9900" }} />
+                                            </div>
+                                            <h4 className="text-sm font-bold" style={{ color: "var(--text-primary)" }}>Featured Products</h4>
+                                        </div>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {generatedArticle.products.map((product, i) => (
+                                                <a
+                                                    key={i}
+                                                    href={product.affiliateUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="flex items-start gap-3 p-3 rounded-xl text-xs transition-all hover:scale-105 hover:shadow-lg"
+                                                    style={{
+                                                        background: "rgba(255, 255, 255, 0.02)",
+                                                        border: "1px solid var(--border-subtle)"
+                                                    }}
+                                                >
+                                                    <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0 text-xs font-bold" style={{
+                                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
+                                                        color: "#FF9900",
+                                                        border: "1px solid rgba(255, 153, 0, 0.2)"
+                                                    }}>
+                                                        {i + 1}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-semibold truncate mb-1" style={{ color: "var(--text-primary)" }}>{product.name}</p>
+                                                        <div className="flex items-center gap-2 text-[10px]">
+                                                            <span style={{ color: "#FF9900" }}>{product.priceRange}</span>
+                                                            <span style={{ color: "var(--text-muted)" }}>·</span>
+                                                            <span style={{ color: "#EAB308" }}>⭐ {product.rating}</span>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            ))}
+                                        </div>
                                     </div>
                                 </div>
                             )}
