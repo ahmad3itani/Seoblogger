@@ -40,6 +40,7 @@ export async function POST(req: Request) {
             customInstructions,
             includeImages = true,
             blogId,
+            preResearchedProducts, // Optional: skip research if products provided from preview
         } = await req.json();
 
         if (!niche || !storeId) {
@@ -115,6 +116,7 @@ export async function POST(req: Request) {
             blogId,
             existingPostsList,
             includeExternalLinks,
+            preResearchedProducts, // Skip research phase if products provided from preview
         });
 
         const {

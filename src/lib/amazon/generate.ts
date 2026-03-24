@@ -95,6 +95,7 @@ export interface AmazonGenerationOptions {
     blogId?: string;
     existingPostsList?: string;
     includeExternalLinks?: boolean;
+    preResearchedProducts?: AmazonProduct[]; // Skip research if products provided from preview
 }
 
 export interface AmazonArticleResult {
@@ -627,6 +628,7 @@ export async function generateAmazonArticle(
         userPlan,
         includeImages = true,
         numInlineImages = 3,
+        preResearchedProducts,
     } = options;
 
     const region = getRegion(storeRegion);
@@ -634,14 +636,18 @@ export async function generateAmazonArticle(
     // Force single-review when a specific product URL is provided
     const articleType = isUrlReview ? "single-review" : requestedArticleType;
 
-    // ── Step 1: Research products ──
+    // ── Step 1: Research products (skip if pre-researched) ──
     let products: AmazonProduct[];
 
-    if (isUrlReview) {
-        console.log(`� Step 1: Researching specific product from URL: ${productUrl}`);
+    if (preResearchedProducts && preResearchedProducts.length > 0) {
+        // Use pre-researched products from preview step (skip research)
+        console.log(`⚡ Step 1: Using ${preResearchedProducts.length} pre-researched products (skipping research)...`);
+        products = preResearchedProducts;
+    } else if (isUrlReview) {
+        console.log(`📦 Step 1: Researching specific product from URL: ${productUrl}`);
         products = await researchProductFromUrl(productUrl!, niche, userPlan, storeRegion);
     } else {
-        console.log(`�🔍 Step 1: Researching ${productCount} products for "${niche}" on Amazon ${region.name}...`);
+        console.log(`🔍 Step 1: Researching ${productCount} products for "${niche}" on Amazon ${region.name}...`);
         products = await researchProducts(niche, productCount, articleType, userPlan, storeRegion);
     }
 
