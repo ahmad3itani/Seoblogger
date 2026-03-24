@@ -6,6 +6,9 @@ import { generateAmazonArticle } from "@/lib/amazon/generate";
 import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
+import { generateFeaturedSnippet, generateTrustSection, generateQuickVerdict } from "@/lib/amazon/featured-snippet";
+import { generateComparisonTable } from "@/lib/amazon/comparison-table";
+import { detectIntent } from "@/lib/amazon/intent";
 
 export async function POST(req: Request) {
     try {
@@ -127,8 +130,87 @@ export async function POST(req: Request) {
             affiliateLinkCount,
         } = result;
 
+        // ── Detect search intent for analytics ──
+        const intentResult = detectIntent(niche);
+        console.log(`🎯 Intent detected: ${intentResult.intent} (${intentResult.confidence} confidence, affiliate-ready: ${intentResult.isAffiliateReady})`);
+
+        // ── Generate programmatic SEO components ──
+        const keyword = `best ${niche}`;
+
+        // 1. Featured snippet (targets Google position 0)
+        const featuredSnippetHtml = generateFeaturedSnippet({
+            keyword,
+            products,
+            niche,
+            year: new Date().getFullYear(),
+        });
+
+        // 2. Comparison table (consistent formatting, not AI-generated)
+        const comparisonTableHtml = generateComparisonTable(products, {
+            showRating: true,
+            showPrice: true,
+            showBestFor: true,
+            showCta: true,
+            ctaText: 'Check Price →',
+            highlightFirst: true,
+        });
+
+        // 3. Trust section (E-E-A-T signals)
+        const trustSectionHtml = generateTrustSection(products.length * 5, niche);
+
+        // 4. Quick verdict for conclusion
+        const quickVerdictHtml = generateQuickVerdict(products, keyword);
+
+        console.log(`📊 Generated: featured snippet, comparison table, trust section, quick verdict`);
+
         // ── Format for Blogger (same as /api/generate) ──
         let fullContent = article;
+
+        // ══════════════════════════════════════════════════════════════════
+        // INJECT PROGRAMMATIC SEO COMPONENTS
+        // ══════════════════════════════════════════════════════════════════
+
+        // 1. Insert FEATURED SNIPPET at the very top (targets Google Position 0)
+        if (featuredSnippetHtml) {
+            // Find the first <h2> or <p> to insert the featured snippet before
+            const firstH2Match = fullContent.match(/<h2[^>]*>/i);
+            if (firstH2Match && firstH2Match.index !== undefined) {
+                fullContent = fullContent.slice(0, firstH2Match.index) +
+                    featuredSnippetHtml + '\n\n' +
+                    fullContent.slice(firstH2Match.index);
+            } else {
+                // No H2 found, prepend to content
+                fullContent = featuredSnippetHtml + '\n\n' + fullContent;
+            }
+        }
+
+        // 2. Insert COMPARISON TABLE after the intro section (first H2)
+        if (comparisonTableHtml) {
+            const h2Matches = [...fullContent.matchAll(/<\/h2>/gi)];
+            if (h2Matches.length >= 1) {
+                // Insert after the first H2 section's content (after second </h2> or after first section)
+                const insertIndex = h2Matches[0].index! + h2Matches[0][0].length;
+
+                // Find the end of the first paragraph after the first H2
+                const afterFirstH2 = fullContent.slice(insertIndex);
+                const firstParaEnd = afterFirstH2.indexOf('</p>');
+
+                if (firstParaEnd !== -1) {
+                    const actualInsertPoint = insertIndex + firstParaEnd + 4; // +4 for '</p>'
+                    fullContent = fullContent.slice(0, actualInsertPoint) +
+                        '\n\n<h2>Quick Comparison</h2>\n' + comparisonTableHtml + '\n' +
+                        fullContent.slice(actualInsertPoint);
+                }
+            }
+        }
+
+        // 3. Insert TRUST SECTION and QUICK VERDICT before FAQ (end of article)
+        // These go BEFORE the FAQ section
+        const seoClosingSection = `
+${trustSectionHtml}
+
+${quickVerdictHtml}
+`.trim();
 
         // Embed inline product images evenly across article
         if (inlineImages.length > 0) {
@@ -166,9 +248,12 @@ export async function POST(req: Request) {
             }
         }
 
-        // Append FAQ HTML
+        // Append Trust Section + Quick Verdict + FAQ HTML
+        if (seoClosingSection) {
+            fullContent += '\n\n' + seoClosingSection;
+        }
         if (faqs.length > 0) {
-            fullContent += generateFaqHtml(faqs);
+            fullContent += '\n\n' + generateFaqHtml(faqs);
         }
 
         // Generate schema markup

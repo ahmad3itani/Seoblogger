@@ -63,6 +63,8 @@ export function getRegion(code?: string): AmazonRegion {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+export type ProductTier = 'budget' | 'mid-range' | 'premium';
+
 export interface AmazonProduct {
     name: string;
     searchTerms: string;
@@ -71,6 +73,9 @@ export interface AmazonProduct {
     keyFeatures: string[];
     bestFor: string;
     affiliateUrl: string;
+    tier?: ProductTier;
+    tierLabel?: string;
+    tierColor?: string;
 }
 
 export interface AmazonGenerationOptions {
@@ -103,6 +108,88 @@ export interface AmazonArticleResult {
     inlineImages: Array<{ url: string; altText: string }>;
     wordCount: number;
     affiliateLinkCount: number;
+}
+
+// ─── Product Tier Utilities ─────────────────────────────────────────────────
+
+/**
+ * Get tier info from price range string
+ */
+export function inferTierFromPrice(priceRange: string): { tier: ProductTier; label: string; color: string } {
+    // Extract price numbers from range like "$50-$100" or "CA$150"
+    const prices = priceRange.match(/\d+/g);
+    if (!prices || prices.length === 0) {
+        return { tier: 'mid-range', label: 'Mid-Range', color: '#3B82F6' };
+    }
+
+    const avgPrice = prices.reduce((sum, p) => sum + parseInt(p, 10), 0) / prices.length;
+
+    if (avgPrice < 50) {
+        return { tier: 'budget', label: 'Budget Pick', color: '#22C55E' };
+    } else if (avgPrice < 150) {
+        return { tier: 'mid-range', label: 'Mid-Range', color: '#3B82F6' };
+    } else {
+        return { tier: 'premium', label: 'Premium', color: '#A855F7' };
+    }
+}
+
+/**
+ * Validate and auto-categorize product tiers
+ * If AI didn't provide tier, infer from price range
+ */
+export function validateProductTiers(products: AmazonProduct[]): AmazonProduct[] {
+    return products.map(product => {
+        // If tier already set correctly, just add label/color
+        if (product.tier && ['budget', 'mid-range', 'premium'].includes(product.tier)) {
+            const tierInfo = getTierInfo(product.tier);
+            return {
+                ...product,
+                tierLabel: tierInfo.label,
+                tierColor: tierInfo.color,
+            };
+        }
+
+        // Auto-infer tier from price if missing
+        const inferred = inferTierFromPrice(product.priceRange);
+        return {
+            ...product,
+            tier: inferred.tier,
+            tierLabel: inferred.label,
+            tierColor: inferred.color,
+        };
+    });
+}
+
+/**
+ * Get tier display info
+ */
+function getTierInfo(tier: ProductTier): { label: string; color: string } {
+    switch (tier) {
+        case 'budget':
+            return { label: 'Budget Pick', color: '#22C55E' };
+        case 'mid-range':
+            return { label: 'Mid-Range', color: '#3B82F6' };
+        case 'premium':
+            return { label: 'Premium', color: '#A855F7' };
+    }
+}
+
+/**
+ * Check if product list has good tier diversity
+ */
+export function checkTierDiversity(products: AmazonProduct[]): {
+    hasBudget: boolean;
+    hasMidRange: boolean;
+    hasPremium: boolean;
+    isBalanced: boolean;
+} {
+    const tiers = products.map(p => p.tier);
+    const hasBudget = tiers.includes('budget');
+    const hasMidRange = tiers.includes('mid-range');
+    const hasPremium = tiers.includes('premium');
+    const isBalanced = hasBudget && hasMidRange && hasPremium;
+
+    return { hasBudget, hasMidRange, hasPremium, isBalanced };
 }
 
 // ─── Step 1: AI Product Research ────────────────────────────────────────────
@@ -149,7 +236,17 @@ CRITICAL RULES:
 - Pick products that have thousands of reviews on Amazon (popular, well-known items)
 - Include accurate price ranges in ${region.currency} (${region.currencySymbol})
 - Include realistic ratings (4.0-4.8 range)
-- Cover different price tiers: budget, mid-range, and premium
+
+MANDATORY PRICE TIER DISTRIBUTION (CRITICAL):
+You MUST include products from ALL three price tiers:
+1. BUDGET (1-2 products): Affordable options under ${region.currencySymbol}50 — best value for money
+2. MID-RANGE (2-3 products): Popular mainstream options ${region.currencySymbol}50-${region.currencySymbol}150 — best balance of features/price
+3. PREMIUM (1-2 products): High-end options over ${region.currencySymbol}150 — best performance/features
+
+For each product, you MUST specify the "tier" field as one of: "budget", "mid-range", or "premium"
+
+ARTICLE TYPE RULES:
+- For roundup: include budget + mid-range + premium picks
 - For single-review: pick THE most popular product in that exact category
 - For comparison: pick 2-3 direct competitors at similar price points
 - For buyer's guide: pick products across different sub-categories/use cases
@@ -168,6 +265,8 @@ Return ONLY a valid JSON array.`
 
 All prices MUST be in ${region.currency} (${region.currencySymbol}).
 
+IMPORTANT: Include products from ALL price tiers (budget, mid-range, premium).
+
 Return JSON array:
 [
   {
@@ -176,7 +275,8 @@ Return JSON array:
     "priceRange": "${region.currencySymbol}XX-${region.currencySymbol}XX",
     "rating": "4.X out of 5",
     "keyFeatures": ["feature 1", "feature 2", "feature 3", "feature 4"],
-    "bestFor": "Best for [specific use case]"
+    "bestFor": "Best for [specific use case]",
+    "tier": "budget | mid-range | premium"
   }
 ]
 
@@ -190,7 +290,16 @@ BAD searchTerms: "Breville BES870XL Barista Express", "Sony WH-1000XM5 Wireless"
     const content = response.choices[0]?.message?.content || "[]";
     try {
         const parsed = JSON.parse(cleanJSON(content));
-        return Array.isArray(parsed) ? parsed : [];
+        const products = Array.isArray(parsed) ? parsed : [];
+
+        // Validate and auto-assign tiers
+        const validatedProducts = validateProductTiers(products);
+
+        // Log tier distribution
+        const tierDiversity = checkTierDiversity(validatedProducts);
+        console.log(`📊 Tier distribution: Budget=${tierDiversity.hasBudget}, Mid=${tierDiversity.hasMidRange}, Premium=${tierDiversity.hasPremium}`);
+
+        return validatedProducts;
     } catch {
         console.error("Failed to parse product research, using fallback");
         return [];
