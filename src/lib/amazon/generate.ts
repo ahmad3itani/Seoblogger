@@ -711,39 +711,41 @@ export async function generateAmazonArticle(
     console.log(`✍️ Step 6: Writing ${wordCount}-word article...`);
     const article = await generateArticle(selectedTitle, outline, genOptions);
 
-    // ── Step 7: Generate FAQs (same function as regular articles) ──
-    console.log(`❓ Step 7: Generating FAQs...`);
-    const faqs = await generateFAQ(keyword, article, language, niche, userPlan);
+    // ══════════════════════════════════════════════════════════════════
+    // Steps 7-9: Run FAQ, Meta, and Images IN PARALLEL for speed
+    // These all only depend on the article, not on each other
+    // ══════════════════════════════════════════════════════════════════
+    console.log(`⚡ Steps 7-9: Generating FAQ, meta, and images in parallel...`);
 
-    // ── Step 8: Generate meta (same function as regular articles) ──
-    console.log(`🔖 Step 8: Generating meta description...`);
-    const meta = await generateMeta(selectedTitle, article, keyword, language, userPlan);
+    // Build image promises if needed
+    const imagesToGenerate = includeImages ? Math.min(products.length, numInlineImages) : 0;
+    const imagePromises = includeImages ? [
+        generateFeaturedImage(selectedTitle, keyword, "featured", undefined, 0),
+        ...products.slice(0, imagesToGenerate).map((product, i) =>
+            generateFeaturedImage(selectedTitle, product.name, "content", product.name, i + 1)
+        ),
+    ] : [];
 
-    // ── Step 9: Generate product images (same Cloudflare AI system) ──
+    // Run everything in parallel
+    const [faqs, meta, ...imageResults] = await Promise.all([
+        // FAQ generation
+        generateFAQ(keyword, article, language, niche, userPlan),
+        // Meta generation
+        generateMeta(selectedTitle, article, keyword, language, userPlan),
+        // All images in parallel
+        ...imagePromises,
+    ]);
+
+    // Process image results
     let featuredImage: { url: string; altText: string } | undefined;
-    const inlineImages: Array<{ url: string; altText: string }> = [];
+    let inlineImages: Array<{ url: string; altText: string }> = [];
 
-    if (includeImages) {
-        console.log(`🖼️ Step 9: Generating AI product images...`);
-
-        // Featured image for the article
-        featuredImage = await generateFeaturedImage(selectedTitle, keyword, "featured", undefined, 0);
-
-        // One image per product (or up to numInlineImages)
-        const imagesToGenerate = Math.min(products.length, numInlineImages);
-        for (let i = 0; i < imagesToGenerate; i++) {
-            console.log(`  🖼️ Product image ${i + 1}/${imagesToGenerate}: ${products[i].name}`);
-            const img = await generateFeaturedImage(
-                selectedTitle,
-                products[i].name,
-                "content",
-                products[i].name, // section context = product name for relevant images
-                i + 1 // varied styles
-            );
-            if (img.url) {
-                inlineImages.push(img);
-            }
-        }
+    if (includeImages && imageResults.length > 0) {
+        featuredImage = imageResults[0] as { url: string; altText: string };
+        inlineImages = (imageResults.slice(1) as Array<{ url: string; altText: string }>).filter(img => img?.url);
+        console.log(`  ✅ Generated FAQ, meta, and ${inlineImages.length + 1} images in parallel`);
+    } else {
+        console.log(`  ✅ Generated FAQ and meta (images disabled)`);
     }
 
     // Count affiliate links
