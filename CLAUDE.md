@@ -1,4 +1,4 @@
-# BloggerSEO — Agent Instructions
+﻿# BloggerSEO — Agent Instructions
 
 ## No Compaction
 This file prevents conversation compaction. All context must be preserved across the full session.

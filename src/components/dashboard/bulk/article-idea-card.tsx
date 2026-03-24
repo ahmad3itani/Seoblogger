@@ -28,10 +28,13 @@ export function ArticleIdeaCard({ idea, selected, onSelect }: ArticleIdeaCardPro
 
   return (
     <div
-      className="rounded-xl p-4 transition-all cursor-pointer group"
+      className="rounded-xl p-4 transition-all duration-300 cursor-pointer group hover:scale-[1.01] hover:shadow-lg"
       style={{
-        background: selected ? "rgba(108, 76, 241, 0.08)" : "rgba(255, 255, 255, 0.02)",
-        border: selected ? "1px solid rgba(108, 76, 241, 0.30)" : "1px solid var(--border-subtle)",
+        background: selected 
+          ? "linear-gradient(135deg, rgba(108, 76, 241, 0.12) 0%, rgba(108, 76, 241, 0.06) 100%)"
+          : "rgba(255, 255, 255, 0.02)",
+        border: selected ? "1px solid rgba(108, 76, 241, 0.40)" : "1px solid var(--border-subtle)",
+        boxShadow: selected ? "0 0 20px rgba(108, 76, 241, 0.15)" : "none",
       }}
       onClick={onSelect}
     >
@@ -42,29 +45,31 @@ export function ArticleIdeaCard({ idea, selected, onSelect }: ArticleIdeaCardPro
             e.stopPropagation();
             onSelect();
           }}
-          className="mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all"
+          className="mt-0.5 w-5 h-5 rounded flex items-center justify-center flex-shrink-0 transition-all duration-200 hover:scale-110"
           style={
             selected
-              ? { background: "var(--brand-primary)" }
+              ? { background: "var(--brand-primary)", boxShadow: "0 0 10px rgba(108, 76, 241, 0.5)" }
               : { background: "transparent", border: "2px solid rgba(255, 255, 255, 0.15)" }
           }
         >
-          {selected && <Check className="w-3 h-3 text-white" />}
+          {selected && <Check className="w-3 h-3 text-white animate-in fade-in duration-200" />}
         </button>
 
         <div className="flex-1 min-w-0">
           {/* Title */}
           <h4
-            className="text-sm font-semibold mb-1 group-hover:text-purple-400 transition-colors"
+            className="text-sm font-semibold mb-1 group-hover:text-purple-400 transition-colors duration-200 leading-snug"
             style={{ color: "var(--text-primary)" }}
           >
             {idea.title}
           </h4>
 
           {/* Keyword */}
-          <div className="flex items-center gap-2 mb-2">
-            <Target className="w-3 h-3" style={{ color: "var(--text-muted)" }} />
-            <span className="text-xs font-medium" style={{ color: "var(--brand-primary)" }}>
+          <div className="flex items-center gap-2 mb-3">
+            <div className="p-1 rounded" style={{ background: "rgba(108, 76, 241, 0.1)" }}>
+              <Target className="w-3 h-3" style={{ color: "var(--brand-primary)" }} />
+            </div>
+            <span className="text-xs font-semibold" style={{ color: "var(--brand-primary)" }}>
               {idea.keyword}
             </span>
           </div>

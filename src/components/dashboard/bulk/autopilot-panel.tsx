@@ -211,10 +211,16 @@ export function AutopilotPanel({ onGenerateSelected }: AutopilotPanelProps) {
             </div>
           ) : blogs.length === 0 ? (
             <div
-              className="h-9 flex items-center justify-center text-xs rounded-lg"
-              style={{ background: "rgba(239, 68, 68, 0.08)", color: "#EF4444" }}
+              className="p-4 rounded-lg text-center space-y-2"
+              style={{ background: "rgba(239, 68, 68, 0.08)", border: "1px solid rgba(239, 68, 68, 0.2)" }}
             >
-              No blogs connected. Please add a blog first.
+              <AlertCircle className="w-8 h-8 mx-auto" style={{ color: "#EF4444" }} />
+              <div className="text-xs font-medium" style={{ color: "#EF4444" }}>
+                No blogs connected
+              </div>
+              <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                Connect a blog in Settings to use Autopilot
+              </div>
             </div>
           ) : (
             <Select value={selectedBlogId} onValueChange={(v) => v && setSelectedBlogId(v)}>
@@ -303,11 +309,33 @@ export function AutopilotPanel({ onGenerateSelected }: AutopilotPanelProps) {
         {/* Progress display */}
         {isAnalyzing && progress && (
           <div
-            className="flex items-center gap-2 px-4 py-3 rounded-lg text-xs"
+            className="relative overflow-hidden rounded-lg px-4 py-3"
             style={{ background: "rgba(108, 76, 241, 0.08)", border: "1px solid rgba(108, 76, 241, 0.20)" }}
           >
-            <Loader2 className="w-4 h-4 animate-spin" style={{ color: "var(--brand-primary)" }} />
-            <span style={{ color: "var(--brand-primary)" }}>{progress}</span>
+            {/* Animated gradient background */}
+            <div 
+              className="absolute inset-0 opacity-30"
+              style={{
+                background: "linear-gradient(90deg, transparent, rgba(108, 76, 241, 0.3), transparent)",
+                animation: "shimmer 2s infinite"
+              }}
+            />
+            <div className="flex items-center gap-3 relative z-10">
+              <div className="relative">
+                <Loader2 className="w-5 h-5 animate-spin" style={{ color: "var(--brand-primary)" }} />
+                <div className="absolute inset-0 blur-md opacity-50">
+                  <Loader2 className="w-5 h-5 animate-spin" style={{ color: "var(--brand-primary)" }} />
+                </div>
+              </div>
+              <div className="flex-1">
+                <div className="text-xs font-semibold" style={{ color: "var(--brand-primary)" }}>
+                  {progress}
+                </div>
+                <div className="text-[10px] mt-0.5" style={{ color: "var(--text-muted)" }}>
+                  This may take up to 60 seconds...
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
@@ -338,57 +366,75 @@ export function AutopilotPanel({ onGenerateSelected }: AutopilotPanelProps) {
 
       {/* How it works */}
       <div
-        className="rounded-xl p-4"
-        style={{ background: "rgba(255, 255, 255, 0.02)", border: "1px solid var(--border-subtle)" }}
+        className="rounded-xl p-5 relative overflow-hidden"
+        style={{ 
+          background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+          border: "1px solid var(--border-subtle)"
+        }}
       >
-        <h4 className="text-xs font-semibold mb-3" style={{ color: "var(--text-secondary)" }}>
-          How SEO Autopilot Works
-        </h4>
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-4 h-4" style={{ color: "var(--brand-primary)" }} />
+          <h4 className="text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+            How SEO Autopilot Works
+          </h4>
+        </div>
         <div className="grid grid-cols-3 gap-4">
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-3 group">
             <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-              style={{ background: "rgba(108, 76, 241, 0.12)", color: "var(--brand-primary)" }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all group-hover:scale-110"
+              style={{ 
+                background: "linear-gradient(135deg, rgba(108, 76, 241, 0.15) 0%, rgba(108, 76, 241, 0.08) 100%)",
+                color: "var(--brand-primary)",
+                border: "1px solid rgba(108, 76, 241, 0.2)"
+              }}
             >
               1
             </div>
             <div>
-              <p className="text-[11px] font-medium" style={{ color: "var(--text-primary)" }}>
+              <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
                 Analyze
               </p>
-              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+              <p className="text-[10px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
                 Scans your existing blog content
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-3 group">
             <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-              style={{ background: "rgba(108, 76, 241, 0.12)", color: "var(--brand-primary)" }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all group-hover:scale-110"
+              style={{ 
+                background: "linear-gradient(135deg, rgba(108, 76, 241, 0.15) 0%, rgba(108, 76, 241, 0.08) 100%)",
+                color: "var(--brand-primary)",
+                border: "1px solid rgba(108, 76, 241, 0.2)"
+              }}
             >
               2
             </div>
             <div>
-              <p className="text-[11px] font-medium" style={{ color: "var(--text-primary)" }}>
+              <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
                 Identify Gaps
               </p>
-              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+              <p className="text-[10px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
                 Finds missing topics & keywords
               </p>
             </div>
           </div>
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-3 group">
             <div
-              className="w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 text-[10px] font-bold"
-              style={{ background: "rgba(108, 76, 241, 0.12)", color: "var(--brand-primary)" }}
+              className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold transition-all group-hover:scale-110"
+              style={{ 
+                background: "linear-gradient(135deg, rgba(108, 76, 241, 0.15) 0%, rgba(108, 76, 241, 0.08) 100%)",
+                color: "var(--brand-primary)",
+                border: "1px solid rgba(108, 76, 241, 0.2)"
+              }}
             >
               3
             </div>
             <div>
-              <p className="text-[11px] font-medium" style={{ color: "var(--text-primary)" }}>
+              <p className="text-xs font-semibold mb-1" style={{ color: "var(--text-primary)" }}>
                 Generate Plan
               </p>
-              <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+              <p className="text-[10px] leading-relaxed" style={{ color: "var(--text-muted)" }}>
                 Creates prioritized article ideas
               </p>
             </div>

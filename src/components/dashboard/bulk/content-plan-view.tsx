@@ -109,36 +109,62 @@ export function ContentPlanView({ summary, contentPlan, onGenerateSelected }: Co
     <div className="space-y-6">
       {/* Summary Card */}
       <div
-        className="rounded-xl p-5"
-        style={{ background: "rgba(108, 76, 241, 0.08)", border: "1px solid rgba(108, 76, 241, 0.20)" }}
+        className="rounded-xl p-6 relative overflow-hidden"
+        style={{ 
+          background: "linear-gradient(135deg, rgba(108, 76, 241, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%)",
+          border: "1px solid rgba(108, 76, 241, 0.25)",
+          boxShadow: "0 4px 20px rgba(108, 76, 241, 0.1)"
+        }}
       >
-        <div className="flex items-start justify-between">
-          <div>
-            <h3 className="text-sm font-semibold mb-2" style={{ color: "var(--text-primary)" }}>
-              Content Analysis Summary
-            </h3>
-            <div className="grid grid-cols-2 gap-4 text-xs">
-              <div>
-                <span style={{ color: "var(--text-muted)" }}>Posts Analyzed:</span>{" "}
-                <span style={{ color: "var(--text-primary)" }}>{summary.totalArticlesAnalyzed}</span>
+        {/* Decorative gradient orb */}
+        <div 
+          className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20 blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)" }}
+        />
+        
+        <div className="flex items-start justify-between relative z-10">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+              <h3 className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+                Content Analysis Summary
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-6 mb-4">
+              <div className="space-y-1">
+                <div className="text-2xl font-bold" style={{ color: "var(--brand-primary)" }}>
+                  {summary.totalArticlesAnalyzed}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                  Posts Analyzed
+                </div>
               </div>
-              <div>
-                <span style={{ color: "var(--text-muted)" }}>Ideas Generated:</span>{" "}
-                <span style={{ color: "var(--text-primary)" }}>{totalIdeas}</span>
+              <div className="space-y-1">
+                <div className="text-2xl font-bold" style={{ color: "var(--brand-primary)" }}>
+                  {totalIdeas}
+                </div>
+                <div className="text-[10px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                  Ideas Generated
+                </div>
               </div>
             </div>
 
             {summary.mainTopics.length > 0 && (
-              <div className="mt-3">
-                <span className="text-[10px] uppercase tracking-wider block mb-1" style={{ color: "var(--text-muted)" }}>
+              <div className="mb-4">
+                <span className="text-[10px] uppercase tracking-wider block mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>
                   Main Topics
                 </span>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {summary.mainTopics.slice(0, 5).map((topic, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(255, 255, 255, 0.06)", color: "var(--text-secondary)" }}
+                      className="text-[10px] px-3 py-1 rounded-full font-medium transition-all hover:scale-105"
+                      style={{ 
+                        background: "rgba(255, 255, 255, 0.08)", 
+                        color: "var(--text-secondary)",
+                        border: "1px solid rgba(255, 255, 255, 0.1)"
+                      }}
                     >
                       {topic}
                     </span>
@@ -148,16 +174,20 @@ export function ContentPlanView({ summary, contentPlan, onGenerateSelected }: Co
             )}
 
             {summary.weakAreas.length > 0 && (
-              <div className="mt-3">
-                <span className="text-[10px] uppercase tracking-wider block mb-1" style={{ color: "var(--text-muted)" }}>
-                  Content Gaps Identified
+              <div>
+                <span className="text-[10px] uppercase tracking-wider block mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>
+                  🎯 Content Gaps Identified
                 </span>
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-2">
                   {summary.weakAreas.slice(0, 4).map((area, idx) => (
                     <span
                       key={idx}
-                      className="text-[10px] px-2 py-0.5 rounded-full"
-                      style={{ background: "rgba(239, 68, 68, 0.12)", color: "#EF4444" }}
+                      className="text-[10px] px-3 py-1 rounded-full font-medium transition-all hover:scale-105"
+                      style={{ 
+                        background: "rgba(239, 68, 68, 0.15)", 
+                        color: "#EF4444",
+                        border: "1px solid rgba(239, 68, 68, 0.3)"
+                      }}
                     >
                       {area}
                     </span>
@@ -168,16 +198,26 @@ export function ContentPlanView({ summary, contentPlan, onGenerateSelected }: Co
           </div>
 
           {/* Selection summary & action button */}
-          <div className="text-right">
-            <div className="text-xs mb-2" style={{ color: "var(--text-muted)" }}>
+          <div className="text-right relative z-10">
+            <div 
+              className="text-xs mb-3 font-semibold px-3 py-1 rounded-full inline-block"
+              style={{ 
+                background: "rgba(108, 76, 241, 0.15)",
+                color: "var(--brand-primary)",
+                border: "1px solid rgba(108, 76, 241, 0.3)"
+              }}
+            >
               {selectedCount} of {totalIdeas} selected
             </div>
             <Button
-              className="btn-primary h-9 text-xs"
+              className="btn-primary h-10 text-sm font-semibold shadow-lg hover:shadow-xl transition-all"
               onClick={handleGenerateSelected}
               disabled={selectedCount === 0}
+              style={{
+                boxShadow: selectedCount > 0 ? "0 4px 15px rgba(108, 76, 241, 0.3)" : "none"
+              }}
             >
-              <Check className="w-3.5 h-3.5 mr-1.5" />
+              <Check className="w-4 h-4 mr-2" />
               Generate {selectedCount} Article{selectedCount !== 1 ? "s" : ""}
             </Button>
           </div>
