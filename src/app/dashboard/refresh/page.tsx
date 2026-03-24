@@ -261,14 +261,14 @@ export default function ContentRefreshPage() {
         <div className="space-y-6 max-w-7xl pb-20">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                    <h1 className="text-2xl font-bold flex items-center gap-2">
-                        <RefreshCw className="w-6 h-6 text-[#6C4CF1]" />
-                        Content Refresh Engine
-                    </h1>
-                    <p className="text-sm text-muted-foreground mt-1">
-                        Find underperforming posts, diagnose why they&apos;re slipping, generate a stronger version, and update Blogger without changing the URL.
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <RefreshCw className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Content Refresh Engine</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Find underperforming posts, diagnose, and generate stronger versions</p>
+                    </div>
                 </div>
                 <div className="flex items-center gap-3">
                     {blogs.length > 1 && (
@@ -276,7 +276,7 @@ export default function ContentRefreshPage() {
                             const blog = blogs.find((b: any) => b.id === val);
                             if (blog) { setSelectedBlog(blog); fetchCandidates(blog.id); }
                         }}>
-                            <SelectTrigger className="w-[200px] h-10 bg-white">
+                            <SelectTrigger className="w-[200px] h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                 <SelectValue placeholder="Select blog" />
                             </SelectTrigger>
                             <SelectContent>
@@ -338,26 +338,26 @@ export default function ContentRefreshPage() {
                 <div className="space-y-6">
                     {/* Stats Bar */}
                     {stats && stats.total > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                            <div className="glass-card rounded-xl p-4 text-center">
-                                <div className="text-2xl font-bold">{stats.total}</div>
-                                <div className="text-xs text-muted-foreground">Total Candidates</div>
+                        <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+                            <div className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                <div className="text-xl font-bold" style={{ color: "var(--text-primary)" }}>{stats.total}</div>
+                                <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Total</div>
                             </div>
-                            <div className="glass-card rounded-xl p-4 text-center border-emerald-500/20">
-                                <div className="text-2xl font-bold text-emerald-600">{stats.tier1}</div>
-                                <div className="text-xs text-muted-foreground">Best Opportunities</div>
+                            <div className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                                <div className="text-xl font-bold" style={{ color: "#22C55E" }}>{stats.tier1}</div>
+                                <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Best</div>
                             </div>
-                            <div className="glass-card rounded-xl p-4 text-center border-orange-500/20">
-                                <div className="text-2xl font-bold text-orange-600">{stats.tier2}</div>
-                                <div className="text-xs text-muted-foreground">Declining Assets</div>
+                            <div className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid rgba(245,158,11,0.20)" }}>
+                                <div className="text-xl font-bold" style={{ color: "#F59E0B" }}>{stats.tier2}</div>
+                                <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Declining</div>
                             </div>
-                            <div className="glass-card rounded-xl p-4 text-center border-yellow-500/20">
-                                <div className="text-2xl font-bold text-yellow-600">{stats.tier3}</div>
-                                <div className="text-xs text-muted-foreground">Weak Legacy</div>
+                            <div className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid rgba(234,179,8,0.20)" }}>
+                                <div className="text-xl font-bold" style={{ color: "#EAB308" }}>{stats.tier3}</div>
+                                <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Weak</div>
                             </div>
-                            <div className="glass-card rounded-xl p-4 text-center">
-                                <div className="text-2xl font-bold text-[#6C4CF1]">{stats.avgScore}</div>
-                                <div className="text-xs text-muted-foreground">Avg Score</div>
+                            <div className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                <div className="text-xl font-bold" style={{ color: "var(--brand-primary)" }}>{stats.avgScore}</div>
+                                <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Avg Score</div>
                             </div>
                         </div>
                     )}
@@ -385,7 +385,7 @@ export default function ContentRefreshPage() {
                     </div>
 
                     {isScanning && scanProgress && (
-                        <div className="glass-card rounded-xl p-6 text-center">
+                        <div className="rounded-xl p-6 text-center">
                             <Loader2 className="w-8 h-8 animate-spin text-[#6C4CF1] mx-auto mb-3" />
                             <p className="font-medium">{scanProgress}</p>
                             <p className="text-xs text-muted-foreground mt-1">Fetching posts, crawling pages, analyzing content...</p>
@@ -394,9 +394,9 @@ export default function ContentRefreshPage() {
 
                     {/* Empty State */}
                     {!isScanning && candidates.length === 0 && (
-                        <div className="glass-card rounded-2xl p-16 text-center border-dashed">
-                            <div className="w-20 h-20 bg-[#6C4CF1]/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                                <RefreshCw className="w-10 h-10 text-[#6C4CF1] opacity-50" />
+                        <div className="rounded-2xl p-16 text-center" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                <RefreshCw className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
                             </div>
                             <h3 className="text-xl font-bold mb-2">No Refresh Candidates Yet</h3>
                             <p className="text-muted-foreground max-w-md mx-auto mb-6">
@@ -415,7 +415,7 @@ export default function ContentRefreshPage() {
                                 const tierCfg = TIER_CONFIG[c.tier] || TIER_CONFIG[3];
                                 const TierIcon = tierCfg.icon;
                                 return (
-                                    <div key={c.id} className="glass-card rounded-xl p-4 hover:border-[#6C4CF1]/30 transition-colors cursor-pointer group" onClick={() => handleSelectCandidate(c)}>
+                                    <div key={c.id} className="rounded-xl p-4 hover:border-[#6C4CF1]/30 transition-colors cursor-pointer group" onClick={() => handleSelectCandidate(c)}>
                                         <div className="flex items-start gap-4">
                                             <div className={`w-12 h-12 rounded-xl ${tierCfg.bg} flex items-center justify-center shrink-0`}>
                                                 <TierIcon className={`w-5 h-5 ${tierCfg.color}`} />
@@ -479,7 +479,7 @@ export default function ContentRefreshPage() {
                     </button>
 
                     {/* Candidate Header */}
-                    <div className="glass-card rounded-xl p-6">
+                    <div className="rounded-xl p-6">
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <h2 className="text-lg font-bold">{selectedCandidate.title}</h2>
@@ -515,7 +515,7 @@ export default function ContentRefreshPage() {
 
                     {/* Reason Summary */}
                     {selectedCandidate.reasonSummary && (
-                        <div className="glass-card rounded-xl p-5">
+                        <div className="rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                                 <HelpCircle className="w-4 h-4 text-[#6C4CF1]" /> Why Refresh This Post?
                             </h3>
@@ -524,7 +524,7 @@ export default function ContentRefreshPage() {
                     )}
 
                     {/* Action: Generate Plan */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
+                    <div className="rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Ready to create a refresh plan?</h3>
                             <p className="text-xs text-muted-foreground mt-1">We'll analyze the full content and propose what to add, expand, and rewrite.</p>
@@ -545,7 +545,7 @@ export default function ContentRefreshPage() {
                     </button>
 
                     {/* Plan Summary */}
-                    <div className="glass-card rounded-xl p-6">
+                    <div className="rounded-xl p-6">
                         <div className="flex items-start justify-between gap-4 mb-4">
                             <h2 className="text-lg font-bold flex items-center gap-2">
                                 <BookOpen className="w-5 h-5 text-[#6C4CF1]" /> Refresh Plan
@@ -565,7 +565,7 @@ export default function ContentRefreshPage() {
 
                     {/* Proposed Outline */}
                     {plan.proposedOutline?.length > 0 && (
-                        <div className="glass-card rounded-xl p-6">
+                        <div className="rounded-xl p-6">
                             <h3 className="font-semibold mb-3 flex items-center gap-2">
                                 <ListChecks className="w-4 h-4 text-[#6C4CF1]" /> Proposed Outline
                             </h3>
@@ -589,7 +589,7 @@ export default function ContentRefreshPage() {
 
                     {/* Proposed FAQs */}
                     {plan.proposedFaqs?.length > 0 && (
-                        <div className="glass-card rounded-xl p-6">
+                        <div className="rounded-xl p-6">
                             <h3 className="font-semibold mb-3 flex items-center gap-2">
                                 <HelpCircle className="w-4 h-4 text-[#6C4CF1]" /> Proposed FAQs ({plan.proposedFaqs.length})
                             </h3>
@@ -606,7 +606,7 @@ export default function ContentRefreshPage() {
 
                     {/* Suggested Title */}
                     {plan.suggestedTitle && plan.suggestedTitle !== selectedCandidate?.title && (
-                        <div className="glass-card rounded-xl p-5">
+                        <div className="rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2">Suggested Title</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div className="text-sm"><span className="text-muted-foreground text-xs block mb-1">Current:</span> {selectedCandidate?.title}</div>
@@ -616,7 +616,7 @@ export default function ContentRefreshPage() {
                     )}
 
                     {/* Actions */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
+                    <div className="rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Generate Refreshed Content</h3>
                             <p className="text-xs text-muted-foreground mt-1">Choose section-level (safer) or full rewrite mode.</p>
@@ -643,23 +643,23 @@ export default function ContentRefreshPage() {
 
                     {/* Change Summary */}
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        <div className="glass-card rounded-xl p-4 text-center">
+                        <div className="rounded-xl p-4 text-center">
                             <div className="text-lg font-bold">{version.changeSummary?.wordCountBefore || 0}</div>
                             <div className="text-[10px] text-muted-foreground">Words Before</div>
                         </div>
-                        <div className="glass-card rounded-xl p-4 text-center border-[#6C4CF1]/20">
+                        <div className="rounded-xl p-4 text-center border-[#6C4CF1]/20">
                             <div className="text-lg font-bold text-[#6C4CF1]">{version.changeSummary?.wordCountAfter || 0}</div>
                             <div className="text-[10px] text-muted-foreground">Words After</div>
                         </div>
-                        <div className="glass-card rounded-xl p-4 text-center">
+                        <div className="rounded-xl p-4 text-center">
                             <div className="text-lg font-bold text-emerald-600">+{(version.changeSummary?.wordCountAfter || 0) - (version.changeSummary?.wordCountBefore || 0)}</div>
                             <div className="text-[10px] text-muted-foreground">Words Added</div>
                         </div>
-                        <div className="glass-card rounded-xl p-4 text-center">
+                        <div className="rounded-xl p-4 text-center">
                             <div className="text-lg font-bold text-blue-600">{version.changeSummary?.sectionsAdded?.length || 0}</div>
                             <div className="text-[10px] text-muted-foreground">Sections Added</div>
                         </div>
-                        <div className="glass-card rounded-xl p-4 text-center">
+                        <div className="rounded-xl p-4 text-center">
                             <div className="text-lg font-bold text-purple-600">{version.changeSummary?.faqsAdded || 0}</div>
                             <div className="text-[10px] text-muted-foreground">FAQs Added</div>
                         </div>
@@ -667,7 +667,7 @@ export default function ContentRefreshPage() {
 
                     {/* Title Comparison */}
                     {version.oldTitle !== version.newTitle && (
-                        <div className="glass-card rounded-xl p-5">
+                        <div className="rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2">Title Change</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div><span className="text-[10px] text-muted-foreground block mb-1">Before:</span><span className="text-sm opacity-70">{version.oldTitle}</span></div>
@@ -693,7 +693,7 @@ export default function ContentRefreshPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Badge variant="outline" className="w-full justify-center bg-muted/50 border-border/50 text-muted-foreground">Original</Badge>
-                            <div className="glass-card rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <div className="rounded-xl p-4 h-[500px] overflow-y-auto">
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none opacity-60" dangerouslySetInnerHTML={{ __html: version.oldHtml }} />
                                 ) : (
@@ -703,7 +703,7 @@ export default function ContentRefreshPage() {
                         </div>
                         <div className="space-y-2">
                             <Badge variant="outline" className="w-full justify-center bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1]">Refreshed</Badge>
-                            <div className="glass-card border-[#6C4CF1]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <div className="rounded-xl p-4 h-[500px] overflow-y-auto" style={{ background: "var(--bg-card)", border: "1px solid rgba(108,76,241,0.20)" }}>
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: version.newHtml }} />
                                 ) : (
@@ -728,7 +728,7 @@ export default function ContentRefreshPage() {
                     )}
 
                     {/* Apply Bar */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
+                    <div className="rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold flex items-center gap-2">
                                 <Shield className="w-4 h-4 text-emerald-500" /> Push to Blogger
@@ -748,9 +748,9 @@ export default function ContentRefreshPage() {
             {/* ═══ STAGE: APPLIED ═══ */}
             {stage === "apply" && applyResult && (
                 <div className="space-y-6">
-                    <div className="glass-card rounded-2xl p-12 text-center">
-                        <div className="w-20 h-20 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+                    <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.20)" }}>
+                            <CheckCircle2 className="w-7 h-7" style={{ color: "#22C55E" }} />
                         </div>
                         <h2 className="text-2xl font-bold mb-2">
                             {applyResult.action === "rolled_back" ? "Rollback Complete" : "Post Updated Successfully!"}
@@ -784,7 +784,7 @@ function DiagCard({ title, score, icon: Icon }: { title: string; score: number; 
     const color = score >= 60 ? "text-red-500" : score >= 30 ? "text-orange-500" : "text-emerald-500";
     const bg = score >= 60 ? "bg-red-500" : score >= 30 ? "bg-orange-500" : "bg-emerald-500";
     return (
-        <div className="glass-card rounded-xl p-4">
+        <div className="rounded-xl p-4">
             <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium text-muted-foreground flex items-center gap-1.5">
                     <Icon className="w-3.5 h-3.5" /> {title}
@@ -800,7 +800,7 @@ function DiagCard({ title, score, icon: Icon }: { title: string; score: number; 
 
 function SignalCard({ label, value, icon: Icon }: { label: string; value: number; icon: any }) {
     return (
-        <div className="glass-card rounded-xl p-3 text-center">
+        <div className="rounded-xl p-3 text-center">
             <Icon className="w-4 h-4 mx-auto text-muted-foreground mb-1" />
             <div className="text-lg font-bold">{value}</div>
             <div className="text-[10px] text-muted-foreground">{label}</div>

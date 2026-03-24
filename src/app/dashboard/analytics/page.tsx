@@ -83,202 +83,116 @@ export default function AnalyticsPage() {
         );
     }
 
+    const metrics = [
+        { label: "Total Articles", value: analytics.totalArticles, sub: `${analytics.publishedArticles} published, ${analytics.draftArticles} drafts`, icon: FileText, color: "var(--brand-primary)" },
+        { label: "Total Words", value: `${(analytics.totalWordCount / 1000).toFixed(1)}K`, sub: `Avg. ${analytics.avgWordCount} per article`, icon: BarChart3, color: "#00C2FF" },
+        { label: "This Month", value: analytics.articlesThisMonth, sub: `${analytics.articlesLastMonth} last month`, icon: Calendar, color: "#22C55E" },
+        { label: "Growth", value: `${Math.abs(analytics.growthPercentage)}%`, sub: "Month-over-month", icon: analytics.growthPercentage >= 0 ? TrendingUp : TrendingDown, color: analytics.growthPercentage >= 0 ? "#22C55E" : "#ef4444" },
+    ];
+
     return (
         <div className="space-y-6 max-w-7xl">
             {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Analytics Dashboard</h1>
-                <p className="text-muted-foreground mt-1">
-                    Track your content performance and productivity metrics
-                </p>
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                    <BarChart3 className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Analytics</h1>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Track your content performance and productivity</p>
+                </div>
             </div>
 
             {/* Key Metrics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Card className="glass-card">
-                    <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                            <CardDescription className="text-xs">Total Articles</CardDescription>
-                            <FileText className="w-4 h-4 text-[#6C4CF1]" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{analytics.totalArticles}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {analytics.publishedArticles} published, {analytics.draftArticles} drafts
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-card">
-                    <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                            <CardDescription className="text-xs">Total Words</CardDescription>
-                            <BarChart3 className="w-4 h-4 text-blue-400" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">
-                            {(analytics.totalWordCount / 1000).toFixed(1)}K
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Avg. {analytics.avgWordCount} per article
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-card">
-                    <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                            <CardDescription className="text-xs">This Month</CardDescription>
-                            <Calendar className="w-4 h-4 text-emerald-400" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-3xl font-bold">{analytics.articlesThisMonth}</div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            {analytics.articlesLastMonth} last month
-                        </p>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-card">
-                    <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                            <CardDescription className="text-xs">Growth Rate</CardDescription>
-                            <Target className="w-4 h-4 text-orange-400" />
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-2">
-                            <div className="text-3xl font-bold">
-                                {Math.abs(analytics.growthPercentage)}%
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                {metrics.map((m, i) => (
+                    <div key={i} className="rounded-2xl p-4" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                        <div className="flex items-center justify-between mb-3">
+                            <span className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>{m.label}</span>
+                            <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: `${m.color}15` }}>
+                                <m.icon className="w-3.5 h-3.5" style={{ color: m.color }} />
                             </div>
-                            {analytics.growthPercentage > 0 ? (
-                                <TrendingUp className="w-5 h-5 text-emerald-400" />
-                            ) : analytics.growthPercentage < 0 ? (
-                                <TrendingDown className="w-5 h-5 text-red-400" />
-                            ) : null}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Month-over-month
-                        </p>
-                    </CardContent>
-                </Card>
+                        <div className="text-2xl font-bold" style={{ color: "var(--text-primary)" }}>{m.value}</div>
+                        <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>{m.sub}</p>
+                    </div>
+                ))}
             </div>
 
-            {/* Top Performers */}
+            {/* Recent Articles */}
             {analytics.topPerformers.length > 0 && (
-                <Card className="glass-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Recent Articles</CardTitle>
-                        <CardDescription>Your latest content performance</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-3">
-                            {analytics.topPerformers.map((article, index) => (
-                                <div
-                                    key={article.id}
-                                    className="flex items-center justify-between p-4 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors"
-                                >
-                                    <div className="flex items-center gap-4 flex-1 min-w-0">
-                                        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-500/10 text-[#6C4CF1] font-bold text-sm shrink-0">
-                                            {index + 1}
-                                        </div>
-                                        <div className="flex-1 min-w-0">
-                                            <h4 className="font-medium truncate">{article.title}</h4>
-                                            <p className="text-xs text-muted-foreground mt-0.5">
-                                                {new Date(article.createdAt).toLocaleDateString()} • {article.wordCount} words
-                                            </p>
-                                        </div>
+                <div className="rounded-2xl" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Recent Articles</h3>
+                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Your latest content</p>
+                    </div>
+                    <div className="p-3 space-y-1.5">
+                        {analytics.topPerformers.map((article, index) => (
+                            <div key={article.id} className="flex items-center justify-between px-4 py-3 rounded-xl transition-all" style={{ background: "rgba(255,255,255,0.02)" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                                onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                            >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                    <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-bold" style={{ background: "rgba(108,76,241,0.10)", color: "var(--brand-primary)" }}>
+                                        {index + 1}
                                     </div>
-                                    <Badge variant="secondary" className="bg-orange-500/10 text-violet-300 shrink-0">
-                                        {article.wordCount >= 2000 ? 'Long-form' : 'Standard'}
-                                    </Badge>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="text-xs font-medium truncate" style={{ color: "var(--text-primary)" }}>{article.title}</h4>
+                                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>
+                                            {new Date(article.createdAt).toLocaleDateString()} · {article.wordCount} words
+                                        </p>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                                <span className="text-[10px] px-2 py-0.5 rounded-full shrink-0" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                    {article.wordCount >= 2000 ? 'Long-form' : 'Standard'}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             )}
 
-            {/* Productivity Insights */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="glass-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Content Quality</CardTitle>
-                        <CardDescription>Average metrics across all articles</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+            {/* Insights */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <h3 className="text-xs font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Content Quality</h3>
+                    <div className="space-y-3">
+                        {[
+                            { label: "Average Word Count", value: String(analytics.avgWordCount) },
+                            { label: "Total Content", value: `${analytics.totalWordCount.toLocaleString()} words` },
+                            { label: "Completion Rate", value: `${analytics.totalArticles > 0 ? Math.round((analytics.publishedArticles / analytics.totalArticles) * 100) : 0}%` },
+                        ].map((row, i) => (
+                            <div key={i} className="flex items-center justify-between">
+                                <span className="text-xs" style={{ color: "var(--text-secondary)" }}>{row.label}</span>
+                                <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{row.value}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <h3 className="text-xs font-semibold mb-4" style={{ color: "var(--text-primary)" }}>Productivity</h3>
+                    <div className="space-y-3">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Average Word Count</span>
-                            <span className="font-semibold">{analytics.avgWordCount}</span>
+                            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>This Month</span>
+                            <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{analytics.articlesThisMonth} articles</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Total Content</span>
-                            <span className="font-semibold">{analytics.totalWordCount.toLocaleString()} words</span>
+                            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Last Month</span>
+                            <span className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>{analytics.articlesLastMonth} articles</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Completion Rate</span>
-                            <span className="font-semibold">
-                                {analytics.totalArticles > 0
-                                    ? Math.round((analytics.publishedArticles / analytics.totalArticles) * 100)
-                                    : 0}%
+                            <span className="text-xs" style={{ color: "var(--text-secondary)" }}>Growth</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{
+                                background: analytics.growthPercentage >= 0 ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                                color: analytics.growthPercentage >= 0 ? "#22C55E" : "#ef4444",
+                            }}>
+                                {analytics.growthPercentage > 0 ? '+' : ''}{analytics.growthPercentage}%
                             </span>
                         </div>
-                    </CardContent>
-                </Card>
-
-                <Card className="glass-card">
-                    <CardHeader>
-                        <CardTitle className="text-lg">Productivity</CardTitle>
-                        <CardDescription>Your content creation velocity</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">This Month</span>
-                            <span className="font-semibold">{analytics.articlesThisMonth} articles</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Last Month</span>
-                            <span className="font-semibold">{analytics.articlesLastMonth} articles</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">Growth</span>
-                            <Badge className={analytics.growthPercentage >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}>
-                                {analytics.growthPercentage > 0 ? '+' : ''}{analytics.growthPercentage}%
-                            </Badge>
-                        </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
-
-            {/* Tips */}
-            <Card className="glass-card border-blue-500/20">
-                <CardHeader>
-                    <CardTitle className="text-base">💡 Productivity Tips</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Aim for 2000+ words per article for better SEO performance</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Publish consistently - try to maintain or increase your monthly output</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Use bulk generation for high-volume content creation</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Set up campaigns to automate your publishing schedule</span>
-                        </li>
-                    </ul>
-                </CardContent>
-            </Card>
         </div>
     );
 }

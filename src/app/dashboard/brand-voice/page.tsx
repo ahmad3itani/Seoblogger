@@ -141,92 +141,88 @@ export default function BrandVoicePage() {
     return (
         <div className="space-y-6 max-w-5xl">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Brand Voices</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Define distinct writing styles, tones, and instructions for your content.
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Sparkles className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Brand Voices</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Define writing styles, tones, and instructions</p>
+                    </div>
                 </div>
-                <Button onClick={handleOpenCreate} className="bg-[#6C4CF1] hover:bg-violet-700 text-white shadow-lg shadow-violet-500/20">
-                    <Plus className="w-4 h-4 mr-2" />
-                    New Brand Voice
-                </Button>
+                <button onClick={handleOpenCreate} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold btn-primary">
+                    <Plus className="w-3.5 h-3.5" /> New Brand Voice
+                </button>
             </div>
 
             {isLoading ? (
                 <div className="flex items-center justify-center p-12">
-                    <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--brand-primary)" }} />
                 </div>
             ) : profiles.length === 0 ? (
-                <div className="glass-card rounded-xl p-12 text-center border-dashed">
-                    <div className="mx-auto w-12 h-12 bg-orange-500/10 rounded-full flex items-center justify-center mb-4">
-                        <Sparkles className="w-6 h-6 text-[#6C4CF1]" />
+                <div className="rounded-2xl p-16 text-center" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                    <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5" style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                        <Sparkles className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
                     </div>
-                    <h3 className="text-lg font-semibold mb-2">No brand voices yet</h3>
-                    <p className="text-muted-foreground max-w-sm mx-auto mb-6">
-                        Create a brand voice to ensure your generated articles perfectly match your blog's unique style and guidelines.
+                    <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>No brand voices yet</h3>
+                    <p className="text-sm max-w-sm mx-auto mb-5" style={{ color: "var(--text-secondary)" }}>
+                        Create a brand voice to ensure your articles match your blog&apos;s unique style.
                     </p>
-                    <Button onClick={handleOpenCreate} variant="outline" className="border-[#6C4CF1]/30 text-violet-300">
+                    <button onClick={handleOpenCreate} className="text-xs font-medium px-4 py-2 rounded-lg" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
                         Create your first Brand Voice
-                    </Button>
+                    </button>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {profiles.map((profile) => (
-                        <Card key={profile.id} className={`glass-card relative overflow-hidden transition-all duration-300 hover:border-[#6C4CF1]/50 ${profile.isDefault ? 'border-[#6C4CF1]/50 ring-1 ring-[#6C4CF1]/20 shadow-lg shadow-violet-500/10' : ''}`}>
+                        <div key={profile.id} className="rounded-2xl relative overflow-hidden transition-all duration-300" style={{
+                            background: "var(--bg-card)",
+                            border: profile.isDefault ? "1px solid rgba(108,76,241,0.30)" : "1px solid var(--border-subtle)",
+                        }}
+                            onMouseEnter={e => { if (!profile.isDefault) e.currentTarget.style.borderColor = "rgba(108,76,241,0.20)"; }}
+                            onMouseLeave={e => { if (!profile.isDefault) e.currentTarget.style.borderColor = "var(--border-subtle)"; }}
+                        >
                             {profile.isDefault && (
                                 <div className="absolute top-0 right-0">
-                                    <div className="bg-[#6C4CF1] text-[10px] font-bold px-3 py-1 rounded-bl-lg flex items-center shadow-md">
-                                        <CheckCircle2 className="w-3 h-3 mr-1" /> DEFAULT
+                                    <div className="text-[9px] font-bold px-2.5 py-1 rounded-bl-lg flex items-center" style={{ background: "var(--brand-primary)", color: "#fff" }}>
+                                        <CheckCircle2 className="w-2.5 h-2.5 mr-1" /> DEFAULT
                                     </div>
                                 </div>
                             )}
-                            <CardHeader className="pb-3">
-                                <div className="flex justify-between items-start pr-12">
-                                    <CardTitle className="text-xl flex items-center gap-2">
-                                        {profile.name}
-                                    </CardTitle>
-                                </div>
-                                <CardDescription className="flex items-center gap-2 mt-1">
+                            <div className="px-5 pt-4 pb-3">
+                                <h3 className="text-sm font-semibold pr-16" style={{ color: "var(--text-primary)" }}>{profile.name}</h3>
+                                <div className="flex items-center gap-1.5 mt-1 text-[10px]" style={{ color: "var(--text-muted)" }}>
                                     <span className="capitalize">{profile.tone}</span>
-                                    {profile.niche && (
-                                        <>
-                                            <span>•</span>
-                                            <span>{profile.niche}</span>
-                                        </>
-                                    )}
-                                    {profile.language && (
-                                        <>
-                                            <span>•</span>
-                                            <span>{profile.language}</span>
-                                        </>
-                                    )}
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="text-sm text-muted-foreground h-20 overflow-hidden text-ellipsis">
+                                    {profile.niche && <><span>·</span><span>{profile.niche}</span></>}
+                                    {profile.language && <><span>·</span><span>{profile.language}</span></>}
+                                </div>
+                            </div>
+                            <div className="px-5 pb-3 h-16 overflow-hidden">
                                 {profile.instructions ? (
-                                    <div className="italic break-words">"{profile.instructions.substring(0, 100)}{profile.instructions.length > 100 ? '...' : ''}"</div>
+                                    <p className="text-xs italic break-words" style={{ color: "var(--text-secondary)" }}>
+                                        &ldquo;{profile.instructions.substring(0, 100)}{profile.instructions.length > 100 ? '...' : ''}&rdquo;
+                                    </p>
                                 ) : (
-                                    <div className="flex items-center text-muted-foreground/50 h-full">
-                                        <BookOpen className="w-4 h-4 mr-2" /> No custom instructions set
+                                    <div className="flex items-center h-full text-xs" style={{ color: "var(--text-muted)" }}>
+                                        <BookOpen className="w-3 h-3 mr-1.5" /> No custom instructions
                                     </div>
                                 )}
-                            </CardContent>
-                            <CardFooter className="pt-3 border-t border-border/40 gap-2 flex-wrap">
-                                <Button variant="secondary" size="sm" onClick={() => handleOpenEdit(profile)}>
-                                    <Pencil className="w-3.5 h-3.5 mr-1.5" /> Edit
-                                </Button>
+                            </div>
+                            <div className="px-4 py-2.5 flex items-center gap-2 flex-wrap" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                                <button onClick={() => handleOpenEdit(profile)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}>
+                                    <Pencil className="w-2.5 h-2.5" /> Edit
+                                </button>
                                 {!profile.isDefault && (
-                                    <Button variant="outline" size="sm" onClick={() => handleSetDefault(profile.id)}>
-                                        Set as Default
-                                    </Button>
+                                    <button onClick={() => handleSetDefault(profile.id)} className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}>
+                                        Set Default
+                                    </button>
                                 )}
                                 <div className="flex-1" />
-                                <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300 hover:bg-red-950/30" onClick={() => handleDelete(profile.id)}>
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                </Button>
-                            </CardFooter>
-                        </Card>
+                                <button onClick={() => handleDelete(profile.id)} className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ color: "rgba(239,68,68,0.7)" }}>
+                                    <Trash2 className="w-3 h-3" />
+                                </button>
+                            </div>
+                        </div>
                     ))}
                 </div>
             )}

@@ -118,121 +118,120 @@ export default function CampaignsPage() {
     return (
         <div className="space-y-6 max-w-6xl">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Auto-Publishing Campaigns</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Set up a drip schedule to automatically write and publish content hands-free.
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <CalendarClock className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Campaigns</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Auto-publish content on a drip schedule</p>
+                    </div>
                 </div>
-                <Button onClick={() => setShowForm(!showForm)} className="bg-[#6C4CF1] hover:bg-violet-700 text-white">
-                    {showForm ? "Cancel" : <><Plus className="w-4 h-4 mr-2" /> New Campaign</>}
-                </Button>
+                <button onClick={() => setShowForm(!showForm)} className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold btn-primary">
+                    {showForm ? "Cancel" : <><Plus className="w-3.5 h-3.5" /> New Campaign</>}
+                </button>
             </div>
 
             {showForm && (
-                <Card className="glass-card border-[#6C4CF1]/30 shadow-lg shadow-violet-500/10">
-                    <CardHeader>
-                        <CardTitle>Create Campaign</CardTitle>
-                        <CardDescription>Configure your automation pipeline.</CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label>Campaign Name</Label>
-                                <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Winter SEO Push" />
+                <div className="rounded-2xl" style={{ background: "var(--bg-card)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                    <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Create Campaign</h3>
+                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Configure your automation pipeline</p>
+                    </div>
+                    <div className="p-5 space-y-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Campaign Name</Label>
+                                <Input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Winter SEO Push" className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }} />
                             </div>
-                            <div className="space-y-2">
-                                <Label>Target Blog</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Target Blog</Label>
                                 <Select value={blogId} onValueChange={(v) => v && setBlogId(v)}>
-                                    <SelectTrigger><SelectValue placeholder="Select a blog" /></SelectTrigger>
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}><SelectValue placeholder="Select a blog" /></SelectTrigger>
                                     <SelectContent>
                                         {blogs.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Publish Frequency</Label>
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Frequency</Label>
                                 <Select value={frequencyDays} onValueChange={(v) => v && setFrequencyDays(v)}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}><SelectValue /></SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="1">1 article every day</SelectItem>
-                                        <SelectItem value="2">1 article every 2 days</SelectItem>
-                                        <SelectItem value="3">1 article every 3 days</SelectItem>
-                                        <SelectItem value="7">1 article every week</SelectItem>
+                                        <SelectItem value="1">Every day</SelectItem>
+                                        <SelectItem value="2">Every 2 days</SelectItem>
+                                        <SelectItem value="3">Every 3 days</SelectItem>
+                                        <SelectItem value="7">Every week</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Article Type</Label>
-                                <Input value={articleType} onChange={e => setArticleType(e.target.value)} placeholder="Informational Guide" />
+                            <div className="space-y-1.5">
+                                <Label className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Article Type</Label>
+                                <Input value={articleType} onChange={e => setArticleType(e.target.value)} placeholder="Informational Guide" className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }} />
                             </div>
-                            <div className="col-span-1 md:col-span-2 space-y-2">
-                                <Label>Keywords Queue (One per line)</Label>
-                                <Textarea
-                                    className="min-h-[150px]"
-                                    placeholder="best hiking boots&#10;winter tent review&#10;how to camp in snow"
-                                    value={keywords}
-                                    onChange={e => setKeywords(e.target.value)}
-                                />
+                            <div className="col-span-1 md:col-span-2 space-y-1.5">
+                                <Label className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "var(--text-muted)" }}>Keywords Queue (one per line)</Label>
+                                <Textarea className="min-h-[120px] font-mono text-xs" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-glass)" }} placeholder="best hiking boots&#10;winter tent review&#10;how to camp in snow" value={keywords} onChange={e => setKeywords(e.target.value)} />
                             </div>
                         </div>
-                        <Button onClick={handleCreate} disabled={!name || !blogId || !keywords || isCreating} className="w-full bg-[#6C4CF1] hover:bg-violet-700">
+                        <Button onClick={handleCreate} disabled={!name || !blogId || !keywords || isCreating} className="w-full h-10 text-sm font-semibold btn-primary">
                             {isCreating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CalendarClock className="w-4 h-4 mr-2" />}
                             Schedule Campaign
                         </Button>
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {campaigns.length === 0 && !showForm && (
-                    <div className="col-span-full py-12 flex flex-col items-center justify-center text-muted-foreground border border-dashed border-border/50 rounded-xl bg-muted/5">
-                        <CalendarClock className="w-12 h-12 mb-4 opacity-20" />
-                        <p>No active campaigns found.</p>
-                        <Button variant="link" onClick={() => setShowForm(true)}>Create your first campaign</Button>
+                    <div className="col-span-full rounded-2xl p-16 flex flex-col items-center justify-center text-center" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                            <CalendarClock className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                        </div>
+                        <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>No campaigns yet</h3>
+                        <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>Create a campaign to auto-publish content</p>
+                        <button onClick={() => setShowForm(true)} className="text-xs font-medium" style={{ color: "var(--brand-primary)" }}>Create your first campaign</button>
                     </div>
                 )}
 
                 {campaigns.map(campaign => (
-                    <Card key={campaign.id} className="glass-card flex flex-col">
-                        <CardHeader className="pb-3 border-b border-border/50">
-                            <div className="flex justify-between items-start">
-                                <CardTitle className="text-lg">{campaign.name}</CardTitle>
-                                <Badge variant={campaign.status === "active" ? "default" : "secondary"} className={campaign.status === "active" ? "bg-emerald-500/20 text-emerald-400" : ""}>
-                                    {campaign.status}
-                                </Badge>
+                    <div key={campaign.id} className="rounded-2xl flex flex-col" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                        <div className="px-4 py-3 flex justify-between items-start" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                            <div>
+                                <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{campaign.name}</h3>
+                                <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Every {campaign.frequencyDays} {campaign.frequencyDays === 1 ? 'day' : 'days'}</p>
                             </div>
-                            <CardDescription>
-                                Every {campaign.frequencyDays} {campaign.frequencyDays === 1 ? 'day' : 'days'}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="pt-4 flex-1 space-y-4 text-sm text-muted-foreground">
-                            <div className="flex justify-between">
-                                <span>Next Run:</span>
-                                <span className="text-foreground">{format(new Date(campaign.nextPublishAt), "PP p")}</span>
-                            </div>
-                            <div className="flex justify-between">
-                                <span>Keywords Left:</span>
-                                <span className="text-foreground">{campaign.keywords.split('\n').filter(Boolean).length}</span>
-                            </div>
-                            <div className="mt-2 p-3 bg-muted/20 border border-border/50 rounded-md font-mono text-xs max-h-24 overflow-y-auto">
-                                {campaign.keywords.split('\n').slice(0, 3).map((k: string, i: number) => <div key={i} className="truncate">{k}</div>)}
-                                {campaign.keywords.split('\n').length > 3 && <div className="text-muted-foreground pt-1">...and more</div>}
-                            </div>
-                        </CardContent>
-                        <div className="p-4 border-t border-border/50 flex gap-2">
-                            <Button
-                                variant="outline"
-                                className="flex-1"
-                                onClick={() => toggleStatus(campaign.id, campaign.status)}
-                            >
-                                {campaign.status === "active" ? <><Pause className="w-4 h-4 mr-2" /> Pause</> : <><Play className="w-4 h-4 mr-2" /> Resume</>}
-                            </Button>
-                            <Button variant="destructive" size="icon" onClick={() => handleDelete(campaign.id)}>
-                                <Trash2 className="w-4 h-4" />
-                            </Button>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{
+                                background: campaign.status === "active" ? "rgba(34,197,94,0.08)" : "rgba(255,255,255,0.04)",
+                                color: campaign.status === "active" ? "#22C55E" : "var(--text-muted)",
+                                border: `1px solid ${campaign.status === "active" ? "rgba(34,197,94,0.20)" : "var(--border-subtle)"}`,
+                            }}>
+                                {campaign.status}
+                            </span>
                         </div>
-                    </Card>
+                        <div className="p-4 flex-1 space-y-3 text-xs">
+                            <div className="flex justify-between">
+                                <span style={{ color: "var(--text-muted)" }}>Next Run</span>
+                                <span style={{ color: "var(--text-primary)" }}>{format(new Date(campaign.nextPublishAt), "PP p")}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span style={{ color: "var(--text-muted)" }}>Keywords Left</span>
+                                <span style={{ color: "var(--text-primary)" }}>{campaign.keywords.split('\n').filter(Boolean).length}</span>
+                            </div>
+                            <div className="p-2.5 rounded-lg font-mono text-[10px] max-h-20 overflow-y-auto" style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-subtle)" }}>
+                                {campaign.keywords.split('\n').slice(0, 3).map((k: string, i: number) => <div key={i} className="truncate" style={{ color: "var(--text-secondary)" }}>{k}</div>)}
+                                {campaign.keywords.split('\n').length > 3 && <div className="pt-1" style={{ color: "var(--text-muted)" }}>...and more</div>}
+                            </div>
+                        </div>
+                        <div className="p-3 flex gap-2" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                            <button className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }} onClick={() => toggleStatus(campaign.id, campaign.status)}>
+                                {campaign.status === "active" ? <><Pause className="w-3 h-3" /> Pause</> : <><Play className="w-3 h-3" /> Resume</>}
+                            </button>
+                            <button className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)", color: "#ef4444" }} onClick={() => handleDelete(campaign.id)}>
+                                <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    </div>
                 ))}
             </div>
         </div>

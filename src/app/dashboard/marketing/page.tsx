@@ -71,19 +71,19 @@ export default function MarketingHubPage() {
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Bot className="h-7 w-7 text-primary" />
-            Marketing Agents
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            AI-powered marketing analysis and content generation — 13 specialized agents at your service.
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+            <Bot className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Marketing Agents</h1>
+            <p className="text-xs" style={{ color: "var(--text-secondary)" }}>13 specialized AI agents at your service</p>
+          </div>
         </div>
-        <div className="text-right">
-          <div className="text-sm text-muted-foreground">Usage this month</div>
-          <div className="text-2xl font-bold">
-            {usedThisMonth} <span className="text-sm font-normal text-muted-foreground">/ {planLimits.agentRunsPerMonth}</span>
+        <div className="rounded-xl px-4 py-2 text-right" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+          <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Usage this month</div>
+          <div className="text-lg font-bold" style={{ color: "var(--text-primary)" }}>
+            {usedThisMonth} <span className="text-xs font-normal" style={{ color: "var(--text-muted)" }}>/ {planLimits.agentRunsPerMonth}</span>
           </div>
         </div>
       </div>
@@ -95,16 +95,14 @@ export default function MarketingHubPage() {
 
         return (
           <div key={category}>
-            <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-              <Badge variant="outline" className={categoryInfo.color}>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{ background: `${categoryInfo.color.includes("blue") ? "rgba(0,194,255,0.08)" : categoryInfo.color.includes("emerald") ? "rgba(34,197,94,0.08)" : categoryInfo.color.includes("purple") ? "rgba(108,76,241,0.08)" : "rgba(245,158,11,0.08)"}`, color: categoryInfo.color.includes("blue") ? "#00C2FF" : categoryInfo.color.includes("emerald") ? "#22C55E" : categoryInfo.color.includes("purple") ? "var(--brand-primary)" : "#F59E0B" }}>
                 {categoryInfo.label}
-              </Badge>
-              <span className="text-muted-foreground text-sm font-normal">
-                {agents.length} agent{agents.length > 1 ? "s" : ""}
               </span>
-            </h2>
+              <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{agents.length} agents</span>
+            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {agents.map(agent => {
                 const available = isAgentAvailable(agent);
                 const IconComponent = ICON_MAP[agent.icon] || Bot;
@@ -114,41 +112,41 @@ export default function MarketingHubPage() {
                     key={agent.type}
                     onClick={() => handleAgentClick(agent)}
                     disabled={!available}
-                    className={`relative group text-left p-5 rounded-xl border transition-all duration-200 ${
-                      available
-                        ? "bg-card hover:bg-accent/50 hover:border-primary/30 hover:shadow-md cursor-pointer"
-                        : "bg-muted/30 opacity-60 cursor-not-allowed"
-                    }`}
+                    className="relative group text-left p-4 rounded-xl transition-all duration-200"
+                    style={{
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--border-subtle)",
+                      opacity: available ? 1 : 0.5,
+                      cursor: available ? "pointer" : "not-allowed",
+                    }}
+                    onMouseEnter={e => { if (available) e.currentTarget.style.borderColor = "rgba(108,76,241,0.20)"; }}
+                    onMouseLeave={e => { if (available) e.currentTarget.style.borderColor = "var(--border-subtle)"; }}
                   >
                     {!available && (
                       <div className="absolute top-3 right-3">
-                        <Badge variant="outline" className="text-xs gap-1 bg-amber-500/10 text-amber-600 border-amber-500/20">
-                          <Crown className="h-3 w-3" />
-                          {agent.minPlan}
-                        </Badge>
+                        <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium flex items-center gap-0.5" style={{ background: "rgba(245,158,11,0.08)", color: "#F59E0B", border: "1px solid rgba(245,158,11,0.20)" }}>
+                          <Crown className="h-2.5 w-2.5" /> {agent.minPlan}
+                        </span>
                       </div>
                     )}
 
                     <div className="flex items-start gap-3">
-                      <div className={`p-2.5 rounded-lg ${available ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"}`}>
-                        <IconComponent className="h-5 w-5" />
+                      <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: available ? "rgba(108,76,241,0.10)" : "rgba(255,255,255,0.04)" }}>
+                        <IconComponent className="h-4 w-4" style={{ color: available ? "var(--brand-primary)" : "var(--text-muted)" }} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-semibold text-sm flex items-center gap-2">
+                        <div className="text-xs font-semibold flex items-center gap-1.5" style={{ color: "var(--text-primary)" }}>
                           {agent.name}
-                          {!available && <Lock className="h-3 w-3 text-muted-foreground" />}
+                          {!available && <Lock className="h-2.5 w-2.5" style={{ color: "var(--text-muted)" }} />}
                         </div>
-                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                          {agent.description}
-                        </p>
+                        <p className="text-[10px] mt-0.5 line-clamp-2" style={{ color: "var(--text-secondary)" }}>{agent.description}</p>
                         <div className="flex items-center gap-2 mt-2">
-                          <span className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {agent.estimatedTime}
+                          <span className="text-[10px] flex items-center gap-0.5" style={{ color: "var(--text-muted)" }}>
+                            <Clock className="h-2.5 w-2.5" /> {agent.estimatedTime}
                           </span>
                           {available && (
-                            <span className="text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
-                              Run <ArrowRight className="h-3 w-3" />
+                            <span className="text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5" style={{ color: "var(--brand-primary)" }}>
+                              Run <ArrowRight className="h-2.5 w-2.5" />
                             </span>
                           )}
                         </div>
@@ -165,8 +163,8 @@ export default function MarketingHubPage() {
       {/* Recent Runs */}
       {recentRuns.length > 0 && (
         <div>
-          <h2 className="text-lg font-semibold mb-3">Recent Agent Runs</h2>
-          <div className="space-y-2">
+          <h2 className="text-sm font-semibold mb-3" style={{ color: "var(--text-primary)" }}>Recent Runs</h2>
+          <div className="space-y-1.5">
             {recentRuns.map((run: any) => {
               const agentMeta = AGENT_CATALOG.find(a => a.type === run.agentType);
               const scores = run.scores ? (typeof run.scores === "string" ? JSON.parse(run.scores) : run.scores) : null;
@@ -175,24 +173,30 @@ export default function MarketingHubPage() {
                 <button
                   key={run.id}
                   onClick={() => router.push(`/dashboard/marketing/${run.agentType}?runId=${run.id}`)}
-                  className="w-full flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-3 rounded-xl text-left transition-all"
+                  style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                  onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(108,76,241,0.20)"}
+                  onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
                 >
                   <div className="flex items-center gap-3">
-                    <Badge variant={run.status === "completed" ? "default" : run.status === "failed" ? "destructive" : "secondary"} className="text-xs">
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium" style={{
+                      background: run.status === "completed" ? "rgba(34,197,94,0.08)" : run.status === "failed" ? "rgba(239,68,68,0.08)" : "rgba(255,255,255,0.04)",
+                      color: run.status === "completed" ? "#22C55E" : run.status === "failed" ? "#ef4444" : "var(--text-muted)",
+                    }}>
                       {run.status}
-                    </Badge>
+                    </span>
                     <div>
-                      <div className="text-sm font-medium">{agentMeta?.name || run.agentType}</div>
-                      <div className="text-xs text-muted-foreground">{run.summary?.slice(0, 80)}</div>
+                      <div className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{agentMeta?.name || run.agentType}</div>
+                      <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>{run.summary?.slice(0, 80)}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 shrink-0">
                     {scores?.overall != null && (
-                      <Badge variant="outline" className="text-xs">
+                      <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)" }}>
                         {scores.overall}/100
-                      </Badge>
+                      </span>
                     )}
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>
                       {new Date(run.createdAt).toLocaleDateString()}
                     </span>
                   </div>

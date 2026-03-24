@@ -269,18 +269,20 @@ export default function QualityPassPage() {
         <div className="space-y-6 max-w-7xl pb-20">
             {/* Header */}
             <div>
-                <div className="flex items-center gap-2 mb-1">
-                    <Button variant="ghost" size="sm" onClick={() => router.push(`/dashboard/articles/${article.id}`)}>
-                        <ArrowLeft className="w-4 h-4 mr-1" /> Article
-                    </Button>
+                <button onClick={() => router.push(`/dashboard/articles/${article.id}`)} className="flex items-center gap-1 text-xs mb-3" style={{ color: "var(--text-muted)" }}>
+                    <ArrowLeft className="w-3 h-3" /> Back to Article
+                </button>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Sparkles className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Human Quality Pass</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                            Make &quot;{article.title.length > 60 ? article.title.slice(0, 60) + "..." : article.title}&quot; clearer and safer to publish.
+                        </p>
+                    </div>
                 </div>
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Sparkles className="w-6 h-6 text-[#6C4CF1]" />
-                    Human Quality Pass
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Make &quot;{article.title.length > 60 ? article.title.slice(0, 60) + "..." : article.title}&quot; clearer, more useful, and safer to publish.
-                </p>
             </div>
 
             {error && (
@@ -295,7 +297,7 @@ export default function QualityPassPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
                         {/* Article preview */}
-                        <div className="glass-card rounded-xl p-6">
+                        <div className="rounded-xl p-6">
                             <h2 className="font-semibold mb-1">{article.title}</h2>
                             <div className="flex gap-2 text-xs text-muted-foreground mb-4">
                                 <span>{article.wordCount} words</span>
@@ -308,7 +310,7 @@ export default function QualityPassPage() {
 
                     <div className="space-y-6">
                         {/* Configuration */}
-                        <div className="glass-card rounded-xl p-6 space-y-4">
+                        <div className="rounded-xl p-6 space-y-4">
                             <h3 className="font-semibold text-sm flex items-center gap-2">
                                 <Target className="w-4 h-4 text-[#6C4CF1]" /> Quality Pass Settings
                             </h3>
@@ -357,11 +359,13 @@ export default function QualityPassPage() {
 
             {/* ═══ STAGE: ANALYZING ═══ */}
             {stage === "analyzing" && (
-                <div className="glass-card rounded-2xl p-16 text-center">
-                    <Loader2 className="w-12 h-12 animate-spin text-[#6C4CF1] mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Analyzing Your Article</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto text-sm">
-                        Running readability checks, repetition detection, helpfulness analysis, originality scoring, trust evaluation, and Blogger safety validation...
+                <div className="rounded-2xl p-16 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <div className="w-16 h-16 rounded-full animate-glow-pulse flex items-center justify-center mx-auto mb-6" style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Sparkles className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>Analyzing Your Article</h3>
+                    <p className="text-sm max-w-md mx-auto" style={{ color: "var(--text-secondary)" }}>
+                        Running readability, helpfulness, originality, trust, and safety checks...
                     </p>
                 </div>
             )}
@@ -370,16 +374,16 @@ export default function QualityPassPage() {
             {stage === "review" && scores && (
                 <div className="space-y-6">
                     {/* Overall Score */}
-                    <div className="glass-card rounded-xl p-6 flex items-center justify-between">
+                    <div className="rounded-xl p-5 flex items-center justify-between" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                         <div>
-                            <h2 className="text-lg font-bold">Human Quality Score</h2>
-                            <p className="text-sm text-muted-foreground mt-1">{summary}</p>
+                            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Human Quality Score</h2>
+                            <p className="text-xs mt-1" style={{ color: "var(--text-secondary)" }}>{summary}</p>
                         </div>
                         <div className="text-right">
-                            <div className={`text-4xl font-bold ${scores.overall >= 75 ? "text-emerald-600" : scores.overall >= 50 ? "text-orange-600" : "text-red-600"}`}>
+                            <div className="text-3xl font-bold" style={{ color: scores.overall >= 75 ? "#22C55E" : scores.overall >= 50 ? "#F59E0B" : "#ef4444" }}>
                                 {scores.overall}
                             </div>
-                            <div className="text-xs text-muted-foreground">out of 100</div>
+                            <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>out of 100</div>
                         </div>
                     </div>
 
@@ -389,7 +393,7 @@ export default function QualityPassPage() {
                             const score = scores[cat.key] || 0;
                             const CatIcon = cat.icon;
                             return (
-                                <div key={cat.key} className="glass-card rounded-xl p-4">
+                                <div key={cat.key} className="rounded-xl p-4">
                                     <div className="flex items-center gap-1.5 mb-2">
                                         <CatIcon className={`w-3.5 h-3.5 ${cat.color}`} />
                                         <span className="text-[10px] font-medium text-muted-foreground">{cat.label}</span>
@@ -418,7 +422,7 @@ export default function QualityPassPage() {
 
                     {/* Flags */}
                     {flags.length > 0 && (
-                        <div className="glass-card rounded-xl p-6">
+                        <div className="rounded-xl p-6">
                             <div className="flex items-center justify-between mb-4">
                                 <h3 className="font-semibold flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 text-[#6C4CF1]" />
@@ -466,7 +470,7 @@ export default function QualityPassPage() {
                     )}
 
                     {/* Action: Run Rewrite */}
-                    <div className="glass-card rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
+                    <div className="rounded-xl p-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-[#6C4CF1]/20">
                         <div>
                             <h3 className="font-semibold">Ready to improve this article?</h3>
                             <p className="text-xs text-muted-foreground mt-1">This will fix the issues above, improve clarity, specificity, and flow while preserving your content structure.</p>
@@ -500,7 +504,7 @@ export default function QualityPassPage() {
                                 const after = scoresAfter[cat.key] || 0;
                                 const delta = after - before;
                                 return (
-                                    <div key={cat.key} className="glass-card rounded-xl p-3 text-center">
+                                    <div key={cat.key} className="rounded-xl p-3 text-center">
                                         <div className="text-[10px] text-muted-foreground mb-1">{cat.label}</div>
                                         <div className="flex items-center justify-center gap-1">
                                             <span className="text-sm opacity-50">{before}</span>
@@ -528,7 +532,7 @@ export default function QualityPassPage() {
 
                     {/* Change Summary */}
                     {changeSummary && (
-                        <div className="glass-card rounded-xl p-5">
+                        <div className="rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
                                 <RefreshCw className="w-4 h-4 text-[#6C4CF1]" /> What Changed
                             </h3>
@@ -548,7 +552,7 @@ export default function QualityPassPage() {
 
                     {/* Title comparison */}
                     {newTitle && newTitle !== article.title && (
-                        <div className="glass-card rounded-xl p-5">
+                        <div className="rounded-xl p-5">
                             <h3 className="font-semibold text-sm mb-2">Title Improvement</h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                 <div><span className="text-[10px] text-muted-foreground block mb-1">Before:</span><span className="text-sm opacity-60">{article.title}</span></div>
@@ -574,7 +578,7 @@ export default function QualityPassPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Badge variant="outline" className="w-full justify-center bg-muted/50 border-border/50 text-muted-foreground">Original Draft</Badge>
-                            <div className="glass-card rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <div className="rounded-xl p-4 h-[500px] overflow-y-auto">
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none opacity-60" dangerouslySetInnerHTML={{ __html: originalHtml }} />
                                 ) : (
@@ -584,7 +588,7 @@ export default function QualityPassPage() {
                         </div>
                         <div className="space-y-2">
                             <Badge variant="outline" className="w-full justify-center bg-[#6C4CF1]/10 border-[#6C4CF1]/30 text-[#6C4CF1]">Polished Version</Badge>
-                            <div className="glass-card border-[#6C4CF1]/20 rounded-xl p-4 h-[500px] overflow-y-auto">
+                            <div className="rounded-xl p-4 h-[500px] overflow-y-auto" style={{ background: "var(--bg-card)", border: "1px solid rgba(108,76,241,0.20)" }}>
                                 {viewMode === "preview" ? (
                                     <div className="prose prose-sm dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: newHtml }} />
                                 ) : (
@@ -611,7 +615,7 @@ export default function QualityPassPage() {
                     )}
 
                     {/* Apply bar */}
-                    <div className="glass-card rounded-xl p-6 border-[#6C4CF1]/20">
+                    <div className="rounded-xl p-6 border-[#6C4CF1]/20">
                         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                             <div>
                                 <h3 className="font-semibold flex items-center gap-2">
@@ -673,7 +677,7 @@ export default function QualityPassPage() {
 
 function MetricCard({ label, value }: { label: string; value: number | string }) {
     return (
-        <div className="glass-card rounded-xl p-3 text-center">
+        <div className="rounded-xl p-3 text-center">
             <div className="text-lg font-bold">{value}</div>
             <div className="text-[10px] text-muted-foreground">{label}</div>
         </div>

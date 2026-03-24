@@ -251,26 +251,18 @@ export default function LinkerPage() {
         <div className="space-y-6 max-w-7xl">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 flex-wrap">
-                <div>
-                    <h1 className="text-2xl font-bold mb-1 flex items-center gap-2">
-                        <Network className="w-6 h-6 text-[#6C4CF1]" />
-                        Internal Linking Engine
-                    </h1>
-                    <p className="text-sm text-muted-foreground max-w-xl">
-                        Scans your entire Blogger site, builds an internal link graph, detects pages needing support, and generates natural link insertions.
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Network className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Internal Linking Engine</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Build link graph, detect weak pages, generate natural insertions</p>
+                    </div>
                 </div>
-                <Button
-                    className="glow-button text-white border-0 shrink-0"
-                    onClick={handleScan}
-                    disabled={isScanning}
-                >
-                    {isScanning ? (
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    ) : (
-                        <Network className="w-4 h-4 mr-2" />
-                    )}
-                    {isScanning ? "Scanning..." : stats ? "Re-scan Site" : "Scan Entire Site"}
+                <Button className="btn-primary h-9 text-xs px-4 shrink-0" onClick={handleScan} disabled={isScanning}>
+                    {isScanning ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Network className="w-3.5 h-3.5 mr-1.5" />}
+                    {isScanning ? "Scanning..." : stats ? "Re-scan" : "Scan Site"}
                 </Button>
             </div>
 
@@ -284,11 +276,13 @@ export default function LinkerPage() {
 
             {/* Scanning State */}
             {isScanning && (
-                <div className="glass-card rounded-2xl p-12 text-center flex flex-col items-center justify-center">
-                    <Loader2 className="w-12 h-12 text-[#6C4CF1] animate-spin mx-auto mb-4" />
-                    <h3 className="text-xl font-bold mb-2">Building Link Graph</h3>
-                    <p className="text-muted-foreground max-w-md mx-auto mb-6">
-                        Fetching all posts, parsing content, extracting links, computing metrics, and detecting opportunities...
+                <div className="rounded-2xl p-12 text-center flex flex-col items-center justify-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <div className="w-16 h-16 rounded-full animate-glow-pulse flex items-center justify-center mb-6" style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Network className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>Building Link Graph</h3>
+                    <p className="text-sm max-w-md mx-auto mb-6" style={{ color: "var(--text-secondary)" }}>
+                        Fetching posts, parsing content, extracting links, computing metrics...
                     </p>
                     <div className="w-full max-w-xs space-y-2 text-xs text-muted-foreground">
                         {[
@@ -306,12 +300,12 @@ export default function LinkerPage() {
                                 className="flex items-center gap-2 animate-in fade-in"
                                 style={{ animationDelay: `${i * 2}s`, animationFillMode: "backwards" }}
                             >
-                                <span className="w-1.5 h-1.5 rounded-full bg-[#6C4CF1]/50 shrink-0" />
+                                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "var(--brand-primary)" }} />
                                 <span>{step}</span>
                             </div>
                         ))}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-6">This typically takes 15-60 seconds depending on blog size.</p>
+                    <p className="text-xs mt-6" style={{ color: "var(--text-muted)" }}>Typically 15-60 seconds depending on blog size.</p>
                 </div>
             )}
 
@@ -319,23 +313,20 @@ export default function LinkerPage() {
             {stats && !isScanning && (
                 <>
                     {/* Stats Bar */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2">
                         {[
-                            { label: "Pages", value: stats.totalPages, icon: BarChart3 },
-                            { label: "Internal Links", value: stats.totalInternalLinks, icon: LinkIcon },
-                            { label: "Avg Incoming", value: stats.avgIncomingLinks, icon: Target },
-                            { label: "Orphan Pages", value: stats.orphanPages, icon: AlertTriangle, highlight: stats.orphanPages > 0 },
-                            { label: "Weak Pages", value: stats.weakPages, icon: AlertTriangle, highlight: stats.weakPages > 0 },
-                            { label: "Strong Pages", value: stats.strongPages, icon: Shield },
-                            { label: "Opportunities", value: opportunities.length, icon: Sparkles, highlight: true },
+                            { label: "Pages", value: stats.totalPages, icon: BarChart3, color: "var(--text-secondary)" },
+                            { label: "Internal Links", value: stats.totalInternalLinks, icon: LinkIcon, color: "var(--text-secondary)" },
+                            { label: "Avg Incoming", value: stats.avgIncomingLinks, icon: Target, color: "var(--text-secondary)" },
+                            { label: "Orphan Pages", value: stats.orphanPages, icon: AlertTriangle, color: stats.orphanPages > 0 ? "#ef4444" : "var(--text-secondary)" },
+                            { label: "Weak Pages", value: stats.weakPages, icon: AlertTriangle, color: stats.weakPages > 0 ? "#F59E0B" : "var(--text-secondary)" },
+                            { label: "Strong Pages", value: stats.strongPages, icon: Shield, color: "#22C55E" },
+                            { label: "Opportunities", value: opportunities.length, icon: Sparkles, color: "var(--brand-primary)" },
                         ].map((s, i) => (
-                            <div
-                                key={i}
-                                className={`glass-card rounded-xl p-3 text-center ${s.highlight ? "border border-[#6C4CF1]/30" : ""}`}
-                            >
-                                <s.icon className={`w-4 h-4 mx-auto mb-1 ${s.highlight ? "text-[#6C4CF1]" : "text-muted-foreground"}`} />
-                                <p className="text-lg font-bold">{s.value}</p>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{s.label}</p>
+                            <div key={i} className="rounded-xl p-3 text-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                <s.icon className="w-3.5 h-3.5 mx-auto mb-1" style={{ color: s.color }} />
+                                <p className="text-base font-bold" style={{ color: "var(--text-primary)" }}>{s.value}</p>
+                                <p className="text-[9px] uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>{s.label}</p>
                             </div>
                         ))}
                     </div>
@@ -349,22 +340,22 @@ export default function LinkerPage() {
                     )}
 
                     {/* Tabs */}
-                    <div className="flex gap-1 border-b border-border/50 pb-0">
+                    <div className="flex gap-1" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
                         {(["overview", "opportunities", "pages"] as const).map((tab) => (
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors capitalize ${
-                                    activeTab === tab
-                                        ? "border-[#6C4CF1] text-[#6C4CF1]"
-                                        : "border-transparent text-muted-foreground hover:text-foreground"
-                                }`}
+                                className="px-4 py-2 text-xs font-medium border-b-2 transition-colors capitalize"
+                                style={{
+                                    borderColor: activeTab === tab ? "var(--brand-primary)" : "transparent",
+                                    color: activeTab === tab ? "var(--brand-primary)" : "var(--text-muted)",
+                                }}
                             >
                                 {tab}
                                 {tab === "opportunities" && opportunities.length > 0 && (
-                                    <Badge className="ml-2 bg-[#6C4CF1]/10 text-[#6C4CF1] text-[10px] px-1.5 py-0">
+                                    <span className="ml-1.5 text-[9px] px-1.5 py-0 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)" }}>
                                         {opportunities.length}
-                                    </Badge>
+                                    </span>
                                 )}
                             </button>
                         ))}
@@ -372,8 +363,8 @@ export default function LinkerPage() {
 
                     {/* Tab: Overview */}
                     {activeTab === "overview" && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="glass-card rounded-2xl p-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                                     <AlertTriangle className="w-4 h-4 text-red-500" />
                                     Orphan Pages (0 incoming links)
@@ -394,7 +385,7 @@ export default function LinkerPage() {
                                 )}
                             </div>
 
-                            <div className="glass-card rounded-2xl p-6">
+                            <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                                     <Shield className="w-4 h-4 text-green-500" />
                                     Best Linked Pages
@@ -414,7 +405,7 @@ export default function LinkerPage() {
                                 </div>
                             </div>
 
-                            <div className="glass-card rounded-2xl p-6 md:col-span-2">
+                            <div className="rounded-2xl p-5 md:col-span-2" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                                 <h3 className="font-semibold mb-3">How This Works</h3>
                                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs text-muted-foreground">
                                     {[
@@ -442,14 +433,14 @@ export default function LinkerPage() {
                     {activeTab === "opportunities" && (
                         <div className="space-y-3">
                             {opportunities.length === 0 ? (
-                                <div className="glass-card rounded-2xl p-12 text-center">
-                                    <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto mb-3" />
-                                    <h3 className="text-lg font-bold mb-1">No Opportunities Found</h3>
-                                    <p className="text-sm text-muted-foreground">Your internal linking looks solid! All pages have adequate support.</p>
+                                <div className="rounded-2xl p-12 text-center" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                                    <CheckCircle2 className="w-10 h-10 mx-auto mb-3" style={{ color: "#22C55E" }} />
+                                    <h3 className="text-lg font-bold mb-1" style={{ color: "var(--text-primary)" }}>No Opportunities Found</h3>
+                                    <p className="text-sm" style={{ color: "var(--text-secondary)" }}>Your internal linking looks solid!</p>
                                 </div>
                             ) : (
                                 opportunities.map((opp) => (
-                                    <div key={opp.id} className="glass-card rounded-xl border border-border/50 overflow-hidden">
+                                    <div key={opp.id} className="rounded-xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                                         {/* Header */}
                                         <div
                                             className="px-4 py-3 flex items-center gap-3 cursor-pointer hover:bg-muted/20 transition-colors"
@@ -599,7 +590,7 @@ export default function LinkerPage() {
 
                     {/* Tab: Pages */}
                     {activeTab === "pages" && (
-                        <div className="glass-card rounded-2xl overflow-hidden">
+                        <div className="rounded-2xl overflow-hidden" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-xs">
                                     <thead>

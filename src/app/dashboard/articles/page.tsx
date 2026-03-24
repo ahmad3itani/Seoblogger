@@ -145,16 +145,20 @@ export default function ArticlesPage() {
     return (
         <div className="max-w-5xl space-y-6">
             <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-xl font-bold">My Articles</h1>
-                    <p className="text-sm text-muted-foreground">
-                        {totalCount} {totalCount === 1 ? "article" : "articles"} generated
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <FileText className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>My Articles</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>
+                            {totalCount} {totalCount === 1 ? "article" : "articles"} generated
+                        </p>
+                    </div>
                 </div>
                 <Link href="/dashboard/new">
-                    <Button className="glow-button text-white border-0" size="sm">
-                        <PenTool className="w-3.5 h-3.5 mr-1.5" />
-                        New Article
+                    <Button className="btn-primary h-9 text-xs px-4">
+                        <PenTool className="w-3.5 h-3.5 mr-1.5" /> New Article
                     </Button>
                 </Link>
             </div>
@@ -162,18 +166,19 @@ export default function ArticlesPage() {
             {/* Search and Filters */}
             <div className="flex gap-3">
                 <div className="relative flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "var(--text-muted)" }} />
                     <Input
                         placeholder="Search articles..."
-                        className="pl-10 bg-muted/30 border-border/50"
+                        className="pl-10 h-9 text-xs"
+                        style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     />
                 </div>
                 <Select value={statusFilter} onValueChange={(v) => v && setStatusFilter(v)}>
-                    <SelectTrigger className="w-40 bg-muted/30 border-border/50">
-                        <Filter className="w-4 h-4 mr-2" />
+                    <SelectTrigger className="w-40 h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                        <Filter className="w-3 h-3 mr-1.5" />
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -183,122 +188,90 @@ export default function ArticlesPage() {
                         <SelectItem value="scheduled">Scheduled</SelectItem>
                     </SelectContent>
                 </Select>
-                <Button onClick={handleSearch} variant="outline" className="bg-muted/30">
-                    <Search className="w-4 h-4" />
-                </Button>
+                <button onClick={handleSearch} className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-muted)" }}>
+                    <Search className="w-3.5 h-3.5" />
+                </button>
             </div>
 
             {/* Articles list */}
             {isLoading ? (
                 <div className="flex items-center justify-center py-16">
-                    <Loader2 className="w-8 h-8 animate-spin text-[#6C4CF1]" />
+                    <Loader2 className="w-8 h-8 animate-spin" style={{ color: "var(--brand-primary)" }} />
                 </div>
             ) : (
-                <div className="space-y-3">
+                <div className="space-y-2">
                     {articles.map((article) => (
                     <div
                         key={article.id}
-                        className="glass-card rounded-xl p-5 hover:scale-[1.005] transition-all duration-200"
+                        className="rounded-xl p-4 transition-all duration-200"
+                        style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                        onMouseEnter={e => e.currentTarget.style.borderColor = "rgba(108,76,241,0.20)"}
+                        onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border-subtle)"}
                     >
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
-                                    <Badge
-                                        variant="secondary"
-                                        className={`text-[10px] ${
-                                            article.status === "published"
-                                                ? "bg-green-500/10 text-green-400 border-green-500/20"
-                                                : article.status === "scheduled"
-                                                ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
-                                                : "bg-yellow-500/10 text-yellow-400 border-yellow-500/20"
-                                        }`}
-                                    >
-                                        {article.status === "published" ? (
-                                            <CheckCircle2 className="w-3 h-3 mr-1" />
-                                        ) : (
-                                            <Clock className="w-3 h-3 mr-1" />
-                                        )}
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full font-medium flex items-center gap-1" style={{
+                                        background: article.status === "published" ? "rgba(34,197,94,0.08)" : article.status === "scheduled" ? "rgba(0,194,255,0.08)" : "rgba(245,158,11,0.08)",
+                                        color: article.status === "published" ? "#22C55E" : article.status === "scheduled" ? "#00C2FF" : "#F59E0B",
+                                        border: `1px solid ${article.status === "published" ? "rgba(34,197,94,0.20)" : article.status === "scheduled" ? "rgba(0,194,255,0.20)" : "rgba(245,158,11,0.20)"}`,
+                                    }}>
+                                        {article.status === "published" ? <CheckCircle2 className="w-2.5 h-2.5" /> : <Clock className="w-2.5 h-2.5" />}
                                         {article.status}
-                                    </Badge>
-                                    <span className="text-[10px] text-muted-foreground">
-                                        {article.wordCount.toLocaleString()} words
                                     </span>
-                                    <span className="text-[10px] text-muted-foreground">•</span>
-                                    <span className="text-[10px] text-muted-foreground" title={formatDateTime(article.createdAt)}>
-                                        Created {getRelativeTime(article.createdAt)}
+                                    <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>{article.wordCount.toLocaleString()} words</span>
+                                    <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>·</span>
+                                    <span className="text-[10px]" style={{ color: "var(--text-muted)" }} title={formatDateTime(article.createdAt)}>
+                                        {getRelativeTime(article.createdAt)}
                                     </span>
                                 </div>
 
-                                <h3 className="text-sm font-semibold mb-2 truncate">
+                                <h3 className="text-sm font-semibold mb-2 truncate" style={{ color: "var(--text-primary)" }}>
                                     {article.title}
                                 </h3>
 
-                                <div className="flex items-center gap-3 flex-wrap">
-                                    {article.labels && (
-                                        <div className="flex gap-1.5">
-                                            {article.labels.split(",").slice(0, 3).map((label) => (
-                                                <Badge
-                                                    key={label}
-                                                    variant="secondary"
-                                                    className="text-[10px] bg-[#6C4CF1]/10 text-[#6C4CF1] border-[#6C4CF1]/20"
-                                                >
-                                                    {label.trim()}
-                                                </Badge>
-                                            ))}
-                                        </div>
-                                    )}
-                                    {article.status === "scheduled" && article.scheduledFor && (
-                                        <span className="text-[10px] text-blue-400 font-medium" title={formatDateTime(article.scheduledFor)}>
-                                            📅 Scheduled for {formatDate(article.scheduledFor)}
+                                <div className="flex items-center gap-2 flex-wrap">
+                                    {article.labels && article.labels.split(",").slice(0, 3).map((label) => (
+                                        <span key={label} className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                            {label.trim()}
                                         </span>
-                                    )}
-                                    {article.status === "published" && article.updatedAt && (
-                                        <span className="text-[10px] text-green-400 font-medium" title={formatDateTime(article.updatedAt)}>
-                                            ✅ Published {getRelativeTime(article.updatedAt)}
+                                    ))}
+                                    {article.status === "scheduled" && article.scheduledFor && (
+                                        <span className="text-[10px] font-medium" style={{ color: "#00C2FF" }} title={formatDateTime(article.scheduledFor)}>
+                                            Scheduled {formatDate(article.scheduledFor)}
                                         </span>
                                     )}
                                     {article.blog && (
-                                        <span className="text-[10px] text-muted-foreground">
-                                            → {article.blog.name}
-                                        </span>
+                                        <span className="text-[10px]" style={{ color: "var(--text-muted)" }}>→ {article.blog.name}</span>
                                     )}
                                 </div>
                             </div>
 
                             <DropdownMenu>
-                                <DropdownMenuTrigger
-                                    className="h-8 w-8 p-0 inline-flex items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors outline-none"
-                                >
-                                    <MoreVertical className="w-4 h-4" />
+                                <DropdownMenuTrigger className="h-7 w-7 rounded-lg inline-flex items-center justify-center transition-colors outline-none" style={{ color: "var(--text-muted)" }}>
+                                    <MoreVertical className="w-3.5 h-3.5" />
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="bg-white border-gray-200">
+                                <DropdownMenuContent align="end">
                                     <DropdownMenuGroup>
-                                        <DropdownMenuLabel className="text-xs text-gray-500">Actions</DropdownMenuLabel>
+                                        <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
                                     </DropdownMenuGroup>
-                                    <DropdownMenuSeparator className="bg-gray-200" />
+                                    <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={() => window.location.href = `/dashboard/articles/${article.id}`}>
-                                        <Eye className="w-4 h-4 mr-2" />
-                                        View Details
+                                        <Eye className="w-4 h-4 mr-2" /> View Details
                                     </DropdownMenuItem>
                                     {article.status === "draft" && (
                                         <DropdownMenuItem>
-                                            <Send className="w-4 h-4 mr-2" />
-                                            Publish to Blogger
+                                            <Send className="w-4 h-4 mr-2" /> Publish to Blogger
                                         </DropdownMenuItem>
                                     )}
                                     {article.bloggerPostId && (
                                         <DropdownMenuItem onClick={() => window.open(article.blog?.url || "#", "_blank")}>
-                                            <ExternalLink className="w-4 h-4 mr-2" />
-                                            View on Blogger
+                                            <ExternalLink className="w-4 h-4 mr-2" /> View on Blogger
                                         </DropdownMenuItem>
                                     )}
-                                    <DropdownMenuSeparator className="bg-gray-200" />
-                                    <DropdownMenuItem
-                                        className="text-red-600 focus:text-red-600"
-                                        onClick={() => handleDelete(article.id)}
-                                    >
-                                        <Trash2 className="w-4 h-4 mr-2" />
-                                        Delete
+                                    <DropdownMenuSeparator />
+                                    <DropdownMenuItem className="text-red-400 focus:text-red-400" onClick={() => handleDelete(article.id)}>
+                                        <Trash2 className="w-4 h-4 mr-2" /> Delete
                                     </DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -308,16 +281,15 @@ export default function ArticlesPage() {
 
                     {/* Empty state */}
                     {articles.length === 0 && (
-                    <div className="text-center py-16 glass-card rounded-xl">
-                        <FileText className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-                        <h3 className="font-semibold mb-2">No articles yet</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                            Create your first article to get started.
-                        </p>
+                    <div className="rounded-2xl p-16 flex flex-col items-center justify-center text-center" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                        <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                            <FileText className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                        </div>
+                        <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>No articles yet</h3>
+                        <p className="text-sm mb-4" style={{ color: "var(--text-secondary)" }}>Create your first article to get started.</p>
                         <Link href="/dashboard/new">
-                            <Button className="glow-button text-white border-0">
-                                <PenTool className="w-4 h-4 mr-2" />
-                                Write First Article
+                            <Button className="btn-primary h-9 text-xs px-4">
+                                <PenTool className="w-3.5 h-3.5 mr-1.5" /> Write First Article
                             </Button>
                         </Link>
                     </div>

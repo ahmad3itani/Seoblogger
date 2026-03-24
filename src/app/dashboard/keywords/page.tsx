@@ -33,24 +33,19 @@ export default function KeywordsPage() {
         <div className="space-y-6 max-w-6xl">
             {/* Header */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div>
-                    <h1 className="text-3xl font-bold tracking-tight">Keyword Research</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Discover high-opportunity keywords for your content strategy
-                    </p>
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                        <Search className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                    </div>
+                    <div>
+                        <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Keyword Research</h1>
+                        <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Discover high-opportunity keywords for your content strategy</p>
+                    </div>
                 </div>
                 {savedKeywords.length > 0 && (
-                    <div className="flex gap-2">
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={handleExport}
-                            className="glass-card"
-                        >
-                            <Download className="w-4 h-4 mr-2" />
-                            Export ({savedKeywords.length})
-                        </Button>
-                    </div>
+                    <button onClick={handleExport} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)", color: "var(--text-secondary)" }}>
+                        <Download className="w-3 h-3" /> Export ({savedKeywords.length})
+                    </button>
                 )}
             </div>
 
@@ -64,74 +59,55 @@ export default function KeywordsPage() {
 
             {/* Saved Keywords */}
             {savedKeywords.length > 0 && (
-                <Card className="glass-card">
-                    <CardHeader>
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle className="text-base">Saved Keywords</CardTitle>
-                                <CardDescription>
-                                    Keywords you've researched in this session
-                                </CardDescription>
+                <div className="rounded-2xl" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                    <div className="px-5 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                        <div>
+                            <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Saved Keywords</h3>
+                            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Keywords researched in this session</p>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                            {savedKeywords.length} saved
+                        </span>
+                    </div>
+                    <div className="p-3 space-y-1.5">
+                        {savedKeywords.map((keyword, i) => (
+                            <div key={i} className="flex items-center justify-between px-4 py-2.5 rounded-xl transition-all" style={{ background: "rgba(255,255,255,0.02)" }}
+                                onMouseEnter={e => e.currentTarget.style.background = "rgba(255,255,255,0.04)"}
+                                onMouseLeave={e => e.currentTarget.style.background = "rgba(255,255,255,0.02)"}
+                            >
+                                <span className="text-xs font-medium" style={{ color: "var(--text-primary)" }}>{keyword}</span>
+                                <Link href={`/dashboard/new?keyword=${encodeURIComponent(keyword)}`}>
+                                    <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold btn-primary">
+                                        <Plus className="w-3 h-3" /> Create Article
+                                    </button>
+                                </Link>
                             </div>
-                            <Badge variant="secondary" className="bg-orange-500/10 text-violet-300">
-                                {savedKeywords.length} saved
-                            </Badge>
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-2">
-                            {savedKeywords.map((keyword, i) => (
-                                <div
-                                    key={i}
-                                    className="flex items-center justify-between p-3 rounded-lg bg-muted/20 hover:bg-muted/30 transition-colors"
-                                >
-                                    <span className="text-sm font-medium">{keyword}</span>
-                                    <Link href={`/dashboard/new?keyword=${encodeURIComponent(keyword)}`}>
-                                        <Button size="sm" className="bg-[#6C4CF1] hover:bg-violet-700">
-                                            <Plus className="w-3.5 h-3.5 mr-1.5" />
-                                            Create Article
-                                        </Button>
-                                    </Link>
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                        ))}
+                    </div>
+                </div>
             )}
 
             {/* Quick Tips */}
-            <Card className="glass-card border-blue-500/20">
-                <CardHeader>
-                    <div className="flex items-center gap-2">
-                        <TrendingUp className="w-4 h-4 text-blue-400" />
-                        <CardTitle className="text-base">Keyword Research Tips</CardTitle>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-2 text-sm text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Target long-tail keywords (3-5 words) for easier ranking</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Look for keywords with high volume and low-medium difficulty</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Use "People Also Ask" questions to create comprehensive content</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Include related keywords naturally throughout your article</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                            <span className="text-blue-400 shrink-0">•</span>
-                            <span>Focus on search intent - what does the user want to accomplish?</span>
-                        </li>
-                    </ul>
-                </CardContent>
-            </Card>
+            <div className="rounded-2xl p-5" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                <div className="flex items-center gap-2 mb-3">
+                    <TrendingUp className="w-4 h-4" style={{ color: "var(--brand-accent)" }} />
+                    <h3 className="text-xs font-semibold" style={{ color: "var(--text-primary)" }}>Research Tips</h3>
+                </div>
+                <div className="space-y-2">
+                    {[
+                        "Target long-tail keywords (3-5 words) for easier ranking",
+                        "Look for keywords with high volume and low-medium difficulty",
+                        "Use \"People Also Ask\" questions to create comprehensive content",
+                        "Include related keywords naturally throughout your article",
+                        "Focus on search intent — what does the user want to accomplish?",
+                    ].map((tip, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs" style={{ color: "var(--text-secondary)" }}>
+                            <div className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ background: "var(--brand-accent)" }} />
+                            <span>{tip}</span>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 }

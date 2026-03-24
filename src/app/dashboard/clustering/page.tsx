@@ -62,98 +62,96 @@ export default function ClusteringPage() {
 
     return (
         <div className="space-y-6 max-w-6xl">
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Keyword Clustering</h1>
-                <p className="text-muted-foreground mt-1">
-                    Paste a massive list of raw keywords. They'll be grouped into relevant hub-and-spoke topical clusters.
-                </p>
+            <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                    <Network className="w-5 h-5" style={{ color: "var(--brand-primary)" }} />
+                </div>
+                <div>
+                    <h1 className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>Keyword Clustering</h1>
+                    <p className="text-xs" style={{ color: "var(--text-secondary)" }}>Group raw keywords into relevant topical clusters</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-1">
-                    <Card className="glass-card h-full flex flex-col">
-                        <CardHeader>
-                            <CardTitle>Raw Keywords</CardTitle>
-                            <CardDescription>Paste your exported list (up to 200 at a time).</CardDescription>
-                        </CardHeader>
-                        <CardContent className="flex-1 flex flex-col min-h-[400px]">
+                    <div className="rounded-2xl h-full flex flex-col" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                        <div className="px-5 py-4" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                            <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>Raw Keywords</h3>
+                            <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>Paste up to 200 keywords, one per line</p>
+                        </div>
+                        <div className="flex-1 flex flex-col p-5 min-h-[400px]">
                             <Textarea
-                                placeholder="best dog food&#10;organic dog treats&#10;how to train a puppy&#10;dog training tips&#10..."
-                                className="flex-1 min-h-[300px] mb-4 font-mono text-sm leading-relaxed whitespace-pre"
+                                placeholder="best dog food&#10;organic dog treats&#10;how to train a puppy&#10;dog training tips"
+                                className="flex-1 min-h-[300px] mb-4 font-mono text-xs leading-relaxed whitespace-pre"
+                                style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border-subtle)" }}
                                 value={keywordsInput}
                                 onChange={(e) => setKeywordsInput(e.target.value)}
                                 disabled={isClustering}
                             />
                             {error && (
-                                <p className="text-sm text-red-400 mb-4">{error}</p>
+                                <div className="rounded-lg p-3 mb-3 text-xs" style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.25)", color: "#ef4444" }}>{error}</div>
                             )}
-                            <Button
-                                size="lg"
-                                className="w-full bg-[#6C4CF1] hover:bg-violet-700 text-white"
-                                onClick={handleCluster}
-                                disabled={isClustering || !keywordsInput.trim()}
-                            >
-                                {isClustering ? (
-                                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                                ) : (
-                                    <Network className="w-5 h-5 mr-2" />
-                                )}
-                                {isClustering ? "Semantic Clustering..." : "Group Keywords"}
+                            <Button className="w-full h-11 text-sm font-semibold btn-primary" onClick={handleCluster} disabled={isClustering || !keywordsInput.trim()}>
+                                {isClustering ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Network className="w-4 h-4 mr-2" />}
+                                {isClustering ? "Clustering..." : "Group Keywords"}
                             </Button>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="lg:col-span-2">
                     {clusters.length === 0 && !isClustering ? (
-                        <div className="h-full min-h-[400px] border border-dashed border-border/50 rounded-xl flex flex-col items-center justify-center text-muted-foreground bg-muted/5">
-                            <Network className="w-12 h-12 mb-4 opacity-20" />
-                            <p>Clusters will appear here after processing.</p>
+                        <div className="h-full min-h-[400px] rounded-2xl flex flex-col items-center justify-center text-center p-8" style={{ background: "var(--bg-card)", border: "1px dashed var(--border-glass)" }}>
+                            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-5" style={{ background: "rgba(108,76,241,0.08)", border: "1px solid rgba(108,76,241,0.20)" }}>
+                                <Network className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                            </div>
+                            <h3 className="text-lg font-bold mb-2" style={{ color: "var(--text-primary)" }}>Clusters will appear here</h3>
+                            <p className="text-sm max-w-sm" style={{ color: "var(--text-secondary)" }}>Paste keywords on the left and click Group to see semantic clusters</p>
                         </div>
                     ) : isClustering ? (
-                        <div className="h-full min-h-[400px] border border-border/50 rounded-xl flex flex-col items-center justify-center text-[#6C4CF1]">
-                            <Loader2 className="w-12 h-12 mb-4 animate-spin opacity-50" />
-                            <p className="animate-pulse">Analyzing semantic relationships...</p>
+                        <div className="h-full min-h-[400px] rounded-2xl flex flex-col items-center justify-center" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                            <div className="w-16 h-16 rounded-full animate-glow-pulse flex items-center justify-center mb-6" style={{ background: "rgba(108,76,241,0.10)", border: "1px solid rgba(108,76,241,0.25)" }}>
+                                <Network className="w-7 h-7" style={{ color: "var(--brand-primary)" }} />
+                            </div>
+                            <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Analyzing semantic relationships...</p>
+                            <p className="text-xs" style={{ color: "var(--text-muted)" }}>Grouping keywords by topic relevance</p>
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             {clusters.map((cluster, idx) => (
-                                <Card key={idx} className="glass-card flex flex-col animate-slide-up" style={{ animationDelay: `${idx * 50}ms` }}>
-                                    <CardHeader className="pb-3 border-b border-border/50">
-                                        <CardTitle className="text-lg text-violet-100">{cluster.clusterName}</CardTitle>
-                                        <CardDescription>{cluster.keywords.length} keywords</CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="pt-4 flex-1">
-                                        <div className="flex flex-wrap gap-2">
+                                <div key={idx} className="rounded-2xl flex flex-col animate-slide-up" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)", animationDelay: `${idx * 50}ms` }}>
+                                    <div className="px-4 py-3" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                                        <h3 className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{cluster.clusterName}</h3>
+                                        <p className="text-[10px]" style={{ color: "var(--text-muted)" }}>{cluster.keywords.length} keywords</p>
+                                    </div>
+                                    <div className="p-4 flex-1">
+                                        <div className="flex flex-wrap gap-1.5">
                                             {cluster.keywords.slice(0, 10).map((k, i) => (
-                                                <span key={i} className="px-2 py-1 bg-orange-500/10 border border-[#6C4CF1]/20 text-violet-300 text-xs rounded-md">
+                                                <span key={i} className="px-2 py-0.5 text-[10px] rounded-full" style={{ background: "rgba(108,76,241,0.08)", color: "var(--brand-primary)", border: "1px solid rgba(108,76,241,0.20)" }}>
                                                     {k}
                                                 </span>
                                             ))}
                                             {cluster.keywords.length > 10 && (
-                                                <span className="px-2 py-1 bg-muted/50 text-muted-foreground text-xs rounded-md">
+                                                <span className="px-2 py-0.5 text-[10px] rounded-full" style={{ background: "rgba(255,255,255,0.04)", color: "var(--text-muted)" }}>
                                                     +{cluster.keywords.length - 10} more
                                                 </span>
                                             )}
                                         </div>
-                                    </CardContent>
-                                    <CardFooter className="pt-3 border-t border-border/50">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="w-full text-[#6C4CF1] hover:text-orange-500 hover:bg-orange-500/10"
-                                            onClick={() => sendToBulk(cluster)}
+                                    </div>
+                                    <div className="px-4 py-3" style={{ borderTop: "1px solid var(--border-subtle)" }}>
+                                        <button className="w-full flex items-center justify-center gap-1.5 text-xs font-medium py-1.5 rounded-lg transition-all" style={{ color: "var(--brand-primary)" }} onClick={() => sendToBulk(cluster)}
+                                            onMouseEnter={e => e.currentTarget.style.background = "rgba(108,76,241,0.08)"}
+                                            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                                         >
-                                            Send to Bulk Generator
-                                            <ArrowRight className="w-4 h-4 ml-2" />
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
+                                            Send to Bulk Generator <ArrowRight className="w-3 h-3" />
+                                        </button>
+                                    </div>
+                                </div>
                             ))}
                         </div>
                     )}
                 </div>
             </div>
-        </div >
+        </div>
     );
 }
