@@ -26,6 +26,7 @@ export interface V2GenerationOptions {
     includeFaq?: boolean;
     autoInterlink?: boolean;
     blogId?: string;
+    existingPostsList?: string;
 }
 
 export interface OutlineSection {
@@ -240,6 +241,12 @@ export async function generateArticleDraft(
         return `${i + 1}. "${s.heading}" (use id="${slug}")\n${pts}${subs ? '\n' + subs : ''}`;
     }).join("\n\n");
 
+    // Build extra instructions (internal links, etc.)
+    let extraInstructions = "";
+    if (options.existingPostsList) {
+        extraInstructions += `\n\n━━━ INTERNAL LINKS (INSERT 3-5 OF THESE NATURALLY IN PARAGRAPH TEXT) ━━━\n${options.existingPostsList}\nRules: natural placement in paragraph text, descriptive anchor (not "click here"), spread across high-value sections.\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+    }
+
     const prompt = injectVars(V2_PROMPTS.ARTICLE_WRITER, {
         PRIMARY_KEYWORD: options.keyword,
         TITLE: options.title,
@@ -249,12 +256,11 @@ export async function generateArticleDraft(
         OUTLINE_TEXT: outlineText,
         TOC_HTML: tocHtml,
         FAQ_HTML: faqHtml,
-        EXTRA_INSTRUCTIONS: ""
+        EXTRA_INSTRUCTIONS: extraInstructions
     });
 
-    // OpenRouter Claude 3.5 Sonnet hard cap: 8,192 output tokens
-    // Safe limit: 8000 tokens (~5,500 words of HTML content)
-    const maxTokens = Math.min(Math.ceil(options.wordCount * 1.5), 8000);
+    // Token limit: 2 tokens/word for HTML-heavy content (TOC, tables, images, schema, monetization)
+    const maxTokens = Math.min(Math.ceil(options.wordCount * 2), 16000);
     console.log(`[V2 Engine] Article: target=${options.wordCount}w, maxTokens=${maxTokens}, model=${model}`);
 
     const response = await openai.chat.completions.create({

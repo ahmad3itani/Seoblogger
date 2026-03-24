@@ -301,14 +301,22 @@ Key Points to Cover:
 3. Cover ALL the key points listed above thoroughly
 4. Use <h3> for any subsections (NO id attribute on H3s)
 5. Use <p> for paragraphs, <ul><li> for lists, <strong> for key terms
-6. Include [IMAGE: detailed scene description, photorealistic, 4k] if section is 300+ words
+6. Include [IMAGE: detailed photorealistic scene of [topic], professional photography, 4k] if section is 250+ words
 7. End with a natural transition to the next section (if not the last section)
+
+=== ENGAGEMENT TRIGGERS (sprinkle throughout) ===
+- Rhetorical hooks: "So which one should you pick?", "Is it really worth it?"
+- Conversational asides: "And this is where things get interesting…"
+- Micro-opinions: "Honestly? This one surprised me."
+- Mix sentence rhythm: "Not perfect. But honestly? It's close."
+- Start some paragraphs with "Look," or "Thing is,"
 
 === ⛔ FORBIDDEN ===
 - ❌ No placeholder text like "[continue here]" or "[rest of section]"
 - ❌ No multiple id attributes on any element
 - ❌ No markdown syntax or code fences
 - ❌ No meta-commentary like "Here is the section"
+- ❌ No AI-tell phrases: "Furthermore", "Moreover", "Additionally", "game-changer"
 
 === OUTPUT ===
 Output ONLY the raw HTML for this one section. Start directly with the <h2> tag.`,
@@ -327,8 +335,11 @@ Language: {{LANGUAGE}}
 
 === REQUIREMENTS ===
 1. Output the TOC HTML first (exactly as provided above)
-2. Add: [IMAGE: professional photorealistic scene related to "{{PRIMARY_KEYWORD}}", bright natural lighting, 4k]
-3. Write 150-200 word introduction:
+2. FEATURED SNIPPET (MANDATORY — targets Google Position 0):
+   <p><strong>[Direct 40-60 word answer to "{{PRIMARY_KEYWORD}}" query]</strong></p>
+   This must be a clear, standalone answer that Google can pull as a featured snippet.
+3. Add: [IMAGE: professional photorealistic scene related to "{{PRIMARY_KEYWORD}}", bright natural lighting, 4k]
+4. Write 150-200 word introduction:
    - Open with a HOOK: bold statement, surprising stat, or relatable scenario
    - State the reader's problem or desire clearly
    - Promise what they will learn
@@ -341,7 +352,7 @@ Language: {{LANGUAGE}}
 - ❌ No markdown or code fences
 
 === OUTPUT ===
-Output the TOC HTML, then the image placeholder, then the introduction paragraphs.`,
+Output in this EXACT order: TOC div → featured snippet <p><strong>...</strong></p> → [IMAGE:] → introduction paragraphs.`,
 
   // ─── 8. CONCLUSION WRITER (for chunked generation) ─────────────────────────
   CONCLUSION_WRITER: `You are a world-class SEO content writer. Write a powerful CONCLUSION for an article.
@@ -361,14 +372,19 @@ Language: {{LANGUAGE}}
 === REQUIREMENTS ===
 1. Write 150-200 word conclusion:
    - Summarize the 2-3 most important takeaways
-   - Include a specific CTA ("Start by...", "Try this today...", "Share if this helped...")
-   - End with a motivating or thought-provoking final sentence
+   - Include SPECIFIC, DECISIVE product recommendations:
+     → "If you want the safest choice → go with [Product]."
+     → "If you want value → [Product] is your best bet."
+     → "For [use case] → [Product] is the clear winner."
+   - Include a clear CTA: "Start by...", "Bookmark this for later", "Share this with..."
+   - End with a thought-provoking final line that makes the reader want to share
 2. After the conclusion, output the FAQ HTML exactly as provided
 
 === ⛔ FORBIDDEN ===
 - ❌ Never use "In conclusion" as opening
 - ❌ No placeholder text
 - ❌ No markdown or code fences
+- ❌ No vague endings like "good luck!" or "happy shopping!"
 
 === OUTPUT ===
 Output the conclusion paragraphs, then the FAQ section HTML.`,

@@ -102,6 +102,25 @@ export async function POST(req: Request) {
     
     type GenerationOptions = Parameters<typeof generateTitles>[0];
 
+    // Pre-fetch existing posts for internal linking (pass to AI so it can embed links during generation)
+    let existingPostsList = "";
+    if (includeInternalLinks && blogId) {
+      try {
+        const cachedPosts = await prisma.cachedPost.findMany({
+          where: { blogId },
+          take: 30,
+          orderBy: { publishedAt: 'desc' },
+          select: { title: true, url: true }
+        });
+        if (cachedPosts.length > 0) {
+          existingPostsList = cachedPosts.map(p => `- "${p.title}" → ${p.url}`).join("\n");
+          console.log(`📎 Found ${cachedPosts.length} existing posts for internal linking`);
+        }
+      } catch (e) {
+        console.warn("⚠️ Could not fetch cached posts for linking:", e);
+      }
+    }
+
     const options: GenerationOptions = {
       keyword,
       language,
@@ -110,6 +129,7 @@ export async function POST(req: Request) {
       articleType,
       wordCount,
       brandVoice,
+      existingPostsList,
       includeFaq,
       includeImages,
       numInlineImages: numImages,

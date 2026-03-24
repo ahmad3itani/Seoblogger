@@ -273,6 +273,8 @@ export async function POST(req: Request) {
                     articleType: options.articleType || "blog-post",
                     userPlan: options.userPlan,
                     includeFaq: options.includeFaq,
+                    existingPostsList: options.existingPostsList,
+                    blogId: activeBlogId,
                 };
 
                 const rawArticle = await generateArticleDraft(outline, v2Options);

@@ -608,10 +608,23 @@ ${buildContentTypeInstructions(options)}
 OUTLINE:
 ${JSON.stringify(outline, null, 2)}
 
-Output: ONLY the Blogger-compatible HTML body. Start with the TLDR <p>, then first <h2>. No markdown, no code fences.`;
+=== OUTPUT FORMAT (follow this EXACT order) ===
+1. TOC: <div class="toc"><h3>📋 Table of Contents</h3><ul><li><a href="#slug">...</a></li></ul></div>
+2. Featured Snippet: <p><strong>[Direct 40-60 word answer to "${options.keyword}"]</strong></p>
+3. [IMAGE: detailed photorealistic scene related to "${options.keyword}", bright natural lighting, 4k]
+4. Introduction (150-200 words with hook)
+5. Body sections (each H2 with id, minimum 5 sections, 150-300 words each)
+6. [IMAGE: ...] placeholder after every 2nd H2 section (minimum 4 total images)
+7. Monetization section with real products
+8. Intent-match / use-case section
+9. Comparison table + "Which One Should You Choose?" winner logic
+10. FAQ section (if enabled)
+11. Conclusion with SPECIFIC product recommendations + CTA
 
-    // Safe token limit: 1.5 tokens/word for HTML, capped at 8000
-    const maxTokens = Math.min(Math.ceil(targetWords * 1.5), 8000);
+Output ONLY raw HTML. No markdown, no code fences, no preamble text.`;
+
+    // Token limit: 2 tokens/word for HTML-heavy content (TOC, tables, images, schema), capped at 16000
+    const maxTokens = Math.min(Math.ceil(targetWords * 2), 16000);
     console.log(`📝 Single-pass: target=${targetWords}w, maxTokens=${maxTokens}, model=${model}`);
 
     const response = await openai.chat.completions.create({
@@ -657,18 +670,32 @@ async function generateArticleSectionBySection(
         SECTION_WORD_COUNT: String(introWordTarget),
     });
 
-    const tldrUserPrompt = `Write the opening of this article.
+    const tldrUserPrompt = `Write the opening of this article in this EXACT order:
 
-FIRST: Write the TLDR paragraph (before the H2). 2-3 sentences. Direct answer to: "${options.keyword}". Uses keyword in sentence 1. Optimized as a featured snippet. Start this paragraph with a <p> tag.
+1. TABLE OF CONTENTS (MANDATORY):
+<div class="toc"><h3>📋 Table of Contents</h3><ul>
+${outline.sections?.filter(s => s.level === 2).map(s => {
+    const slug = s.heading.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    return `<li><a href="#${slug}">${s.heading}</a></li>`;
+}).join('\n') || ''}
+</ul></div>
 
-THEN: Write the first full section:
+2. FEATURED SNIPPET (MANDATORY — targets Google Position 0):
+<p><strong>[Direct 40-60 word answer to "${options.keyword}" query]</strong></p>
+
+3. IMAGE PLACEHOLDER:
+[IMAGE: professional photorealistic scene related to "${options.keyword}", bright natural lighting, 4k]
+
+4. INTRODUCTION / FIRST SECTION:
 Heading: ${introSection.heading}
 Points to cover: ${JSON.stringify(introSection.points)}
 Subsections: ${JSON.stringify(introSection.subsections || [])}
 Target: ${introWordTarget} words for this section.
+- Open with a HOOK (bold statement, surprising stat, or relatable scenario)
+- Include "${options.keyword}" in the first 100 words
 ${linkingBlock ? `Linking context (place 1 internal link here if available):\n${linkingBlock}` : ""}
 
-Output: Clean HTML only. TLDR <p> first, then <h2> for the section.`;
+Output: Clean HTML only. TOC div first, then featured snippet <p>, then [IMAGE:], then <h2> section.`;
 
     const tldrResponse = await openai.chat.completions.create({
         model,
@@ -677,7 +704,7 @@ Output: Clean HTML only. TLDR <p> first, then <h2> for the section.`;
             { role: "user", content: tldrUserPrompt },
         ],
         temperature: 0.75,
-        max_tokens: Math.min(Math.ceil(introWordTarget * 1.8), 2000),
+        max_tokens: Math.min(Math.ceil(introWordTarget * 2.5) + 500, 4000),
     });
     parts.push(cleanMarkdown(tldrResponse.choices[0]?.message?.content || ""));
 
@@ -692,13 +719,14 @@ Output: Clean HTML only. TLDR <p> first, then <h2> for the section.`;
         const sectionTarget = section.wordCount || wordsPerSection;
         const isLast = i === remainingSections.length - 1;
 
-        // Inject content-type instructions and linking into middle or last section
-        const sectionExtra =
-            i === Math.floor(remainingSections.length / 2) ? contentTypeInstructions : "";
-        const linkExtra =
-            i === Math.floor(remainingSections.length / 3) && linkingBlock
+        // Inject content-type instructions into multiple sections for reinforcement
+        const isMiddle = i === Math.floor(remainingSections.length / 2);
+        const isThird = i === Math.floor(remainingSections.length / 3);
+        const sectionExtra = isMiddle ? contentTypeInstructions : "";
+        const linkExtra = isThird && linkingBlock
                 ? `\nPlace 1 internal link naturally here if relevant:\n${linkingBlock}`
                 : "";
+        const imageReminder = `\nIMAGE REQUIREMENT: If this section is 250+ words, include [IMAGE: detailed photorealistic scene of [topic related to this section], professional photography, 4k] after a key paragraph.`;
 
         const sectionSystemPrompt = injectVars(SYSTEM_PROMPTS.SECTION_WRITER, {
             PRIMARY_KEYWORD: options.keyword,
@@ -716,9 +744,15 @@ Level: H${section.level}
 Points to cover: ${JSON.stringify(section.points)}
 Subsections: ${JSON.stringify(section.subsections || [])}
 Target: ${sectionTarget} words
-${isLast ? `This is the CONCLUSION section. Summarize key takeaways. Use "${options.keyword}" at least twice. End with a strong, specific call-to-action.` : ""}
+${isLast ? `This is the CONCLUSION section. Summarize key takeaways. Use "${options.keyword}" at least twice.
+MUST include SPECIFIC, DECISIVE recommendations: "If you want the safest choice → go with [Product]." "If you want value → [Product] is your best bet."
+End with a strong CTA: "Start by...", "Bookmark this for later", "Share this with..."` : ""}
 ${sectionExtra}
 ${linkExtra}
+${imageReminder}
+
+ENGAGEMENT: Add rhetorical hooks and micro-opinions. Examples: "So which one should you actually buy?", "Honestly? This one surprised me.", "Here's what most people get wrong…"
+HUMAN TONE: Use contractions, varied sentence rhythm, parenthetical asides. "Not perfect. But honestly? It's close."
 
 Output: Clean HTML only. Start with <h${section.level}> tag.`;
 

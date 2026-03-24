@@ -184,10 +184,10 @@ Build structure BEFORE writing:
 - Featured Snippet paragraph (direct answer to keyword query in 40-60 words — FIRST thing after TOC)
 - Introduction (emotional hook, 150-200 words)
 - Minimum 5 H2 body sections (each with 2-3 H3 subsections, each H2 = 150-300 words)
-- Monetization section: "Best [Keyword] Options/Picks in 2025" — list 3-5 REAL products with short review, key feature, best-for, optional affiliate angle
-- Buyer Guide section: "How to Choose the Best [Keyword]" — include best for gaming, best for budget, best for [use case], who should avoid what
-- Comparison section: "[Option A] vs [Option B] vs [Option C]" — pros/cons, who wins where (use <table> format)
-- Conclusion (150-200 words with CTA)
+- Monetization section: "Best [Keyword] to Buy in 2026" — list 3-5 REAL products, each with: <h3>Product Name</h3>, short review, key feature, best-for use case
+- Intent-Match / Use-Case section (MANDATORY): "Best [Keyword] by Use Case" — list best for gaming, best for photography, best for battery life, best for budget (Google LOVES this)
+- Comparison section: "[Option A] vs [Option B] vs [Option C]" — <table> format + "Which One Should You Choose?" with clear winner logic
+- Conclusion (150-200 words) — MUST include SPECIFIC recommendations: "If you want the safest choice → [Product]." + clear CTA
 
 IMPORTANT: Check the CONTENT FEATURE INSTRUCTIONS in the user message.
 Only include features that are marked ✅ INCLUDE.
@@ -301,12 +301,22 @@ ALL content MUST sound 100% human-written. This is NOT optional.
 ## BLOGGER HTML FORMAT
 
 Use ONLY these tags:
-<h2>, <h3>, <p>, <ul>, <li>, <ol>, <a>, <strong>, <em>, <table>, <thead>, <tbody>, <tr>, <th>, <td>, <blockquote>
+<h2>, <h3>, <p>, <ul>, <li>, <ol>, <a>, <strong>, <em>, <table>, <thead>, <tbody>, <tr>, <th>, <td>, <blockquote>, <div> (for TOC and FAQ schema only)
 
 ⛔ NO <h1> tags (Blogger title handles this)
-⛔ NO inline CSS or style attributes
-⛔ NO <div>, <section>, <article> wrappers
+⛔ NO <section>, <article> wrappers
 ⛔ NO markdown syntax
+
+## IMAGE PLACEHOLDERS (MANDATORY — minimum 4)
+
+Insert [IMAGE: description] placeholders at these positions:
+- 1st image: IMMEDIATELY after introduction (before first body H2)
+- 2nd image: After the 2nd H2 section
+- 3rd image: After the 4th H2 section (or mid-article)
+- 4th image: In the monetization or comparison section
+FORMAT: [IMAGE: ultra realistic, detailed scene of [specific topic], professional photography, 4k]
+Each description must be 15-25 words, UNIQUE, and match surrounding content.
+⚠️ ARTICLE WILL BE REJECTED IF FEWER THAN 4 [IMAGE: ...] PLACEHOLDERS EXIST.
 
 ========================
 === MASTER ENFORCEMENT — FINAL QUALITY CONTROL ===
@@ -317,18 +327,19 @@ Before output, VERIFY EVERY SINGLE CHECK:
 1. ✅ Article is FULL — no missing sections, no placeholders, no "rest of article" text
 2. ✅ At least 5 H2 body sections exist, each with 150-300 words of real depth
 3. ✅ Featured snippet paragraph exists right after TOC (40-60 word direct answer)
-4. ✅ TOC is correct: only H2 sections, excludes FAQ and Conclusion, minimum 5 items
-5. ✅ Minimum 4 image placeholders inserted (1 after intro, 1 every 2 sections)
-6. ✅ Monetization section exists ("Best [Keyword]" with 3-5 real products)
-7. ✅ Buyer guide section exists ("How to Choose") with decision-making help
-8. ✅ Comparison section exists (with <table> format) when topic involves options
+4. ✅ TOC is correct: only H2 sections, excludes FAQ and Conclusion, minimum 5 items, keyword-optimized headings
+5. ✅ Minimum 4 [IMAGE: ...] placeholders with detailed 15-25 word descriptions
+6. ✅ Monetization section exists with 3-5 real products (each has: review, key feature, best-for)
+7. ✅ Intent-match / use-case section exists ("Best [Keyword] by Use Case")
+8. ✅ Comparison section has winner logic ("Which One Should You Choose?" with best overall/value/use-case)
 9. ✅ ALL content is 100% realistic — no fake tech, no speculative products, no invented specs
 10. ✅ ALL ✅ INCLUDE features from CONTENT FEATURE INSTRUCTIONS are present
 11. ✅ NONE of the ⛔ SKIP features are included
-12. ✅ Internal links are strategically placed in high-value sections, matching keyword intent
+12. ✅ Engagement triggers throughout: rhetorical hooks, conversational asides, micro-opinions
 13. ✅ Human tone verified — contractions, varied rhythm, micro-opinions, imperfect flow
 14. ✅ No AI tell phrases remain (Furthermore, Moreover, game-changer, etc.)
-15. ✅ No placeholder text exists anywhere
+15. ✅ Conclusion has SPECIFIC product recommendations + clear CTA
+16. ✅ Entity SEO: specific model names, chipsets, ecosystems mentioned and explained
 
 ❌ IF ANY SINGLE CHECK FAILS → REWRITE ENTIRE ARTICLE FROM SCRATCH
 ❌ NO EXCEPTIONS. NO PARTIAL FIXES. FULL REWRITE.
@@ -373,9 +384,10 @@ LANGUAGE: {{LANGUAGE}}
 • Short punchy sentences mixed with detailed ones — never uniform length
 • Address the reader: "you", "your"
 • NO banned AI phrases (game-changer, leverage, holistic, dive into, etc.)
-• NO markdown, NO inline styles, NO <div> wrappers
+• NO markdown, NO inline styles
+• If section is 250+ words, include ONE [IMAGE: detailed photorealistic scene of [topic], professional photography, 4k] placeholder
 
-ALLOWED TAGS: <p> <h2> <h3> <h4> <ul> <ol> <li> <table> <thead> <tbody> <tr> <th> <td> <strong> <em> <a> <blockquote>
+ALLOWED TAGS: <p> <h2> <h3> <h4> <ul> <ol> <li> <table> <thead> <tbody> <tr> <th> <td> <strong> <em> <a> <blockquote> <div> (for TOC/FAQ only)
 
 Return ONLY the HTML for this section (starting with the <h2> tag). No explanations.`,
 
