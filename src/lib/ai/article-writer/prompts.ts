@@ -275,27 +275,44 @@ ${outlineText}
 STEP 1 - TABLE OF CONTENTS (output this exact HTML verbatim):
 ${tocHtml}
 
-STEP 2 - FEATURED IMAGE PLACEHOLDER (right after TOC):
+STEP 2 - FEATURED SNIPPET (right after TOC, BEFORE introduction):
+<p><strong>[Direct answer to "${keyword}" query in 40-60 words]</strong></p>
+This targets Google's Position 0 featured snippet. Must be clear, direct, standalone answer.
+
+STEP 3 - FEATURED IMAGE PLACEHOLDER (right after featured snippet):
 [IMAGE: professional photorealistic scene related to "${keyword}", bright natural lighting, 4k]
 
-STEP 3 - INTRODUCTION (150-200 words)
+STEP 4 - INTRODUCTION (150-200 words)
 - Open with a HOOK: bold statement, surprising stat, or relatable scenario. NOT "In this article..."
 - State the reader's problem or desire clearly
 - Promise what they will learn
 - Include "${keyword}" naturally within the first 100 words
 - Close with a sentence that flows into the first section
 
-STEP 4 - BODY SECTIONS (approx ${perSectionWords} words each)
+STEP 5 - BODY SECTIONS (minimum 5 H2 sections, approx ${perSectionWords} words each)
 For EACH section in the outline:
 - Use: <h2 id="[slug]">[Heading]</h2> - the slug MUST match the id shown in the outline above
 - Use <h3> for subsections (no id needed)
 - Write expert content: real examples, statistics, comparisons, actionable advice
+- MINIMUM 150-300 words per H2 - each must include at least ONE actionable takeaway
 - Use <p> for paragraphs, <ul><li> for lists, <strong> for key terms on first mention
 - Vary sentence length: mix short punchy sentences with longer explanatory ones
-- Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words
+- Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words (minimum 4 images total)
 - BANNED: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world", "In conclusion", "It's worth mentioning"
 
-STEP 5 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
+STEP 6 - MONETIZATION SECTION (MANDATORY):
+<h2 id="best-[keyword-slug]">Best [Keyword] to Buy/Use in 2025</h2>
+List 3-5 REAL, CURRENTLY AVAILABLE products with: short review, key feature, best-for use case.
+ALL products MUST be real and currently for sale.
+
+STEP 7 - BUYER GUIDE SECTION (MANDATORY):
+<h2 id="how-to-choose">How to Choose the Best [Keyword] in 2025</h2>
+Include: best for [use case 1], best for [use case 2], best for [use case 3], who should avoid what.
+
+STEP 8 - COMPARISON SECTION (MANDATORY when topic involves options):
+Use <table> format with pros/cons, who wins where. Minimum 3 columns, 4+ rows.
+
+STEP 9 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
 <div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
   <h2 id="faq">Frequently Asked Questions</h2>
   <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
@@ -306,10 +323,39 @@ STEP 5 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
   </div>
 </div>
 
-STEP 6 - CONCLUSION (150-200 words)
+STEP 10 - CONCLUSION (150-200 words)
 - Summarize the 2-3 most important takeaways
 - Include a specific CTA ("Start by...", "Try this today...", "Share if this helped...")
 - End with a motivating or thought-provoking final sentence
+
+=== 🚨 REALITY ENFORCEMENT (CRITICAL — NON-NEGOTIABLE) ===
+- ONLY use REAL, CURRENTLY AVAILABLE devices, products, and features
+- DO NOT invent products, specs, or technologies (no "quantum processors", no "holographic displays")
+- DO NOT reference unreleased/speculative products (no "iPhone 18 Pro Max", no "Galaxy S30")
+- DO NOT use vague futuristic claims (no "AI copilot standard", no "neural interface")
+- If unsure → use conservative, realistic description
+🚨 ANY REALITY VIOLATION = REWRITE ENTIRE ARTICLE 🚨
+
+=== HUMANIZER (LEVEL 10 — MANDATORY) ===
+- Contractions everywhere (don't, it's, you'll)
+- Micro-opinions: "I'd pick this over...", "Honestly, this surprised me"
+- One-word impact: "Seriously." "Worth it." "Not even close."
+- Short punchy + longer: "Not perfect. But honestly? It's close."
+- Parenthetical asides, sentence fragments, rhetorical questions
+- NO uniform sentence length, NO predictable paragraph rhythm
+
+=== MASTER ENFORCEMENT — FINAL QUALITY CONTROL ===
+Before output, verify ALL:
+1. Article is FULL (no placeholders, no "rest of article")
+2. At least 5 H2 body sections with 150-300 words each
+3. Featured snippet exists after TOC
+4. TOC has 5+ items, excludes FAQ and Conclusion
+5. Minimum 4 image placeholders
+6. Monetization section with real products
+7. Buyer guide section exists
+8. Content is 100% realistic — no fake tech
+9. Human tone verified
+IF ANY CHECK FAILS → REWRITE ENTIRE ARTICLE
 
 === CRITICAL OUTPUT RULES ===
 1. Output ONLY raw HTML - NO markdown fences (no triple backticks), NO text before or after
@@ -381,10 +427,14 @@ ${previousSections ? `PREVIOUS CONTENT (context only - do NOT repeat it):\n${pre
 2. Use <h3> for sub-topics (no id needed)
 3. Use <p> for paragraphs, <ul><li> for bullet lists, <strong> for key terms on first mention
 4. Write ${sectionWordCount} words of real, expert content - no filler, no generic advice
-5. Vary sentence length: mix short punchy sentences with longer explanatory ones
-6. If section is over 250 words, add ONE image placeholder: [IMAGE: detailed photorealistic scene of [topic], 4k]
-7. BANNED words/phrases: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world"
-8. Output ONLY raw HTML - no markdown fences, no preamble text before the <h2>
+5. Each section must include at least ONE actionable takeaway the reader can use immediately
+6. Vary sentence length: mix short punchy sentences with longer explanatory ones
+7. If section is over 250 words, add ONE image placeholder: [IMAGE: detailed photorealistic scene of [topic], 4k]
+8. BANNED words/phrases: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world", "game-changer", "revolutionary", "cutting-edge"
+9. Output ONLY raw HTML - no markdown fences, no preamble text before the <h2>
+10. REALITY: Only reference REAL, currently available products. No speculative tech, no unreleased devices.
+11. HUMAN TONE: Use contractions, micro-opinions, varied rhythm. "Not perfect. But honestly? It's close."
+
 `;
 
   if (style) prompt += `\n=== STYLE GUIDE ===\n${formatStyleContext(style)}`;
@@ -401,18 +451,32 @@ ${previousSections ? `PREVIOUS CONTENT (context only - do NOT repeat it):\n${pre
 export function getHumanizerPrompt(
   articleContent: string
 ): string {
-  return `You are an expert editor and content humanizer. Your task is to rewrite this article to sound 100% human.
+  return `You are an expert editor and content humanizer. Your task is to rewrite this article to sound 100% human-written and UNDETECTABLE as AI.
 
 ARTICLE HTML TO REWRITE:
 ${articleContent}
 
-=== HUMANIZER REQUIREMENTS ===
-- Break predictable sentence patterns and vary sentence length (short + long)
-- Add personality, natural imperfections, and a natural tone
-- Use conversational shortcuts occasionally (don't, it's, etc.)
-- Add occasional rhetorical questions or human phrasing ("Let's be honest…", "Here's the thing…", "Most people don't realize…")
-- Remove all robotic transitions ("In conclusion", "Furthermore", "Moreover", "It's important to note", "Additionally")
-- Slightly vary paragraph length to avoid walls of text. Short 1-2 sentence paragraphs stand out.
+=== HUMANIZER REQUIREMENTS (LEVEL 10 — AGGRESSIVE) ===
+- Break predictable sentence patterns — AGGRESSIVELY vary sentence length
+- Add personality, natural imperfections, micro-opinions ("I'd pick this over...")
+- Use contractions everywhere (don't, it's, you'll, can't, won't)
+- Add rhetorical questions: "Sound familiar?", "So what's the catch?"
+- Use natural human phrasing: "Let's be honest…", "Here's the thing…", "Most people don't realize…", "Real talk:"
+- Add one-word impact sentences: "Seriously." "Worth it." "Not even close."
+- Mix short punchy with longer: "Not perfect. But honestly? It's close."
+- Start some paragraphs with "Look," or "Thing is," or sentence fragments
+- Add parenthetical asides (like this — they feel human)
+- Remove ALL robotic transitions: "In conclusion", "Furthermore", "Moreover", "It's important to note", "Additionally", "In today's world"
+- Vary paragraph length: some 1-2 sentences, some 3-4 — never uniform
+- Break the predictable pattern of assertion → explanation → example → conclusion
+
+=== REALITY CHECK ===
+- Do NOT introduce any fake/speculative products or technologies
+- Do NOT add "quantum processors", "holographic displays", or unreleased devices
+- Keep all product references REAL and CURRENTLY AVAILABLE
+
+=== BANNED AI-TELL PHRASES (remove ALL) ===
+"game-changer", "revolutionary", "cutting-edge", "robust", "leverage", "utilize", "facilitate", "navigate the complexities", "unlock the potential", "delve into"
 
 CRITICAL:
 - Keep the SEO structure intact (H2s and H3s).

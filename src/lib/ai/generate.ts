@@ -247,17 +247,22 @@ function buildContentTypeInstructions(options: GenerationOptions): string {
 ┌─────────────────────────────────────────────────────────────────────┐
 │ ✅ TABLE OF CONTENTS — MANDATORY                                    │
 └─────────────────────────────────────────────────────────────────────┘
-REQUIREMENT: Add a Table of Contents IMMEDIATELY after the introduction.
-FORMAT: HTML list with anchor links to all main H2 sections.
-EXAMPLE:
+REQUIREMENT: Add a Table of Contents IMMEDIATELY after the featured snippet paragraph.
+RULES:
+- Include ONLY H2 body sections
+- EXCLUDE FAQ section from TOC
+- EXCLUDE Conclusion from TOC
+- MINIMUM 5 items in TOC (must reflect all H2 body sections)
+- Must reflect the FULL article structure — not just 1-2 sections
+FORMAT:
 <div class="toc">
 <h3>📋 Table of Contents</h3>
 <ul>
 <li><a href="#section-slug">Section Title</a></li>
+<!-- Minimum 5 items -->
 </ul>
 </div>
-EXCLUDE: FAQ and Conclusion from TOC.
-⚠️ ARTICLE WILL BE REJECTED IF TOC IS MISSING.`;
+⚠️ ARTICLE WILL BE REJECTED IF TOC HAS FEWER THAN 5 ITEMS OR INCLUDES FAQ/CONCLUSION.`;
     } else {
         instructions += `\n\n⛔ TABLE OF CONTENTS: SKIP — Do NOT include any Table of Contents.`;
     }
@@ -280,18 +285,23 @@ Include keyword variations. Target "People Also Ask" queries.
 
     // === IMAGES ===
     if (options.includeImages !== false) {
-        const count = options.numInlineImages || 3;
+        const count = Math.max(options.numInlineImages || 3, 4);
         instructions += `
 
 ┌─────────────────────────────────────────────────────────────────────┐
-│ ✅ IMAGE PLACEHOLDERS — MANDATORY (minimum ${Math.max(count, 4)} images)              │
+│ ✅ IMAGE PLACEHOLDERS — MANDATORY (minimum ${count} images)                  │
 └─────────────────────────────────────────────────────────────────────┘
-REQUIREMENT: Insert [IMAGE: description] placeholders at these positions:
+REQUIREMENT: Insert [IMAGE: description] placeholders at these EXACT positions:
 - 1st image: IMMEDIATELY after introduction (before first H2)
-- Additional images: After every 2 H2 sections
-FORMAT: [IMAGE: ultra realistic, detailed scene description of [topic], professional photography, clean composition]
-Descriptions MUST be detailed (15-25 words) and match section context.
-⚠️ ARTICLE WILL BE REJECTED IF FEWER THAN ${Math.max(count, 4)} IMAGE PLACEHOLDERS.`;
+- 2nd image: After the 2nd H2 section
+- 3rd image: After the 4th H2 section
+- 4th image: In the monetization or comparison section
+FORMAT: [IMAGE: ultra realistic, detailed scene description of [specific topic], professional photography, clean composition, 4k]
+RULES:
+- Descriptions MUST be detailed (15-25 words) and match the surrounding section context
+- Each description must be UNIQUE — no duplicate image prompts
+- Images must depict REAL, currently existing products or scenarios
+⚠️ ARTICLE WILL BE REJECTED IF FEWER THAN ${count} IMAGE PLACEHOLDERS EXIST.`;
     } else {
         instructions += `\n\n⛔ IMAGE PLACEHOLDERS: SKIP — Do NOT include any [IMAGE:] placeholders.`;
     }
@@ -301,11 +311,15 @@ Descriptions MUST be detailed (15-25 words) and match section context.
         instructions += `
 
 ┌─────────────────────────────────────────────────────────────────────┐
-│ ✅ INTERNAL LINKS — MANDATORY (3-5 links)                           │
+│ ✅ INTERNAL LINKS — MANDATORY (3-5 links, STRATEGIC placement)      │
 └─────────────────────────────────────────────────────────────────────┘
 REQUIREMENT: Include 3-5 internal links naturally in paragraph text.
-Same niche/topic cluster ONLY. Contextually relevant anchor text.
-FORMAT: <a href="[URL]">descriptive anchor text</a>
+STRATEGIC RULES:
+- Links MUST match the keyword intent of the linked article
+- Place links in HIGH-VALUE sections (intro, monetization, buyer guide) — not throwaway paragraphs
+- Links must support topic clusters — same niche/topic only
+- Use descriptive anchor text that includes relevant keywords (NOT "click here" or "read more")
+FORMAT: <a href="[URL]">keyword-rich descriptive anchor text</a>
 ⚠️ If no internal URLs provided, skip this requirement.`;
     } else {
         instructions += `\n\n⛔ INTERNAL LINKS: SKIP — Do NOT include internal links.`;
@@ -432,13 +446,80 @@ Each step MUST include:
 ⚠️⚠️ CRITICAL: ARTICLE WILL BE REJECTED IF STEP-BY-STEP GUIDE IS MISSING. ⚠️⚠️`;
     }
 
+    // === FEATURED SNIPPET (always mandatory) ===
+    instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ FEATURED SNIPPET — MANDATORY                                     ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Add a featured snippet paragraph IMMEDIATELY after the TOC, BEFORE the introduction.
+FORMAT: <p><strong>[Direct answer to the keyword query in 40-60 words]</strong></p>
+This targets Google's Position 0. Must be a clear, direct, standalone answer.
+⚠️ ARTICLE WILL BE REJECTED IF FEATURED SNIPPET IS MISSING.`;
+
+    // === MONETIZATION BLOCK (always mandatory) ===
+    instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ MONETIZATION SECTION — MANDATORY                                 ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Include a monetization section with this structure:
+<h2 id="best-[keyword-slug]">Best [Keyword] to Buy/Use in 2025</h2>
+List 3-5 REAL, CURRENTLY AVAILABLE products. For each:
+- Short review (2-3 sentences)
+- Key standout feature
+- Best for [specific use case]
+- Optional affiliate angle
+ALL products MUST be real and currently for sale. No speculative or unreleased items.
+⚠️ ARTICLE WILL BE REJECTED IF MONETIZATION SECTION IS MISSING.`;
+
+    // === BUYER GUIDE (always mandatory) ===
+    instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ ✅ BUYER GUIDE SECTION — MANDATORY                                  ║
+╚═════════════════════════════════════════════════════════════════════╝
+REQUIREMENT: Include a decision-making guide section:
+<h2 id="how-to-choose">How to Choose the Best [Keyword] in 2025</h2>
+Must include:
+- Best for [use case 1] (e.g., gaming, photography, budget)
+- Best for [use case 2]
+- Best for [use case 3]
+- Who should avoid what (honest caveats)
+Help the reader DECIDE — don't just describe.
+⚠️ ARTICLE WILL BE REJECTED IF BUYER GUIDE IS MISSING.`;
+
+    // === REALITY ENFORCEMENT (always mandatory) ===
+    instructions += `
+
+╔═════════════════════════════════════════════════════════════════════╗
+║ 🚨 REALITY ENFORCEMENT — CRITICAL, NON-NEGOTIABLE                  ║
+╚═════════════════════════════════════════════════════════════════════╝
+- ONLY use REAL, CURRENTLY AVAILABLE devices, products, and features
+- DO NOT invent products, specs, or technologies (no "quantum processors", no "holographic displays")
+- DO NOT reference unreleased/speculative products (no "iPhone 18", no "Galaxy S30")
+- DO NOT use vague futuristic claims (no "AI copilot standard", no "neural interface")
+- If unsure → use conservative, realistic description
+🚨 ANY REALITY VIOLATION = REWRITE ENTIRE ARTICLE 🚨`;
+
     instructions += `
 
 ╔══════════════════════════════════════════════════════════════════════╗
-║                    END MANDATORY CONTENT FEATURES                    ║
+║              END MANDATORY CONTENT FEATURES                          ║
+║   MASTER ENFORCEMENT: Verify ALL checks before outputting            ║
 ╚══════════════════════════════════════════════════════════════════════╝
-FINAL CHECK: Before outputting, verify ALL ✅ features above are present.
-Missing ANY mandatory feature = instant rejection.`;
+FINAL QUALITY CONTROL — verify ALL of these before output:
+1. Article is FULL (no "rest of article", no "continues", no placeholders)
+2. At least 5 H2 body sections exist with 150-300 words each
+3. TOC has 5+ items, excludes FAQ and Conclusion
+4. Minimum 4 image placeholders inserted
+5. Featured snippet paragraph exists
+6. Monetization section exists with real products
+7. Buyer guide section exists
+8. Comparison section exists (if topic has options)
+9. Content is 100% realistic — no fake/speculative tech
+10. Human tone verified — contractions, varied rhythm, micro-opinions
+Missing ANY = REWRITE ENTIRE ARTICLE.`;
 
     return instructions;
 }

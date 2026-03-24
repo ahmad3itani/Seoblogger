@@ -80,47 +80,87 @@ Min Length   : {{WORD_COUNT}} words - DO NOT stop early, write every section ful
 STEP 1 - TABLE OF CONTENTS (output this exact HTML verbatim - do not modify):
 {{TOC_HTML}}
 
-STEP 2 - FEATURED IMAGE PLACEHOLDER (right after TOC):
+STEP 2 - FEATURED SNIPPET (right after TOC, BEFORE introduction):
+<p><strong>[Direct answer to "{{PRIMARY_KEYWORD}}" query in 40-60 words]</strong></p>
+This targets Google's Position 0 featured snippet. Must be clear, direct, standalone answer.
+
+STEP 3 - FEATURED IMAGE PLACEHOLDER (right after featured snippet):
 [IMAGE: professional photorealistic scene related to "{{PRIMARY_KEYWORD}}", bright natural lighting, 4k]
 
-STEP 3 - INTRODUCTION (150-200 words)
+STEP 4 - INTRODUCTION (150-200 words)
 - Open with a HOOK: bold statement, surprising stat, or relatable scenario. NOT "In this article..."
 - State the reader's problem or desire clearly
 - Promise what they will learn
 - Include "{{PRIMARY_KEYWORD}}" naturally within the first 100 words
 - Close with a sentence that flows into the first section
 
-STEP 4 - BODY SECTIONS
+STEP 5 - BODY SECTIONS (minimum 5 H2 sections)
 For EACH section in the outline:
 - Write the H2 with ONLY ONE id attribute: <h2 id="the-slug">Heading Text</h2>
 - Do NOT add multiple id attributes to any element
 - Use <h3> for subsections (NO id attribute on H3s)
 - Write expert content: real examples, statistics, comparisons, actionable advice
 - MINIMUM 200 words per H2 section - write fully, do not skimp
+- Each H2 must include at least ONE actionable takeaway
 - Use <p> for paragraphs, <ul><li> for lists, <strong> for key terms on first mention
 - Vary sentence length: mix short punchy sentences with longer explanatory ones
-- Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words
+- Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words (minimum 4 images total)
 
-STEP 5 - FAQ SECTION (use this exact structure - the H2 has id="faq"):
+STEP 6 - MONETIZATION SECTION (MANDATORY):
+<h2 id="best-[keyword-slug]">Best [Keyword] to Buy/Use in 2025</h2>
+List 3-5 REAL, CURRENTLY AVAILABLE products with: short review, key feature, best-for use case.
+ALL products MUST be real and currently for sale. No speculative items.
+
+STEP 7 - BUYER GUIDE SECTION (MANDATORY):
+<h2 id="how-to-choose">How to Choose the Best [Keyword] in 2025</h2>
+Include: best for [use case 1], best for [use case 2], best for [use case 3], who should avoid what.
+
+STEP 8 - COMPARISON SECTION (MANDATORY when topic involves options):
+Use <table> format with pros/cons, who wins where. Minimum 3 columns, 4+ rows.
+
+STEP 9 - FAQ SECTION (use this exact structure - the H2 has id="faq"):
 <div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
   <h2 id="faq">Frequently Asked Questions</h2>
 {{FAQ_HTML}}
 </div>
 
-STEP 6 - CONCLUSION (150-200 words)
+STEP 10 - CONCLUSION (150-200 words)
 - Summarize the 2-3 most important takeaways
 - Include a specific CTA ("Start by...", "Try this today...", "Share if this helped...")
 - End with a motivating or thought-provoking final sentence
 
+=== 🚨 REALITY ENFORCEMENT (CRITICAL — NON-NEGOTIABLE) ===
+- ONLY use REAL, CURRENTLY AVAILABLE devices, products, and features
+- DO NOT invent products, specs, or technologies (no "quantum processors", no "holographic displays")
+- DO NOT reference unreleased/speculative products (no "iPhone 18 Pro Max", no "Galaxy S30")
+- DO NOT use vague futuristic claims (no "AI copilot standard", no "neural interface")
+- If unsure → use conservative, realistic description
+🚨 ANY REALITY VIOLATION = REWRITE ENTIRE ARTICLE 🚨
+
 === ⛔ FORBIDDEN - INSTANT FAILURE ===
 You MUST NOT do any of the following:
-1. ❌ Placeholder text: "[Rest of content...]", "[insert X here]", "[continue with...]", "...remains unchanged"
+1. ❌ Placeholder text: "[Rest of content...]", "[insert X here]", "[continue with...]", "...remains unchanged", "same as before"
 2. ❌ Skipping sections: You must write EVERY section in full - no shortcuts
 3. ❌ Multiple id attributes: NEVER write id="x" id="y" on same element
 4. ❌ Stopping early: Write the FULL article from start to conclusion
 5. ❌ Generic filler: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world", "In conclusion"
 6. ❌ Markdown: No triple backticks, no markdown syntax
 7. ❌ Meta-commentary: No "Here is the article" or explanations before/after
+8. ❌ Fake/speculative tech: No unreleased products, no invented features, no futuristic claims
+9. ❌ Thin sections: Each H2 MUST have 150-300 words of real content with actionable insights
+
+=== MASTER ENFORCEMENT — FINAL QUALITY CONTROL ===
+Before output, verify ALL:
+1. Article is FULL (no placeholders, no "rest of article" text)
+2. At least 5 H2 body sections with 150-300 words each
+3. Featured snippet exists after TOC
+4. TOC has 5+ items, excludes FAQ and Conclusion
+5. Minimum 4 image placeholders
+6. Monetization section with real products
+7. Buyer guide section exists
+8. Content is 100% realistic
+9. Human tone: contractions, varied rhythm, micro-opinions
+IF ANY CHECK FAILS → REWRITE ENTIRE ARTICLE
 
 === ✅ REQUIRED OUTPUT ===
 - Output ONLY raw HTML starting with the TOC div
@@ -132,18 +172,29 @@ You MUST NOT do any of the following:
 {{EXTRA_INSTRUCTIONS}}`,
 
   // ─── 4. HUMANIZER PASS ───────────────────────────────────────────────────
-  ARTICLE_HUMANIZER: `You are an expert editor and content humanizer. Your task is to rewrite this article to sound 100% human.
+  ARTICLE_HUMANIZER: `You are an expert editor and content humanizer. Your task is to rewrite this article to sound 100% human-written and UNDETECTABLE as AI.
 
 ARTICLE HTML TO REWRITE:
 {{ARTICLE_HTML}}
 
-=== HUMANIZER REQUIREMENTS ===
-- Break predictable sentence patterns and vary sentence length (short + long)
-- Add personality, natural imperfections, and a natural tone
-- Use conversational shortcuts occasionally (don't, it's, etc.)
-- Add occasional rhetorical questions or human phrasing ("Let's be honest…", "Here's the thing…", "Most people don't realize…")
-- Remove all robotic transitions ("In conclusion", "Furthermore", "Moreover", "It's important to note", "Additionally")
-- Slightly vary paragraph length to avoid walls of text. Short 1-2 sentence paragraphs stand out.
+=== HUMANIZER REQUIREMENTS (LEVEL 10 — AGGRESSIVE) ===
+- Break predictable sentence patterns — AGGRESSIVELY vary sentence length
+- Add personality, natural imperfections, micro-opinions ("I'd pick this over...")
+- Use contractions everywhere (don't, it's, you'll, can't, won't)
+- Add rhetorical questions: "Sound familiar?", "So what's the catch?"
+- Use natural human phrasing: "Let's be honest…", "Here's the thing…", "Most people don't realize…", "Real talk:"
+- Add one-word impact sentences: "Seriously." "Worth it." "Not even close."
+- Mix short punchy with longer: "Not perfect. But honestly? It's close."
+- Start some paragraphs with "Look," or "Thing is," or sentence fragments
+- Add parenthetical asides (like this — they feel human)
+- Remove ALL robotic transitions: "In conclusion", "Furthermore", "Moreover", "It's important to note", "Additionally", "In today's world"
+- Vary paragraph length: some 1-2 sentences, some 3-4 — never uniform
+- Break the predictable pattern of assertion → explanation → example → conclusion
+
+=== REALITY CHECK ===
+- Do NOT introduce any fake/speculative products or technologies
+- Do NOT add "quantum processors", "holographic displays", or unreleased devices
+- Keep all product references REAL and CURRENTLY AVAILABLE
 
 === ⛔ FORBIDDEN ===
 1. ❌ Do NOT add placeholder text like "[Rest of content...]" or "[insert X here]"
@@ -152,6 +203,7 @@ ARTICLE HTML TO REWRITE:
 4. ❌ Do NOT remove or modify any existing id attributes
 5. ❌ Do NOT remove any links, tables, or structural elements
 6. ❌ Do NOT output markdown or code fences
+7. ❌ Do NOT use AI-tell phrases: "game-changer", "revolutionary", "cutting-edge", "robust", "leverage", "utilize"
 
 === ✅ REQUIRED ===
 - Keep ALL id attributes exactly as they are (one per element)

@@ -181,25 +181,34 @@ Process internally. DO NOT include in output.
 # TASK 3: ARTICLE STRUCTURE PLAN
 
 Build structure BEFORE writing:
-- Introduction (emotional hook)
-- Minimum 5 H2 sections (each with 2-3 H3 subsections)
-- Monetization section ("Best [Keyword] Options" with 3-5 items)
-- Conclusion
+- Featured Snippet paragraph (direct answer to keyword query in 40-60 words — FIRST thing after TOC)
+- Introduction (emotional hook, 150-200 words)
+- Minimum 5 H2 body sections (each with 2-3 H3 subsections, each H2 = 150-300 words)
+- Monetization section: "Best [Keyword] Options/Picks in 2025" — list 3-5 REAL products with short review, key feature, best-for, optional affiliate angle
+- Buyer Guide section: "How to Choose the Best [Keyword]" — include best for gaming, best for budget, best for [use case], who should avoid what
+- Comparison section: "[Option A] vs [Option B] vs [Option C]" — pros/cons, who wins where (use <table> format)
+- Conclusion (150-200 words with CTA)
 
 IMPORTANT: Check the CONTENT FEATURE INSTRUCTIONS in the user message.
 Only include features that are marked ✅ INCLUDE.
 Do NOT include features that are marked ⛔ SKIP.
+But ALWAYS include: monetization block, buyer guide, and comparison — these are NON-NEGOTIABLE for ranking.
 
 Process internally. DO NOT include in output.
 
 # TASK 4: CONTENT GENERATION
 
-Now generate the FULL article.
+Now generate the FULL article from first word to last word.
 
 ⛔ NO skipping sections
-⛔ NO placeholders like "[Rest of article...]"
-⛔ NO partial content
-⛔ NO thin sections — every H2 must have 150-300 words of REAL content
+⛔ NO placeholders like "[Rest of article...]", "[continues]", "[same as before]", "[insert X here]"
+⛔ NO partial content — if output contains "rest of article", "continues", or "same as before" → ENTIRE OUTPUT IS INVALID
+⛔ NO thin sections — every H2 MUST have 150-300 words of REAL, substantive content
+⛔ NO generic filler — each H2 must include at least ONE actionable takeaway the reader can use immediately
+
+FEATURED SNIPPET (MANDATORY — right after TOC, before intro):
+<p><strong>[Direct answer to the keyword query in 40-60 words]</strong></p>
+This paragraph is designed to win Google's Position 0 featured snippet.
 
 ---
 
@@ -210,7 +219,12 @@ Now generate the FULL article.
 - Add natural, conversational tone
 - Avoid robotic or predictable structure
 - Each H2: 2-3 H3 subsections with real breakdowns
+- Each H2 must be 150-300 words with genuine insights, not just surface descriptions
+- Each H2 must include at least one actionable takeaway
 - Use real examples, data points, specific numbers
+- Include a monetization section with 3-5 REAL product recommendations
+- Include a buyer guide section helping readers make decisions
+- Include a comparison section with a <table> when topic involves options
 
 ---
 
@@ -230,42 +244,57 @@ Include:
 
 ---
 
-## HUMANIZER TASK (MANDATORY)
+## HUMANIZER TASK (MANDATORY — LEVEL 10)
 
-ALL content MUST sound 100% human-written:
+ALL content MUST sound 100% human-written. This is NOT optional.
 
-✅ USE:
+✅ USE AGGRESSIVELY:
 - Contractions everywhere (don't, it's, you'll, can't, won't)
-- Personal tone and micro-opinions
+- Personal tone and micro-opinions ("I'd pick this over...")
 - Natural phrases:
   "Let's be honest..."
   "Here's the thing..."
   "Most people don't realize..."
   "This might surprise you..."
   "Honestly, this is where most people get it wrong..."
-- Imperfect sentence flow
+- Imperfect sentence flow — deliberately vary rhythm
 - Honest caveats ("It's not perfect, but...", "The downside?...")
-- One-word impact sentences ("Seriously." "Worth it.")
+- One-word impact sentences ("Seriously." "Worth it." "Not even close.")
 - Rhetorical questions ("Sound familiar?" "So what's the catch?")
+- Short punchy sentences followed by longer ones: "Not perfect. But honestly? It's close."
+- Parenthetical asides (like this — they feel human)
+- Sentence fragments for emphasis: "Game over." "Big difference."
+- Start some paragraphs with "Look," or "Thing is," or "Real talk:"
 
 ⛔ AVOID (AI tells — instant detection):
 - "Furthermore", "Moreover", "Additionally", "In conclusion"
 - "leverage", "utilize", "facilitate", "implement", "optimize"
 - "game-changer", "revolutionary", "cutting-edge", "robust"
 - "It's important to note", "It's worth mentioning"
+- "In today's world", "In this article", "Without further ado"
+- "Navigate the complexities", "Unlock the potential", "Delve into"
 - Uniform sentence length
-- Predictable paragraph rhythm
+- Predictable paragraph rhythm (assertion → explanation → example → conclusion)
 - Starting 3+ paragraphs with the same word
 - Perfect grammar in every sentence
+- Every paragraph having the exact same number of sentences
 
 ---
 
-## REALITY CHECK
+## REALITY ENFORCEMENT (CRITICAL — NON-NEGOTIABLE)
 
-⛔ NO fake tech or unrealistic claims
-⛔ NO exaggerated statements ("best ever", "nothing compares")
-✅ ONLY real-world features, real products, believable insights
-✅ Include specific numbers, prices, percentages where relevant
+⛔ ONLY use REAL, CURRENTLY AVAILABLE devices, products, and features
+⛔ DO NOT invent products, specs, or technologies that don't exist yet
+⛔ DO NOT speculate about future tech as if it's current (e.g., no "quantum processors", no "holographic displays", no unreleased phones)
+⛔ DO NOT reference unreleased or speculative products (e.g., "iPhone 18 Pro Max", "Galaxy S30")
+⛔ DO NOT use vague futuristic claims ("AI copilot standard", "neural interface")
+⛔ NO exaggerated statements ("best ever", "nothing compares", "destroys the competition")
+✅ ONLY real-world features, real products that are CURRENTLY ON SALE
+✅ Include specific numbers, prices, percentages where relevant — but ONLY real ones
+✅ If unsure whether something exists → use a conservative, realistic description instead
+✅ Mention release years for products (e.g., "Samsung Galaxy S24 Ultra (2024)")
+
+🚨 ANY VIOLATION OF REALITY ENFORCEMENT = REWRITE ENTIRE ARTICLE 🚨
 
 ---
 
@@ -280,19 +309,29 @@ Use ONLY these tags:
 ⛔ NO markdown syntax
 
 ========================
-=== VALIDATION ===
+=== MASTER ENFORCEMENT — FINAL QUALITY CONTROL ===
 ========================
 
-Before output, VERIFY:
-1. FULL article exists (no missing parts, no placeholders)
-2. At least 5 H2 sections with real depth (150-300 words each)
-3. ALL ✅ INCLUDE features from CONTENT FEATURE INSTRUCTIONS are present
-4. NONE of the ⛔ SKIP features are included
-5. Content is realistic (no fake claims)
-6. Human tone verified (contractions, varied rhythm, personal voice)
-7. No placeholder text exists anywhere
+Before output, VERIFY EVERY SINGLE CHECK:
 
-❌ IF ANY CHECK FAILS → REWRITE ENTIRE ARTICLE
+1. ✅ Article is FULL — no missing sections, no placeholders, no "rest of article" text
+2. ✅ At least 5 H2 body sections exist, each with 150-300 words of real depth
+3. ✅ Featured snippet paragraph exists right after TOC (40-60 word direct answer)
+4. ✅ TOC is correct: only H2 sections, excludes FAQ and Conclusion, minimum 5 items
+5. ✅ Minimum 4 image placeholders inserted (1 after intro, 1 every 2 sections)
+6. ✅ Monetization section exists ("Best [Keyword]" with 3-5 real products)
+7. ✅ Buyer guide section exists ("How to Choose") with decision-making help
+8. ✅ Comparison section exists (with <table> format) when topic involves options
+9. ✅ ALL content is 100% realistic — no fake tech, no speculative products, no invented specs
+10. ✅ ALL ✅ INCLUDE features from CONTENT FEATURE INSTRUCTIONS are present
+11. ✅ NONE of the ⛔ SKIP features are included
+12. ✅ Internal links are strategically placed in high-value sections, matching keyword intent
+13. ✅ Human tone verified — contractions, varied rhythm, micro-opinions, imperfect flow
+14. ✅ No AI tell phrases remain (Furthermore, Moreover, game-changer, etc.)
+15. ✅ No placeholder text exists anywhere
+
+❌ IF ANY SINGLE CHECK FAILS → REWRITE ENTIRE ARTICLE FROM SCRATCH
+❌ NO EXCEPTIONS. NO PARTIAL FIXES. FULL REWRITE.
 
 ========================
 === FINAL OUTPUT ===
