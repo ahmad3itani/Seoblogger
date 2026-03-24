@@ -464,13 +464,13 @@ This targets Google's Position 0. Must be a clear, direct, standalone answer.
 ║ ✅ MONETIZATION SECTION — MANDATORY                                 ║
 ╚═════════════════════════════════════════════════════════════════════╝
 REQUIREMENT: Include a monetization section with this structure:
-<h2 id="best-[keyword-slug]">Best [Keyword] to Buy/Use in 2025</h2>
-List 3-5 REAL, CURRENTLY AVAILABLE products. For each:
-- Short review (2-3 sentences)
-- Key standout feature
-- Best for [specific use case]
-- Optional affiliate angle
-ALL products MUST be real and currently for sale. No speculative or unreleased items.
+<h2 id="best-[keyword-slug]">Best [Keyword] to Buy in 2026</h2>
+List 3-5 REAL, CURRENTLY AVAILABLE products. For EACH product:
+<h3>[Product Name]</h3>
+<p><strong>Short review:</strong> 2-3 sentences of honest assessment</p>
+<p><strong>Key feature:</strong> The ONE thing that sets it apart</p>
+<p><strong>Best for:</strong> [specific use case — gaming, photography, budget, etc.]</p>
+ALL products MUST be real and currently for sale. No speculative items.
 ⚠️ ARTICLE WILL BE REJECTED IF MONETIZATION SECTION IS MISSING.`;
 
     // === BUYER GUIDE (always mandatory) ===
@@ -479,15 +479,16 @@ ALL products MUST be real and currently for sale. No speculative or unreleased i
 ╔═════════════════════════════════════════════════════════════════════╗
 ║ ✅ BUYER GUIDE SECTION — MANDATORY                                  ║
 ╚═════════════════════════════════════════════════════════════════════╝
-REQUIREMENT: Include a decision-making guide section:
-<h2 id="how-to-choose">How to Choose the Best [Keyword] in 2025</h2>
-Must include:
-- Best for [use case 1] (e.g., gaming, photography, budget)
-- Best for [use case 2]
-- Best for [use case 3]
-- Who should avoid what (honest caveats)
-Help the reader DECIDE — don't just describe.
-⚠️ ARTICLE WILL BE REJECTED IF BUYER GUIDE IS MISSING.`;
+REQUIREMENT: Include an intent-match / use-case section:
+<h2 id="[keyword-slug]-by-use-case">[Keyword] by Use Case</h2>
+<ul>
+<li><strong>Best for gaming:</strong> [Product] — [why]</li>
+<li><strong>Best for photography:</strong> [Product] — [why]</li>
+<li><strong>Best for battery life:</strong> [Product] — [why]</li>
+<li><strong>Best for budget:</strong> [Product] — [why]</li>
+</ul>
+This matches diverse search intents and improves rankings.
+⚠️ ARTICLE WILL BE REJECTED IF INTENT-MATCH SECTION IS MISSING.`;
 
     // === REALITY ENFORCEMENT (always mandatory) ===
     instructions += `
@@ -508,17 +509,43 @@ Help the reader DECIDE — don't just describe.
 ║              END MANDATORY CONTENT FEATURES                          ║
 ║   MASTER ENFORCEMENT: Verify ALL checks before outputting            ║
 ╚══════════════════════════════════════════════════════════════════════╝
+ENGAGEMENT TRIGGERS (sprinkle THROUGHOUT all body sections):
+- Rhetorical hooks: "So which one should you pick?", "Is it really worth it?"
+- Conversational asides: "And this is where things get interesting…"
+- Micro-opinions: "Honestly? This one surprised me."
+- Mix sentence rhythm: "Not perfect. But honestly? It's close."
+- Start some paragraphs with "Look," or "Thing is," or "Real talk:"
+
+ENTITY SEO (MANDATORY for semantic ranking):
+- Mention specific technical entities: model numbers, chipsets, software versions
+- Don't just name-drop — explain WHY each entity matters
+- Reference ecosystems: Android vs iOS, etc. when relevant
+
+COMPARISON WINNER LOGIC (add after any comparison table):
+<h3>Which One Should You Choose?</h3>
+<ul>
+<li><strong>Best overall:</strong> [Product] — [reason]</li>
+<li><strong>Best for [use case]:</strong> [Product] — [reason]</li>
+<li><strong>Best value:</strong> [Product] — [reason]</li>
+</ul>
+
+CONCLUSION MUST CONVERT:
+- Include SPECIFIC recommendations: "If you want the safest choice → go with [Product]."
+- Clear CTA: "Start by...", "Bookmark this for later"
+
 FINAL QUALITY CONTROL — verify ALL of these before output:
 1. Article is FULL (no "rest of article", no "continues", no placeholders)
 2. At least 5 H2 body sections exist with 150-300 words each
-3. TOC has 5+ items, excludes FAQ and Conclusion
-4. Minimum 4 image placeholders inserted
+3. TOC has 5+ items, excludes FAQ and Conclusion, headings are keyword-optimized
+4. Minimum 4 [IMAGE: ...] placeholders with detailed descriptions
 5. Featured snippet paragraph exists
-6. Monetization section exists with real products
-7. Buyer guide section exists
-8. Comparison section exists (if topic has options)
+6. Monetization section with real products (each has: review, key feature, best-for)
+7. Intent-match / use-case section exists
+8. Comparison section has winner logic ("Which One Should You Choose?")
 9. Content is 100% realistic — no fake/speculative tech
-10. Human tone verified — contractions, varied rhythm, micro-opinions
+10. Human tone verified — engagement triggers throughout, varied rhythm
+11. Conclusion has SPECIFIC product recommendations + clear CTA
+12. Entity SEO: specific model names, chipsets, ecosystems mentioned
 Missing ANY = REWRITE ENTIRE ARTICLE.`;
 
     return instructions;

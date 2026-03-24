@@ -345,59 +345,61 @@ export async function POST(req: Request) {
 
                 // Format for Blogger
                 let fullContent = article;
+                let imagesEmbedded = 0;
 
-                // Embed inline images EVENLY distributed across article content
-                if (inlineImages.length > 0) {
-                    console.log(`📸 Embedding ${inlineImages.length} inline images (evenly distributed)...`);
-                    const sections = fullContent.split('</h2>');
-                    const numSections = sections.length - 1; // first element is before first h2
-                    console.log(`Found ${numSections} H2 sections in article`);
+                // Embed featured image at top
+                if (image && image.url && image.url.startsWith("http")) {
+                    const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${image.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${image.url}" alt="${image.altText || selectedTitle}" width="640" /></a></div>\n`;
+                    fullContent = featuredHtml + fullContent;
+                    imagesEmbedded++;
+                    console.log(`  ✅ Featured image embedded: ${image.url}`);
+                }
 
-                    if (numSections > 1) {
-                        // Calculate even distribution: skip first section, spread across remaining
-                        const interval = Math.max(1, Math.floor(numSections / (inlineImages.length + 1)));
-                        let imageIndex = 0;
+                // Replace [IMAGE: ...] placeholders with actual generated images first
+                const imgPlaceholderRegex = /\[IMAGE:\s*(.*?)\]/gi;
+                const imgPlaceholderMatches = [...fullContent.matchAll(imgPlaceholderRegex)];
+                console.log(`  📸 Found ${imgPlaceholderMatches.length} [IMAGE:] placeholders in article`);
 
-                        for (let i = 0; i < numSections && imageIndex < inlineImages.length; i++) {
-                            const sectionPos = i + 1; // +1 because sections[0] is before first h2
-                            // Place image at evenly spaced intervals (skip first few sections)
-                            if ((i + 1) % interval === 0 && i > 0) {
-                                const img = inlineImages[imageIndex];
-                                console.log(`  Placing image ${imageIndex + 1} after section ${i + 1}: ${img.altText}`);
-                                const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
-                                sections[sectionPos] = imageHtml + sections[sectionPos];
-                                imageIndex++;
-                            }
-                        }
+                const validInline = inlineImages.filter(img => img && img.url && img.url.startsWith("http"));
+                let inlineIdx = 0;
 
-                        // If some images weren't placed (few sections), append remaining
-                        while (imageIndex < inlineImages.length) {
-                            const remaining = inlineImages.length - imageIndex;
-                            const startSection = Math.max(1, numSections - remaining);
-                            for (let i = startSection; i <= numSections && imageIndex < inlineImages.length; i++) {
-                                const img = inlineImages[imageIndex];
-                                const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
-                                sections[i] = imageHtml + sections[i];
-                                imageIndex++;
-                            }
-                        }
-
-                        fullContent = sections.join('</h2>');
-                        console.log(`✅ Successfully embedded ${inlineImages.length} inline images (evenly distributed)`);
-                    } else {
-                        console.log('⚠️ No H2 sections found, distributing across paragraphs...');
-                        const paragraphs = fullContent.split('</p>');
-                        const interval = Math.max(1, Math.floor(paragraphs.length / (inlineImages.length + 1)));
-
-                        for (let i = 0; i < inlineImages.length; i++) {
-                            const insertIndex = Math.min((i + 1) * interval, paragraphs.length - 1);
-                            const img = inlineImages[i];
-                            const imageHtml = `\n<figure class="article-image">\n  <img src="${img.url}" alt="${img.altText}" loading="lazy" />\n</figure>\n`;
-                            paragraphs[insertIndex] = paragraphs[insertIndex] + '</p>' + imageHtml;
-                        }
-                        fullContent = paragraphs.join('</p>');
+                if (imgPlaceholderMatches.length > 0 && validInline.length > 0) {
+                    for (const match of imgPlaceholderMatches) {
+                        if (inlineIdx >= validInline.length) break;
+                        const img = validInline[inlineIdx];
+                        const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || match[1] || `${keyword} illustration`}" width="640" /></a></div>\n`;
+                        fullContent = fullContent.replace(match[0], imageHtml);
+                        imagesEmbedded++;
+                        inlineIdx++;
+                        console.log(`  ✅ Replaced placeholder with image: ${img.url}`);
                     }
                 }
+
+                // Embed remaining images at H2 section boundaries
+                const remainingImgs = validInline.slice(inlineIdx);
+                if (remainingImgs.length > 0) {
+                    const sections = fullContent.split('</h2>');
+                    if (sections.length > 1) {
+                        const interval = Math.max(1, Math.floor(sections.length / (remainingImgs.length + 1)));
+                        for (let i = 0; i < remainingImgs.length; i++) {
+                            const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
+                            const img = remainingImgs[i];
+                            const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" width="640" /></a></div>\n`;
+                            sections[sectionPos] = imageHtml + sections[sectionPos];
+                            imagesEmbedded++;
+                        }
+                        fullContent = sections.join('</h2>');
+                        console.log(`  ✅ ${remainingImgs.length} extra images embedded at section boundaries`);
+                    }
+                }
+
+                // Strip any remaining [IMAGE: ...] placeholders that weren't replaced
+                const leftoverImgPlaceholders = (fullContent.match(/\[IMAGE:\s*.*?\]/gi) || []).length;
+                if (leftoverImgPlaceholders > 0) {
+                    fullContent = fullContent.replace(/\[IMAGE:\s*.*?\]/gi, '');
+                    console.log(`  🧹 Stripped ${leftoverImgPlaceholders} leftover [IMAGE:] placeholders`);
+                }
+                console.log(`📸 Total images embedded: ${imagesEmbedded}`);
 
                 // Only append FAQ if article doesn't already contain one
                 const oldRouteHasFaq = /<h2[^>]*>.*?(?:faq|frequently\s+asked)/i.test(fullContent);

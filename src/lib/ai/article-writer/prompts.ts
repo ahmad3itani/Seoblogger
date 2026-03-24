@@ -292,25 +292,55 @@ STEP 4 - INTRODUCTION (150-200 words)
 STEP 5 - BODY SECTIONS (minimum 5 H2 sections, approx ${perSectionWords} words each)
 For EACH section in the outline:
 - Use: <h2 id="[slug]">[Heading]</h2> - the slug MUST match the id shown in the outline above
+- Make H2 headings KEYWORD-OPTIMIZED and clickable (e.g., instead of "What Makes a Smartphone the Best" → "What Makes the Best Smartphone in 2026?")
 - Use <h3> for subsections (no id needed)
 - Write expert content: real examples, statistics, comparisons, actionable advice
 - MINIMUM 150-300 words per H2 - each must include at least ONE actionable takeaway
 - Use <p> for paragraphs, <ul><li> for lists, <strong> for key terms on first mention
-- Vary sentence length: mix short punchy sentences with longer explanatory ones
 - Insert [IMAGE: detailed scene description, photorealistic, 4k] every 350-400 words (minimum 4 images total)
 - BANNED: "Furthermore", "Moreover", "Additionally", "It is important to note", "In today's world", "In conclusion", "It's worth mentioning"
 
-STEP 6 - MONETIZATION SECTION (MANDATORY):
-<h2 id="best-[keyword-slug]">Best [Keyword] to Buy/Use in 2025</h2>
-List 3-5 REAL, CURRENTLY AVAILABLE products with: short review, key feature, best-for use case.
-ALL products MUST be real and currently for sale.
+--- ENGAGEMENT TRIGGERS (sprinkle these THROUGHOUT all body sections) ---
+- Add rhetorical hooks: "So which one should you pick?", "Is it really worth it?", "Here's what most people get wrong…"
+- Add conversational asides: "And this is where things get interesting…", "Bet you didn't expect that."
+- Add micro-opinions: "Honestly? This one surprised me.", "I wouldn't recommend this unless…"
+- Mix sentence rhythm: short punchy + longer explanatory. "Not perfect. But honestly? It's close."
+- Add provocative statements: "Most guides won't tell you this, but…"
 
-STEP 7 - BUYER GUIDE SECTION (MANDATORY):
-<h2 id="how-to-choose">How to Choose the Best [Keyword] in 2025</h2>
-Include: best for [use case 1], best for [use case 2], best for [use case 3], who should avoid what.
+--- ENTITY SEO (MANDATORY for semantic ranking) ---
+- Mention specific technical entities deeply: model numbers, chipsets (e.g., Snapdragon 8 Gen 3, Apple A17 Pro), software versions, ecosystem names
+- Don't just name-drop brands — explain WHY the entity matters for the reader
+- Reference ecosystems: Android vs iOS, Windows vs macOS, etc. when relevant
+- This improves Google's semantic understanding of your content
+
+STEP 6 - MONETIZATION SECTION (MANDATORY — this is how you make money):
+<h2 id="best-[keyword-slug]">Best [Keyword] to Buy in 2026</h2>
+List 3-5 REAL, CURRENTLY AVAILABLE products. For EACH product:
+<h3>[Product Name]</h3>
+<p><strong>Short review:</strong> 2-3 sentences of honest assessment</p>
+<p><strong>Key feature:</strong> The ONE thing that sets it apart</p>
+<p><strong>Best for:</strong> [specific use case — gaming, photography, budget, etc.]</p>
+ALL products MUST be real and currently for sale. No speculative items.
+
+STEP 7 - INTENT MATCH SECTION (MANDATORY — Google loves this):
+<h2 id="[keyword-slug]-by-use-case">[Keyword] by Use Case</h2>
+<ul>
+<li><strong>Best for gaming:</strong> [Product] — [why]</li>
+<li><strong>Best for photography:</strong> [Product] — [why]</li>
+<li><strong>Best for battery life:</strong> [Product] — [why]</li>
+<li><strong>Best for budget:</strong> [Product] — [why]</li>
+</ul>
+This matches diverse search intents and improves rankings.
 
 STEP 8 - COMPARISON SECTION (MANDATORY when topic involves options):
-Use <table> format with pros/cons, who wins where. Minimum 3 columns, 4+ rows.
+Use <table> format with specs/features. Minimum 3 columns, 4+ rows.
+AFTER the table, add clear winner logic:
+<h3>Which One Should You Choose?</h3>
+<ul>
+<li><strong>Best overall:</strong> [Product] — [reason]</li>
+<li><strong>Best for [use case]:</strong> [Product] — [reason]</li>
+<li><strong>Best value:</strong> [Product] — [reason]</li>
+</ul>
 
 STEP 9 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
 <div class="faq-section" itemscope itemtype="https://schema.org/FAQPage">
@@ -323,10 +353,11 @@ STEP 9 - FAQ SECTION (if outline contains FAQ - use this exact schema markup):
   </div>
 </div>
 
-STEP 10 - CONCLUSION (150-200 words)
+STEP 10 - CONCLUSION (150-200 words) — MUST CONVERT:
 - Summarize the 2-3 most important takeaways
-- Include a specific CTA ("Start by...", "Try this today...", "Share if this helped...")
-- End with a motivating or thought-provoking final sentence
+- Include SPECIFIC, DECISIVE recommendations: "If you want the safest choice → go with [Product]." "If you want value → [Product] is your best bet."
+- Add a clear CTA: "Start by...", "Try this today...", "Bookmark this for later"
+- End with a thought-provoking final line that makes the reader want to share
 
 === 🚨 REALITY ENFORCEMENT (CRITICAL — NON-NEGOTIABLE) ===
 - ONLY use REAL, CURRENTLY AVAILABLE devices, products, and features
@@ -337,24 +368,31 @@ STEP 10 - CONCLUSION (150-200 words)
 🚨 ANY REALITY VIOLATION = REWRITE ENTIRE ARTICLE 🚨
 
 === HUMANIZER (LEVEL 10 — MANDATORY) ===
-- Contractions everywhere (don't, it's, you'll)
-- Micro-opinions: "I'd pick this over...", "Honestly, this surprised me"
-- One-word impact: "Seriously." "Worth it." "Not even close."
+- Contractions everywhere (don't, it's, you'll, can't, won't)
+- Micro-opinions: "I'd pick this over...", "Honestly, this surprised me", "I wouldn't recommend this unless…"
+- One-word impact: "Seriously." "Worth it." "Not even close." "Game over."
 - Short punchy + longer: "Not perfect. But honestly? It's close."
-- Parenthetical asides, sentence fragments, rhetorical questions
+- Parenthetical asides (like this — they feel human), sentence fragments, rhetorical questions
+- Start some paragraphs with "Look," or "Thing is," or "Real talk:"
+- Add natural imperfections: "Okay, this might be controversial, but…"
 - NO uniform sentence length, NO predictable paragraph rhythm
+- Vary paragraph length: some 1-2 sentences, some 3-4 — never uniform
+- Break the predictable assertion → explanation → example → conclusion pattern
 
 === MASTER ENFORCEMENT — FINAL QUALITY CONTROL ===
 Before output, verify ALL:
 1. Article is FULL (no placeholders, no "rest of article")
 2. At least 5 H2 body sections with 150-300 words each
 3. Featured snippet exists after TOC
-4. TOC has 5+ items, excludes FAQ and Conclusion
-5. Minimum 4 image placeholders
-6. Monetization section with real products
-7. Buyer guide section exists
-8. Content is 100% realistic — no fake tech
-9. Human tone verified
+4. TOC has 5+ items, excludes FAQ and Conclusion, headings are keyword-optimized
+5. Minimum 4 [IMAGE: ...] placeholders with detailed descriptions
+6. Monetization section with real products (each has: review, key feature, best-for)
+7. Intent-match / use-case section exists
+8. Comparison section has winner logic ("Which One Should You Choose?")
+9. Content is 100% realistic — no fake tech
+10. Human tone verified — engagement triggers throughout, varied rhythm
+11. Conclusion has SPECIFIC product recommendations + clear CTA
+12. Entity SEO: specific model names, chipsets, ecosystems mentioned
 IF ANY CHECK FAILS → REWRITE ENTIRE ARTICLE
 
 === CRITICAL OUTPUT RULES ===

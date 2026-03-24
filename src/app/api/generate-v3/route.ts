@@ -256,9 +256,8 @@ export async function POST(req: Request) {
     console.log("🖼️ Embedding images in content...");
     let imagesEmbedded = 0;
 
-    // Only embed featured image if it has a valid HTTP URL
+    // 8a. Embed featured image at the top
     if (featuredImage && featuredImage.url && featuredImage.url.startsWith("http")) {
-      // Use Blogger's native image format for best compatibility
       const featuredHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${featuredImage.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${featuredImage.url}" alt="${featuredImage.altText || selectedTitle}" width="640" /></a></div>\n`;
       fullContent = featuredHtml + fullContent;
       imagesEmbedded++;
@@ -267,30 +266,49 @@ export async function POST(req: Request) {
       console.log("  ⚠️ No valid featured image to embed");
     }
 
-    // Only embed inline images if they have valid HTTP URLs
-    if (inlineImages.length > 0) {
-      // Filter to only valid images
-      const validImages = inlineImages.filter(img => img && img.url && img.url.startsWith("http"));
+    // 8b. Replace [IMAGE: ...] placeholders with actual generated images
+    const imagePlaceholderRegex = /\[IMAGE:\s*(.*?)\]/gi;
+    const placeholderMatches = [...fullContent.matchAll(imagePlaceholderRegex)];
+    console.log(`  📸 Found ${placeholderMatches.length} [IMAGE:] placeholders in article`);
 
-      if (validImages.length > 0) {
-        const sections = fullContent.split('</h2>');
-        if (sections.length > 1) {
-          const interval = Math.max(1, Math.floor(sections.length / (validImages.length + 1)));
+    const validInlineImages = inlineImages.filter(img => img && img.url && img.url.startsWith("http"));
+    let inlineIdx = 0;
 
-          for (let i = 0; i < validImages.length; i++) {
-            const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
-            const img = validImages[i];
-            // Use Blogger's native image format
-            const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" width="640" /></a></div>\n`;
-            sections[sectionPos] = imageHtml + sections[sectionPos];
-            imagesEmbedded++;
-          }
-          fullContent = sections.join('</h2>');
-          console.log(`  ✅ ${validImages.length} inline images embedded`);
-        }
-      } else {
-        console.log("  ⚠️ No valid inline images to embed");
+    if (placeholderMatches.length > 0 && validInlineImages.length > 0) {
+      for (const match of placeholderMatches) {
+        if (inlineIdx >= validInlineImages.length) break;
+        const img = validInlineImages[inlineIdx];
+        const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || match[1] || `${keyword} illustration`}" width="640" /></a></div>\n`;
+        fullContent = fullContent.replace(match[0], imageHtml);
+        imagesEmbedded++;
+        inlineIdx++;
+        console.log(`  ✅ Replaced placeholder with image: ${img.url}`);
       }
+    }
+
+    // 8c. Embed remaining images at H2 section boundaries
+    const remainingImages = validInlineImages.slice(inlineIdx);
+    if (remainingImages.length > 0) {
+      const sections = fullContent.split('</h2>');
+      if (sections.length > 1) {
+        const interval = Math.max(1, Math.floor(sections.length / (remainingImages.length + 1)));
+        for (let i = 0; i < remainingImages.length; i++) {
+          const sectionPos = Math.min((i + 1) * interval, sections.length - 1);
+          const img = remainingImages[i];
+          const imageHtml = `\n<div class="separator" style="clear: both; text-align: center;"><a href="${img.url}" style="margin-left: 1em; margin-right: 1em;"><img border="0" src="${img.url}" alt="${img.altText || `${keyword} illustration ${i + 1}`}" width="640" /></a></div>\n`;
+          sections[sectionPos] = imageHtml + sections[sectionPos];
+          imagesEmbedded++;
+        }
+        fullContent = sections.join('</h2>');
+        console.log(`  ✅ ${remainingImages.length} extra images embedded at section boundaries`);
+      }
+    }
+
+    // 8d. Strip any remaining [IMAGE: ...] placeholders that weren't replaced
+    const leftoverPlaceholders = (fullContent.match(/\[IMAGE:\s*.*?\]/gi) || []).length;
+    if (leftoverPlaceholders > 0) {
+      fullContent = fullContent.replace(/\[IMAGE:\s*.*?\]/gi, '');
+      console.log(`  🧹 Stripped ${leftoverPlaceholders} leftover [IMAGE:] placeholders`);
     }
 
     console.log(`📸 Total images embedded in article: ${imagesEmbedded}`);
