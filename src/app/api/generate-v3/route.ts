@@ -212,38 +212,40 @@ export async function POST(req: Request) {
       console.log("⏭️ Skipping image generation (disabled or numImages=0)");
     }
 
-    // PHASE 7: Internal linking if requested
+    // PHASE 7: Internal linking — deterministic regex injection (no AI, prevents truncation)
     let fullContent = article;
     if (includeInternalLinks && blogId) {
       try {
         const cachedPosts = await prisma.cachedPost.findMany({
           where: { blogId },
-          take: 20,
+          take: 50,
           orderBy: { publishedAt: 'desc' },
           select: { title: true, url: true }
         });
 
         if (cachedPosts.length > 0) {
-          const { getModelForPlan, openai } = await import("@/lib/ai/client");
-          const model = getModelForPlan(userPlan);
-          
-          const prompt = `You are an internal linking engine. Add 3-5 natural internal links to the article using these URLs:
-${cachedPosts.map(p => `- "${p.title}": ${p.url}`).join("\n")}
+          const { findRelevantInternalLinks } = await import("@/lib/linker/engine");
+          const relevantLinks = findRelevantInternalLinks(
+            keyword,
+            selectedTitle,
+            cachedPosts.map(p => ({ title: p.title, url: p.url })),
+            5
+          );
 
-Return ONLY the HTML with <a href="..."> tags added. No markdown code fences.`;
-
-          const res = await openai.chat.completions.create({
-            model,
-            messages: [
-              { role: "system", content: prompt },
-              { role: "user", content: fullContent }
-            ],
-            temperature: 0.2,
-          });
-
-          if (res.choices[0]?.message?.content) {
-            fullContent = res.choices[0].message.content.replace(/^```html?\s*/i, "").replace(/\s*```\s*$/i, "").trim();
+          let linksInserted = 0;
+          for (const link of relevantLinks) {
+            if (linksInserted >= 5) break;
+            // Build anchor from first 3 meaningful words of the linked post's title
+            const anchor = link.title.split(/\s+/).slice(0, 4).join(' ');
+            // Only match in paragraph text, not inside existing tags or headings
+            const regex = new RegExp(`(?<!<[^>]*)\\b(${anchor.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})\\b(?![^<]*>)`, 'i');
+            if (regex.test(fullContent)) {
+              fullContent = fullContent.replace(regex, `<a href="${link.url}">$1</a>`);
+              linksInserted++;
+              console.log(`  🔗 Linked: "${anchor}" → ${link.url}`);
+            }
           }
+          console.log(`🔗 Internal links: ${linksInserted} inserted via regex`);
         }
       } catch (linkError) {
         console.error("Internal linking failed:", linkError);
@@ -296,19 +298,26 @@ Return ONLY the HTML with <a href="..."> tags added. No markdown code fences.`;
       console.warn("⚠️ WARNING: User requested images but none were embedded. Check Cloudflare credentials.");
     }
 
-    // PHASE 9: Add FAQs
-    if (faqs.length > 0) {
+    // PHASE 9: Add FAQs — only if article doesn't already contain an FAQ section
+    const articleAlreadyHasFaq = /<h2[^>]*>.*?(?:faq|frequently\s+asked)/i.test(fullContent);
+    if (faqs.length > 0 && !articleAlreadyHasFaq) {
       const { generateFaqHtml } = await import("@/lib/formatter");
       fullContent += generateFaqHtml(faqs);
+    } else if (articleAlreadyHasFaq) {
+      console.log("📋 FAQ already present in article, skipping duplicate append");
     }
 
-    // PHASE 10: Format for Blogger
+    // PHASE 10: Format for Blogger — skip TOC if AI already included one
+    const articleAlreadyHasToc = /<div\s+class="toc"/i.test(fullContent);
     const formattedContent = formatForBlogger(fullContent, {
-      includeToc,
+      includeToc: includeToc && !articleAlreadyHasToc,
       keyword,
       showReadTime: true,
       addKeywordToIntro: true,
     });
+    if (articleAlreadyHasToc) {
+      console.log("📋 TOC already present in article, skipping duplicate generation");
+    }
 
     const wordCountResult = countWords(formattedContent);
 

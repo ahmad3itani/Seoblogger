@@ -399,8 +399,12 @@ export async function POST(req: Request) {
                     }
                 }
 
-                if (faqs.length > 0) {
+                // Only append FAQ if article doesn't already contain one
+                const oldRouteHasFaq = /<h2[^>]*>.*?(?:faq|frequently\s+asked)/i.test(fullContent);
+                if (faqs.length > 0 && !oldRouteHasFaq) {
                     fullContent += generateFaqHtml(faqs);
+                } else if (oldRouteHasFaq) {
+                    console.log("📋 FAQ already present in article, skipping duplicate append");
                 }
 
                 // Generate schema markup for SEO
@@ -419,8 +423,13 @@ export async function POST(req: Request) {
                 // Add schema markup to content
                 const schemaMarkup = schemas.join('\n');
 
+                // Skip TOC if AI already included one in the article
+                const oldRouteHasToc = /<div\s+class="toc"/i.test(fullContent);
+                if (oldRouteHasToc) {
+                    console.log("📋 TOC already present in article, skipping duplicate generation");
+                }
                 const formattedContent = formatForBlogger(fullContent, {
-                    includeToc,
+                    includeToc: includeToc && !oldRouteHasToc,
                     includeDisclosure,
                     includeCta,
                     featuredImageUrl: image?.url,

@@ -69,19 +69,29 @@ ${options.ctaUrl ? `<p><a href="${options.ctaUrl}">Learn More →</a></p>` : ""}
 }
 
 // Generate table of contents from HTML headings
+// ONLY includes H2 body sections. Excludes FAQ, Conclusion, and all H3s.
 function generateToc(html: string): string {
-    const headingRegex = /<h([23])[^>]*>(.*?)<\/h[23]>/gi;
-    const headings: { level: number; text: string; id: string }[] = [];
+    const headingRegex = /<h2[^>]*>(.*?)<\/h2>/gi;
+    const headings: { text: string; id: string }[] = [];
     let match;
 
+    // Headings to exclude from TOC
+    const excludePatterns = [
+        /faq/i, /frequently\s+asked/i, /conclusion/i,
+        /final\s+thoughts/i, /wrapping\s+up/i, /summar(?:y|ize)/i
+    ];
+
     while ((match = headingRegex.exec(html)) !== null) {
-        const level = parseInt(match[1]);
-        const text = match[2].replace(/<[^>]*>/g, ""); // strip inner HTML
+        const text = match[1].replace(/<[^>]*>/g, ""); // strip inner HTML
+        
+        // Skip excluded headings
+        if (excludePatterns.some(p => p.test(text))) continue;
+
         const id = text
             .toLowerCase()
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-|-$/g, "");
-        headings.push({ level, text, id });
+        headings.push({ text, id });
     }
 
     if (headings.length === 0) return "";
@@ -90,10 +100,8 @@ function generateToc(html: string): string {
 <h3>📋 Table of Contents</h3>
 <ul>\n`;
 
-    // Add all headings (no show more/less - keep it simple)
     for (const h of headings) {
-        const className = h.level === 3 ? 'toc-h3' : 'toc-h2';
-        toc += `<li class="${className}"><a href="#${h.id}">${h.text}</a></li>\n`;
+        toc += `<li class="toc-h2"><a href="#${h.id}">${h.text}</a></li>\n`;
     }
 
     toc += `</ul>\n</div>\n\n`;
@@ -104,10 +112,14 @@ function generateToc(html: string): string {
 function cleanHtml(html: string): string {
     let cleaned = html;
 
-    // Add IDs to headings for TOC anchors
+    // Add IDs to headings for TOC anchors — but ONLY if heading doesn't already have an id
     cleaned = cleaned.replace(
         /<h([23])([^>]*)>(.*?)<\/h([23])>/gi,
-        (_, level, attrs, text, closingLevel) => {
+        (fullMatch, level, attrs, text, closingLevel) => {
+            // Skip if already has an id attribute
+            if (/\bid\s*=/i.test(attrs)) {
+                return fullMatch;
+            }
             const plainText = text.replace(/<[^>]*>/g, "");
             const id = plainText
                 .toLowerCase()
@@ -169,15 +181,20 @@ export function countWords(html: string): number {
 // Ensure keyword appears in first paragraph for SEO
 function ensureKeywordInIntro(html: string, keyword: string): string {
     // Find first paragraph
-    const firstPMatch = html.match(/(<p[^>]*>)(.*?)<\/p>/i);
+    const firstPMatch = html.match(/(<p[^>]*>)([\s\S]*?)<\/p>/i);
     if (!firstPMatch) return html;
     
     const firstParagraph = firstPMatch[2];
     const lowerParagraph = firstParagraph.toLowerCase();
     const lowerKeyword = keyword.toLowerCase();
     
-    // Check if keyword already exists in first paragraph
+    // Check if keyword already exists in first paragraph (case-insensitive)
     if (lowerParagraph.includes(lowerKeyword)) {
+        return html;
+    }
+    
+    // Don't inject into paragraphs already wrapped in <strong> (e.g., featured snippet)
+    if (firstParagraph.trim().startsWith('<strong>')) {
         return html;
     }
     
