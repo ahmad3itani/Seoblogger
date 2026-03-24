@@ -54,10 +54,12 @@ export function AutopilotPanel({ onGenerateSelected }: AutopilotPanelProps) {
       try {
         const res = await fetch("/api/blogs");
         const data = await res.json();
-        if (Array.isArray(data)) {
-          setBlogs(data);
-          if (data.length > 0) {
-            setSelectedBlogId(data[0].blogId);
+        // API returns { blogs: [...] } not an array directly
+        const blogsList = data.blogs || data;
+        if (Array.isArray(blogsList)) {
+          setBlogs(blogsList);
+          if (blogsList.length > 0) {
+            setSelectedBlogId(blogsList[0].blogId);
           }
         }
       } catch (err) {
