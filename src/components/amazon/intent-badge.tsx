@@ -34,37 +34,44 @@ export function IntentBadge({
     }[intent];
 
     return (
-        <div className="space-y-2">
+        <div className="space-y-3">
             {/* Main badge */}
-            <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
                 <div
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold shadow-lg transition-all hover:scale-105"
                     style={{
-                        backgroundColor: colors.bg,
+                        background: `linear-gradient(135deg, ${colors.bg} 0%, ${colors.bg}80 100%)`,
                         color: colors.text,
                         border: `1px solid ${colors.border}`,
                     }}
                 >
-                    <Icon className="w-4 h-4" />
+                    <Icon className="w-5 h-5" />
                     <span>{intentLabel} Intent</span>
                 </div>
 
                 {/* Confidence indicator */}
-                <span className="text-xs text-gray-500">
+                <div className="px-3 py-1.5 rounded-lg text-xs font-medium" style={{
+                    background: "rgba(255, 255, 255, 0.04)",
+                    color: "var(--text-secondary)",
+                    border: "1px solid var(--border-subtle)"
+                }}>
                     {confidence} confidence
-                </span>
+                </div>
             </div>
 
             {/* Details */}
             {showDetails && (
                 <div className="pl-1">
-                    <p className="text-sm text-gray-400">{description}</p>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{description}</p>
 
                     {/* Warning for informational intent */}
                     {!isAffiliateReady && suggestion && (
-                        <div className="mt-2 flex items-start gap-2 p-2 rounded bg-yellow-500/10 border border-yellow-500/20">
-                            <Info className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                            <p className="text-xs text-yellow-400">{suggestion}</p>
+                        <div className="mt-3 flex items-start gap-3 p-3 rounded-xl" style={{
+                            background: "linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(234, 179, 8, 0.06) 100%)",
+                            border: "1px solid rgba(234, 179, 8, 0.25)"
+                        }}>
+                            <Info className="w-5 h-5 shrink-0 mt-0.5" style={{ color: "#EAB308" }} />
+                            <p className="text-sm leading-relaxed" style={{ color: "#FDE047" }}>{suggestion}</p>
                         </div>
                     )}
                 </div>

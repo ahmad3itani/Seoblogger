@@ -783,7 +783,15 @@ export default function AmazonAffiliatePage() {
                             <Button
                                 onClick={handleGenerate}
                                 disabled={isGenerating || products.length === 0}
-                                className="w-full h-11 text-sm font-semibold btn-primary"
+                                className="w-full h-12 text-sm font-semibold transition-all duration-300"
+                                style={{
+                                    background: isGenerating || products.length === 0
+                                        ? "rgba(255, 153, 0, 0.2)"
+                                        : "linear-gradient(135deg, #FF9900 0%, #FF7700 100%)",
+                                    color: "white",
+                                    border: "1px solid rgba(255, 153, 0, 0.3)",
+                                    boxShadow: isGenerating || products.length === 0 ? "none" : "0 4px 15px rgba(255, 153, 0, 0.3)",
+                                }}
                             >
                                 {isGenerating ? (
                                     <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Generating...</>
@@ -852,30 +860,56 @@ export default function AmazonAffiliatePage() {
                     {/* Loading state */}
                     {isGenerating && (
                         <div
-                            className="rounded-2xl h-[500px] flex flex-col items-center justify-center p-8"
-                            style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
+                            className="rounded-2xl h-[500px] flex flex-col items-center justify-center p-8 relative overflow-hidden"
+                            style={{
+                                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                border: "1px solid var(--border-subtle)"
+                            }}
                         >
+                            {/* Animated gradient orbs */}
                             <div
-                                className="w-20 h-20 rounded-full animate-glow-pulse flex items-center justify-center mb-6"
-                                style={{ background: "rgba(255,153,0,0.10)", border: "1px solid rgba(255,153,0,0.25)" }}
-                            >
-                                <Sparkles className="w-9 h-9" style={{ color: "#FF9900" }} />
-                            </div>
-                            <h2 className="text-lg font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                                Generating Article...
-                            </h2>
-                            <p className="text-xs mb-8" style={{ color: "var(--text-muted)" }}>Full SEO pipeline running (45-60 seconds)</p>
-                            <div className="w-full max-w-sm space-y-2">
-                                {AMAZON_STEPS.map((s, i) => (
-                                    <div
-                                        key={i}
-                                        className="flex items-center gap-3 px-4 py-2 rounded-lg text-xs animate-in fade-in"
-                                        style={{ color: "var(--text-secondary)", animationDelay: `${i * 3}s`, animationFillMode: 'backwards' }}
-                                    >
-                                        <div className="w-1.5 h-1.5 rounded-full" style={{ background: "#FF9900" }} />
-                                        <span>{s}</span>
-                                    </div>
-                                ))}
+                                className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 blur-3xl animate-pulse"
+                                style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
+                            />
+                            <div
+                                className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 blur-3xl animate-pulse"
+                                style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)", animationDelay: "1s" }}
+                            />
+
+                            <div className="relative z-10">
+                                <div
+                                    className="w-24 h-24 rounded-3xl animate-glow-pulse flex items-center justify-center mb-6 mx-auto shadow-2xl"
+                                    style={{
+                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.2) 0%, rgba(255, 153, 0, 0.1) 100%)",
+                                        border: "1px solid rgba(255, 153, 0, 0.3)"
+                                    }}
+                                >
+                                    <Sparkles className="w-12 h-12 animate-pulse" style={{ color: "#FF9900" }} />
+                                </div>
+                                <h2 className="text-2xl font-bold mb-2 text-center" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                    Generating Article...
+                                </h2>
+                                <p className="text-sm mb-8 text-center" style={{ color: "var(--text-muted)" }}>
+                                    Full SEO pipeline running • 45-60 seconds
+                                </p>
+                                <div className="w-full max-w-md space-y-2">
+                                    {AMAZON_STEPS.map((s, i) => (
+                                        <div
+                                            key={i}
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs animate-in fade-in transition-all hover:scale-105"
+                                            style={{
+                                                background: "rgba(255, 255, 255, 0.02)",
+                                                border: "1px solid var(--border-subtle)",
+                                                color: "var(--text-secondary)",
+                                                animationDelay: `${i * 3}s`,
+                                                animationFillMode: 'backwards'
+                                            }}
+                                        >
+                                            <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "#FF9900" }} />
+                                            <span>{s}</span>
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     )}
