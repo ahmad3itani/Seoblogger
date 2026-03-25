@@ -98,35 +98,54 @@ function generateImageFilename(keyword: string, imageType: string): string {
 }
 
 // ─── Upload to Cloudflare R2 ──────────────────────────────────────────────────
+// R2 uses S3-compatible API, not the Cloudflare REST API
 export async function uploadToCloudflareR2(
   base64Image: string,
   fileName: string,
   accountId: string,
-  apiToken: string,
+  accessKeyId: string,
+  secretAccessKey: string,
   bucketName: string = "bloggerseo-images"
 ): Promise<string> {
   const imageBuffer = Buffer.from(base64Image, "base64");
-  const uploadUrl = `https://api.cloudflare.com/client/v4/accounts/${accountId}/r2/buckets/${bucketName}/objects/${fileName}`;
+  
+  // R2 S3-compatible endpoint format
+  const r2Endpoint = `https://${accountId}.r2.cloudflarestorage.com`;
+  const uploadUrl = `${r2Endpoint}/${bucketName}/${fileName}`;
 
-  const response = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      "Content-Type": "image/png",
+  console.log(`📤 Uploading to R2: ${bucketName}/${fileName}`);
+
+  // Use S3-compatible PUT with AWS Signature V4
+  const { S3Client, PutObjectCommand } = await import("@aws-sdk/client-s3");
+  
+  const s3Client = new S3Client({
+    region: "auto",
+    endpoint: r2Endpoint,
+    credentials: {
+      accessKeyId,
+      secretAccessKey,
     },
-    body: imageBuffer,
   });
 
-  if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`R2 upload error ${response.status}: ${err}`);
-  }
+  try {
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: bucketName,
+        Key: fileName,
+        Body: imageBuffer,
+        ContentType: "image/png",
+      })
+    );
 
-  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
-  if (!r2PublicUrl) {
-    throw new Error("CLOUDFLARE_R2_PUBLIC_URL environment variable is required for image hosting");
+    const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
+    if (!r2PublicUrl) {
+      throw new Error("CLOUDFLARE_R2_PUBLIC_URL environment variable is required for image hosting");
+    }
+    return `${r2PublicUrl}/${fileName}`;
+  } catch (error: any) {
+    console.error(`❌ R2 upload failed:`, error.message);
+    throw new Error(`R2 upload error: ${error.message}`);
   }
-  return `${r2PublicUrl}/${fileName}`;
 }
 
 // ─── Full Pipeline: Generate → Host ──────────────────────────────────────────
@@ -139,11 +158,25 @@ export async function generateAndHostImage(
 ): Promise<ImageGenerationResult> {
   const accountId = process.env.CLOUDFLARE_ACCOUNT_ID;
   const apiToken = process.env.CLOUDFLARE_API_TOKEN;
-  const bucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || "bloggerseo-images";
+  const r2AccessKeyId = process.env.CLOUDFLARE_R2_ACCESS_KEY_ID;
+  const r2SecretAccessKey = process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY;
+  const bucketName = process.env.CLOUDFLARE_R2_BUCKET_NAME || process.env.CLOUDFLARE_R2_BUCKET || "bloggerseo-images";
+  const r2PublicUrl = process.env.CLOUDFLARE_R2_PUBLIC_URL;
   const finalAltText = altText || `${keyword} - ${imageType}`;
 
+  // Detailed environment check
   if (!accountId || !apiToken) {
-    console.warn("⚠️ Cloudflare credentials missing — image generation skipped");
+    console.warn("⚠️ Cloudflare AI credentials missing (CLOUDFLARE_ACCOUNT_ID or CLOUDFLARE_API_TOKEN) — image generation skipped");
+    return { url: "", altText: finalAltText };
+  }
+
+  if (!r2AccessKeyId || !r2SecretAccessKey) {
+    console.warn("⚠️ R2 credentials missing (CLOUDFLARE_R2_ACCESS_KEY_ID or CLOUDFLARE_R2_SECRET_ACCESS_KEY) — image upload skipped");
+    return { url: "", altText: finalAltText };
+  }
+
+  if (!r2PublicUrl) {
+    console.warn("⚠️ CLOUDFLARE_R2_PUBLIC_URL not set — cannot generate public image URLs");
     return { url: "", altText: finalAltText };
   }
 
@@ -151,17 +184,25 @@ export async function generateAndHostImage(
     console.log(`🖼️ Generating ${imageType} image (FLUX.1 Schnell)...`);
     const base64 = await generateImageWithCloudflare(prompt, accountId, apiToken, negativePrompt);
 
-    console.log(`☁️ Uploading to R2...`);
+    console.log(`☁️ Uploading to R2 bucket: ${bucketName}...`);
     const fileName = generateImageFilename(keyword, imageType);
-    const imageUrl = await uploadToCloudflareR2(base64, fileName, accountId, apiToken, bucketName);
+    const imageUrl = await uploadToCloudflareR2(
+      base64,
+      fileName,
+      accountId,
+      r2AccessKeyId,
+      r2SecretAccessKey,
+      bucketName
+    );
 
     console.log(`✅ Image ready: ${imageUrl}`);
     return { url: imageUrl, altText: finalAltText, base64 };
-  } catch (error) {
+  } catch (error: any) {
     // Log the failure clearly — do NOT fall back to base64 data URLs.
     // Embedding raw base64 in article HTML creates multi-megabyte blobs
     // that break publishing to Blogger and inflate page size massively.
-    console.error("❌ Image pipeline failed (generation or R2 upload):", error);
+    console.error("❌ Image pipeline failed:", error.message || error);
+    console.error("   Stack:", error.stack?.split("\n").slice(0, 3).join("\n"));
     console.warn("⚠️ Image will be skipped for this article section.");
     return { url: "", altText: finalAltText };
   }
