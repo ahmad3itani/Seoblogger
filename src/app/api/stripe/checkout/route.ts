@@ -1,7 +1,28 @@
 import { NextResponse } from "next/server";
-import { stripe, STRIPE_PLANS } from "@/lib/stripe/client";
+import { stripe } from "@/lib/stripe/client";
 import { requireAuth } from "@/lib/supabase/auth-helpers";
 import { prisma } from "@/lib/prisma";
+
+// Resolve price IDs at runtime (not build time) so env vars are available
+function getStripePriceId(planName: string, billing: string): string | null {
+  const isYearly = billing === "yearly";
+  switch (planName) {
+    case "starter":
+      return isYearly
+        ? (process.env.STRIPE_PRICE_ID_STARTER_YEARLY || process.env.STRIPE_PRICE_ID_STARTER || null)
+        : (process.env.STRIPE_PRICE_ID_STARTER || null);
+    case "pro":
+      return isYearly
+        ? (process.env.STRIPE_PRICE_ID_PRO_YEARLY || process.env.STRIPE_PRICE_ID_PRO || null)
+        : (process.env.STRIPE_PRICE_ID_PRO || null);
+    case "enterprise":
+      return isYearly
+        ? (process.env.STRIPE_PRICE_ID_ENTERPRISE_YEARLY || process.env.STRIPE_PRICE_ID_ENTERPRISE || null)
+        : (process.env.STRIPE_PRICE_ID_ENTERPRISE || null);
+    default:
+      return null;
+  }
+}
 
 export async function POST(req: Request) {
   try {
@@ -9,7 +30,7 @@ export async function POST(req: Request) {
     if (authResult instanceof NextResponse) return authResult;
     const { user: authUser } = authResult;
 
-    const { priceId: rawPriceId, planName, billing } = await req.json();
+    const { priceId: rawPriceId, planName, billing = "monthly" } = await req.json();
 
     if (!planName) {
       return NextResponse.json(
@@ -18,21 +39,19 @@ export async function POST(req: Request) {
       );
     }
 
-    // Look up the plan config
-    const planConfig = STRIPE_PLANS[planName as keyof typeof STRIPE_PLANS];
-    if (!planConfig || planConfig.price === 0) {
+    if (planName === "free") {
       return NextResponse.json(
-        { error: "Invalid plan or free plans don't need checkout" },
+        { error: "Free plans don't need checkout" },
         { status: 400 }
       );
     }
 
-    // Use provided priceId or look it up from config (monthly vs yearly)
-    const isYearly = billing === "yearly";
-    const priceId = rawPriceId || (isYearly ? planConfig.yearlyPriceId : planConfig.priceId) || planConfig.priceId;
+    // Resolve price ID at runtime
+    const priceId = rawPriceId || getStripePriceId(planName, billing);
     if (!priceId) {
+      console.error(`Missing Stripe price ID for plan: ${planName}, billing: ${billing}. Check STRIPE_PRICE_ID_${planName.toUpperCase()} env var.`);
       return NextResponse.json(
-        { error: `Payment is not configured for this plan yet. Please try a different billing cycle or contact support.` },
+        { error: `Payment is not configured for the ${planName} plan yet. Please contact support.` },
         { status: 400 }
       );
     }
@@ -45,6 +64,9 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
+
+    // Determine base URL for redirects
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_SUPABASE_URL?.replace('.supabase.co', '') || "https://bloggerseowriting.com";
 
     // Create or retrieve Stripe customer
     let customerId = user.stripeCustomerId;
@@ -69,15 +91,14 @@ export async function POST(req: Request) {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: "subscription",
-      payment_method_types: ["card"],
       line_items: [
         {
           price: priceId,
           quantity: 1,
         },
       ],
-      success_url: `${process.env.NEXTAUTH_URL}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
-      cancel_url: `${process.env.NEXTAUTH_URL}/pricing?canceled=true`,
+      success_url: `${baseUrl}/dashboard?session_id={CHECKOUT_SESSION_ID}&success=true`,
+      cancel_url: `${baseUrl}/pricing?canceled=true`,
       metadata: {
         userId: user.id,
         planName,
@@ -93,9 +114,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ sessionId: session.id, url: session.url });
   } catch (error: any) {
-    console.error("Stripe checkout error:", error);
+    console.error("Stripe checkout error:", error?.message || error);
+
+    // Surface useful error details
+    const message = error?.message || "Failed to create checkout session";
+    const isStripeError = error?.type?.startsWith("Stripe");
+
     return NextResponse.json(
-      { error: "Failed to create checkout session" },
+      { error: isStripeError ? message : "Failed to create checkout session. Please try again or contact support." },
       { status: 500 }
     );
   }

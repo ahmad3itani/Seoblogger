@@ -184,6 +184,7 @@ export default function PricingPage() {
       }
     } catch (err) {
       console.error("Checkout failed:", err);
+      alert("Network error. Please check your connection and try again.");
       setCheckingOut(null);
     }
   };
