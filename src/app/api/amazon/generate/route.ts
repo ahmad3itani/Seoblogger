@@ -2,14 +2,8 @@ import { NextResponse } from "next/server";
 import { requireAuth, checkUsageLimit, trackUsage } from "@/lib/supabase/auth-helpers";
 import { getUserPlanName } from "@/lib/ai/client";
 import { prisma } from "@/lib/prisma";
-import {
-    generateTitles,
-    generateOutline,
-    generateArticle,
-    generateFAQ,
-    generateMeta,
-    type GenerationOptions,
-} from "@/lib/ai/generate";
+import { generateTitles, generateFAQ, generateMeta, type GenerationOptions } from "@/lib/ai/generate";
+import { generateTopicalOutline, generateArticleDraft, humanizeDraft, type V2GenerationOptions } from "@/lib/ai/v2-engine";
 import {
     buildAffiliateData,
     buildAffiliateLinksArray,
@@ -19,17 +13,17 @@ import {
 import { formatForBlogger, generateFaqHtml, countWords } from "@/lib/formatter";
 import { checkRateLimit } from "@/lib/security/rate-limit";
 import { findRelevantInternalLinks, formatLinksForPrompt } from "@/lib/linker/engine";
-import { generateFeaturedSnippet, generateTrustSection, generateQuickVerdict } from "@/lib/amazon/featured-snippet";
 import { generateComparisonTable } from "@/lib/amazon/comparison-table";
+import { fetchSerpIntelligence, formatSourcesForPrompt } from "@/lib/seo/serp-sources";
 
 /**
- * Amazon Affiliate Article Generator — Step-based architecture
+ * Amazon Affiliate Article Generator — V2 Engine (same as regular articles)
  *
- * Step 1: "outline" — Generate titles + outline (~5-10s)
- * Step 2: "article" — Generate article + FAQ + meta + format (~30-50s)
+ * Uses the SAME v2-engine pipeline as the regular article generator:
+ *   Step 1 "outline": generateTitles + generateTopicalOutline (with SERP/PAA data)
+ *   Step 2 "article": generateArticleDraft + humanizeDraft + FAQ + meta
  *
- * Images are NOT generated (same as regular article generator default).
- * This keeps each request well under the Vercel timeout.
+ * This produces the SAME quality output as /api/generate.
  */
 
 export async function POST(req: Request) {
@@ -38,7 +32,7 @@ export async function POST(req: Request) {
         if (authResult instanceof NextResponse) return authResult;
         const userId = authResult.user.id;
 
-        // Rate limit: 5 generations per minute
+        // Rate limit
         const rl = checkRateLimit(`amazon-generate:${userId}`, 5, 60_000);
         if (!rl.allowed) {
             return NextResponse.json(
@@ -49,7 +43,7 @@ export async function POST(req: Request) {
 
         const body = await req.json();
         const {
-            step = "outline", // "outline" or "article"
+            step = "outline",
             niche,
             storeId,
             storeRegion = "us",
@@ -64,7 +58,7 @@ export async function POST(req: Request) {
             customInstructions,
             blogId,
             preResearchedProducts,
-            // Step 2 inputs (from step 1 output)
+            // Step 2 inputs
             selectedTitle,
             outline,
             products: passedProducts,
@@ -77,11 +71,11 @@ export async function POST(req: Request) {
             );
         }
 
-        // Get user's plan for model selection
         const userPlan = await getUserPlanName(userId);
 
-        // ── STEP 1: OUTLINE ──────────────────────────────────────────────
-        // Generate titles + outline (~5-10s)
+        // ══════════════════════════════════════════════════════════════════
+        // STEP 1: OUTLINE — Generate titles + outline with SERP data (~8-15s)
+        // ══════════════════════════════════════════════════════════════════
         if (step === "outline") {
             console.log(`📋 Amazon Step 1: Generating outline for "${niche}" (${articleType})`);
 
@@ -93,6 +87,7 @@ export async function POST(req: Request) {
             const wordCount = getWordCount(articleType, productCount);
             const brandVoice = buildBrandVoice(niche, storeId, products, storeRegion, customInstructions, !!productUrl?.trim());
 
+            // Generate titles using legacy function (fast, works well)
             const genOptions: GenerationOptions = {
                 keyword,
                 language,
@@ -111,14 +106,25 @@ export async function POST(req: Request) {
                 includeExternalLinks,
             };
 
-            // Generate titles
             const titles = await generateTitles(genOptions);
             const title = titles[0] || `Best ${niche} ${new Date().getFullYear()}: Top ${productCount} Picks Reviewed`;
 
-            // Generate outline
-            const generatedOutline = await generateOutline(title, genOptions);
+            // Use V2 engine for outline (with SERP/PAA data — same as regular generator)
+            const v2Options: V2GenerationOptions = {
+                title,
+                keyword,
+                wordCount,
+                language,
+                tone,
+                niche,
+                articleType: getArticleType(articleType),
+                userPlan,
+                includeFaq: true,
+            };
 
-            console.log(`✅ Amazon Step 1 complete: "${title}"`);
+            const generatedOutline = await generateTopicalOutline(v2Options);
+
+            console.log(`✅ Amazon Step 1 complete: "${title}" — ${generatedOutline.sections.length} sections`);
 
             return NextResponse.json({
                 success: true,
@@ -126,14 +132,15 @@ export async function POST(req: Request) {
                 title,
                 titles,
                 outline: generatedOutline,
-                products, // return with affiliate URLs built
+                products,
                 keyword,
                 wordCount,
             });
         }
 
-        // ── STEP 2: ARTICLE ──────────────────────────────────────────────
-        // Generate article + FAQ + meta + format (~30-50s)
+        // ══════════════════════════════════════════════════════════════════
+        // STEP 2: ARTICLE — V2 draft + humanizer + FAQ + meta (~30-50s)
+        // ══════════════════════════════════════════════════════════════════
         if (step === "article") {
             if (!selectedTitle || !outline) {
                 return NextResponse.json(
@@ -142,7 +149,6 @@ export async function POST(req: Request) {
                 );
             }
 
-            // Check usage limits
             const usageCheck = await checkUsageLimit(userId, "articles");
             if (!usageCheck.allowed) {
                 return NextResponse.json(
@@ -158,7 +164,7 @@ export async function POST(req: Request) {
             const wordCount = getWordCount(articleType, productCount);
             const brandVoice = buildBrandVoice(niche, storeId, products, storeRegion, customInstructions, !!productUrl?.trim());
 
-            // Smart internal linking
+            // Smart internal linking (same as regular generator)
             let existingPostsList: string | undefined;
             const currentUser = await prisma.user.findUnique({
                 where: { id: userId },
@@ -175,8 +181,7 @@ export async function POST(req: Request) {
                     });
                     if (cachedPosts.length > 0) {
                         const relevantLinks = findRelevantInternalLinks(
-                            niche,
-                            `best ${niche}`,
+                            niche, `best ${niche}`,
                             cachedPosts.map(p => ({ title: p.title, url: p.url })),
                             5
                         );
@@ -185,84 +190,88 @@ export async function POST(req: Request) {
                         }
                     }
                 } catch (err) {
-                    console.error("Failed to fetch cached posts for Amazon smart interlinking", err);
+                    console.error("Smart interlinking failed:", err);
                 }
             }
 
-            const genOptions: GenerationOptions = {
+            // SERP intelligence for real URLs (prevents link hallucination)
+            let serpSources: string | undefined;
+            let paaQuestions: string[] | undefined;
+            if (includeExternalLinks !== false) {
+                try {
+                    const serpLang = language?.substring(0, 2) || "en";
+                    const serpIntel = await fetchSerpIntelligence(keyword, "us", serpLang);
+                    if (serpIntel.sources.length > 0) {
+                        serpSources = formatSourcesForPrompt(serpIntel.sources);
+                    }
+                    if (serpIntel.paaQuestions.length > 0) {
+                        paaQuestions = serpIntel.paaQuestions.map(q => q.question);
+                    }
+                } catch {
+                    console.warn("SERP fetch failed (non-blocking)");
+                }
+            }
+
+            // ── V2 Engine: Generate article draft (same as regular generator) ──
+            const v2Options: V2GenerationOptions = {
+                title: selectedTitle,
                 keyword,
+                wordCount,
                 language,
                 tone,
                 niche,
                 articleType: getArticleType(articleType),
-                wordCount,
-                brandVoice,
-                affiliateLinks: buildAffiliateLinksArray(products),
-                includeFaq: true,
-                includeImages: false,
-                numInlineImages: 0,
-                includeComparisonTable,
-                includeProsCons: true,
                 userPlan,
+                includeFaq: true,
                 existingPostsList,
-                includeExternalLinks,
+                blogId: activeBlogId,
             };
 
-            // Generate article
-            const article = await generateArticle(selectedTitle, outline, genOptions);
+            // Inject brand voice into outline context so v2-engine uses affiliate data
+            const enrichedOutline = {
+                ...outline,
+                brandVoice,
+                serpSources,
+            };
 
-            // Generate FAQ + meta in parallel
+            const rawArticle = await generateArticleDraft(enrichedOutline, v2Options);
+
+            // ── Humanizer pass (always run — same as regular generator) ──
+            console.log("🧠 Running humanizer pass...");
+            const article = await humanizeDraft(rawArticle);
+
+            // ── FAQ + Meta in parallel ──
             const [faqs, meta] = await Promise.all([
-                generateFAQ(keyword, article, language, niche, userPlan),
+                generateFAQ(keyword, article, language, niche, userPlan, paaQuestions),
                 generateMeta(selectedTitle, article, keyword, language, userPlan),
             ]);
 
-            // ── Programmatic SEO components (instant, no API calls) ──
-            const featuredSnippetHtml = generateFeaturedSnippet({ keyword, products, niche, year: new Date().getFullYear() });
-            const comparisonTableHtml = generateComparisonTable(products, {
-                showRating: true, showPrice: true, showBestFor: true,
-                showCta: true, ctaText: 'Check Price →', highlightFirst: true,
-            });
-            const trustSectionHtml = generateTrustSection(products.length * 5, niche);
-            const quickVerdictHtml = generateQuickVerdict(products, keyword);
-
-            // ── Assemble content ──
+            // ── Assemble final content ──
             let fullContent = article;
 
-            // 1. Featured snippet before first H2
-            if (featuredSnippetHtml) {
-                const firstH2Match = fullContent.match(/<h2[^>]*>/i);
-                if (firstH2Match && firstH2Match.index !== undefined) {
-                    fullContent = fullContent.slice(0, firstH2Match.index) +
-                        featuredSnippetHtml + '\n\n' +
-                        fullContent.slice(firstH2Match.index);
-                } else {
-                    fullContent = featuredSnippetHtml + '\n\n' + fullContent;
-                }
-            }
-
-            // 2. Comparison table after first H2 section
-            if (comparisonTableHtml) {
+            // Add comparison table after first section (if enabled, non-duplicate)
+            if (includeComparisonTable && products.length >= 2) {
+                const comparisonTableHtml = generateComparisonTable(products, {
+                    showRating: true, showPrice: true, showBestFor: true,
+                    showCta: true, ctaText: 'Check Price →', highlightFirst: true,
+                });
                 const h2Matches = [...fullContent.matchAll(/<\/h2>/gi)];
                 if (h2Matches.length >= 1) {
                     const insertIndex = h2Matches[0].index! + h2Matches[0][0].length;
                     const afterFirstH2 = fullContent.slice(insertIndex);
                     const firstParaEnd = afterFirstH2.indexOf('</p>');
                     if (firstParaEnd !== -1) {
-                        const actualInsertPoint = insertIndex + firstParaEnd + 4;
-                        fullContent = fullContent.slice(0, actualInsertPoint) +
+                        const insertPoint = insertIndex + firstParaEnd + 4;
+                        fullContent = fullContent.slice(0, insertPoint) +
                             '\n\n<h2>Quick Comparison</h2>\n' + comparisonTableHtml + '\n' +
-                            fullContent.slice(actualInsertPoint);
+                            fullContent.slice(insertPoint);
                     }
                 }
             }
 
-            // 3. Trust section + quick verdict + FAQ
-            const seoClosingSection = `${trustSectionHtml}\n\n${quickVerdictHtml}`.trim();
-            if (seoClosingSection) {
-                fullContent += '\n\n' + seoClosingSection;
-            }
-            if (faqs.length > 0) {
+            // Append FAQ (only if article doesn't already have one)
+            const hasFaqAlready = /<h2[^>]*>.*?(?:faq|frequently\s+asked)/i.test(fullContent);
+            if (faqs.length > 0 && !hasFaqAlready) {
                 fullContent += '\n\n' + generateFaqHtml(faqs);
             }
 
@@ -276,9 +285,11 @@ export async function POST(req: Request) {
                 keyword,
             });
 
-            // Format for Blogger
+            // Format for Blogger (TOC, disclosure, read time)
+            // Skip TOC if article already has one
+            const hasTocAlready = /<div\s+class="toc"/i.test(fullContent);
             const formattedContent = formatForBlogger(fullContent, {
-                includeToc: true,
+                includeToc: !hasTocAlready,
                 includeDisclosure: "As an Amazon Associate, I earn from qualifying purchases. This article may contain affiliate links at no extra cost to you.",
                 keyword,
                 showReadTime: true,
@@ -310,7 +321,7 @@ export async function POST(req: Request) {
                 await trackUsage(userId, "article", 1, finalWordCount);
             }
 
-            console.log(`✅ Amazon Step 2 complete: "${selectedTitle}" - ${finalWordCount} words, ${affiliateLinkCount} links`);
+            console.log(`✅ Amazon Step 2 complete: "${selectedTitle}" - ${finalWordCount} words, ${affiliateLinkCount} affiliate links`);
 
             return NextResponse.json({
                 success: true,
@@ -349,7 +360,7 @@ export async function POST(req: Request) {
     }
 }
 
-// ── Helper functions (moved from generate.ts to keep route self-contained) ──
+// ── Helper functions ──────────────────────────────────────────────────────
 
 function getKeyword(niche: string, articleType: string, products: AmazonProduct[]): string {
     switch (articleType) {
@@ -387,49 +398,35 @@ function buildBrandVoice(niche: string, storeId: string, products: AmazonProduct
     const mainProduct = products[0];
     const competitors = products.slice(1);
     const productList = products.map((p, i) =>
-        `${i + 1}. ${p.name} (${p.priceRange}, ${p.rating}) - ${p.bestFor}\n   Features: ${p.keyFeatures?.join(', ') || 'N/A'}\n   Amazon Search Link: ${p.affiliateUrl}`
+        `${i + 1}. ${p.name} (${p.priceRange}, ${p.rating}) - ${p.bestFor}\n   Features: ${p.keyFeatures?.join(', ') || 'N/A'}\n   Amazon Link: ${p.affiliateUrl}`
     ).join('\n');
 
     const urlReviewBlock = isUrlReview && mainProduct ? `
-SPECIFIC PRODUCT REVIEW MODE:
-This article is a DEEP REVIEW of a specific product: "${mainProduct.name}"
-- Dedicate 60-70% of the article to reviewing it in-depth
-- Cover EVERY aspect a buyer would want to know
-- Include a "vs Competitors" section comparing against: ${competitors.map(c => c.name).join(', ')}
-- Include a definitive "Should You Buy It?" verdict section
+SPECIFIC PRODUCT REVIEW: Deep review of "${mainProduct.name}"
+- Dedicate 60-70% to this product, compare against: ${competitors.map(c => c.name).join(', ')}
+- Include "Should You Buy It?" verdict
 ` : '';
 
-    return `YOU ARE WRITING A PROFESSIONAL AMAZON AFFILIATE PRODUCT REVIEW ARTICLE FOR Amazon ${region.name} (${region.domain}).
-
-YOUR GOAL: Create the MOST HELPFUL, COMPREHENSIVE product review. The reader should finish with ZERO unanswered questions.
+    return `AMAZON AFFILIATE PRODUCT REVIEW for ${region.name} (${region.domain}).
 ${urlReviewBlock}
-PRODUCT DATA (use these EXACT products and names):
+PRODUCTS (use these EXACT names and data):
 ${productList}
 
-AFFILIATE LINK RULES — MANDATORY:
-- ONLY use the Amazon SEARCH URLs provided above (format: ${region.domain}/s?k=...&tag=...)
-- NEVER create direct product URLs — the affiliate tag ONLY works on search URLs
-- For each product: <a href="THE_SEARCH_URL" target="_blank" rel="nofollow noopener sponsored">Product Name</a>
-- First mention of each product MUST be a clickable affiliate link
-- After each product section: <p><strong><a href="SEARCH_URL" target="_blank" rel="nofollow noopener sponsored">➡ Check Price on Amazon</a></strong></p>
-- All prices in ${region.currency} (${region.currencySymbol})
+CRITICAL — AFFILIATE LINKS:
+- ONLY use the Amazon SEARCH URLs above (${region.domain}/s?k=...&tag=...)
+- Format: <a href="SEARCH_URL" target="_blank" rel="nofollow noopener sponsored">Product Name</a>
+- First mention = affiliate link. After each product section: ➡ Check Price on Amazon
+- NEVER invent Amazon URLs. All prices in ${region.currency} (${region.currencySymbol})
 
-SEO REQUIREMENTS:
-- Use primary keyword in the first 100 words naturally
-- Include 3-5 LSI keywords throughout
-- Use H2 for main sections, H3 for subsections (6-8 H2 sections minimum)
-- Include quick verdict/TLDR near the top (40-60 words)
-- Short paragraphs: 2-3 sentences MAX
-- Use bullet points for features, specs, comparisons
-- Bold important keywords and product names on first mention
-- Write in first person with E-E-A-T signals
-- Be honest about limitations (builds trust & SEO)
+CONTENT REQUIREMENTS:
+- Cover EVERY product in detail (400-600 words each)
+- Each product section: features, pros, cons, who it's for, CTA link
+- Include "Who should buy this" AND "Who should skip this" per product
+- Write in first person with E-E-A-T signals ("After testing...", "What surprised me...")
+- Short paragraphs (2-3 sentences), bullet lists for specs
+- Be honest about limitations (builds trust)
+- End with definitive verdict recommending best overall + best budget + best premium
 
-OUTBOUND LINKS: Include 3-5 links to authoritative sources (Wirecutter, RTINGS, Consumer Reports, etc.)
-
-CONVERSION: Address objections, use social proof, include "Who should buy" AND "Who should skip", end with definitive recommendation.
-
-DISCLOSURE: Start with: <p><em>As an Amazon Associate, I earn from qualifying purchases.</em></p>
-
-${customInstructions ? `ADDITIONAL INSTRUCTIONS: ${customInstructions}` : ''}`;
+DISCLOSURE: Start with affiliate disclosure paragraph.
+${customInstructions ? `\nADDITIONAL: ${customInstructions}` : ''}`;
 }
