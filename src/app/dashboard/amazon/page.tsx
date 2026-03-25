@@ -160,7 +160,7 @@ export default function AmazonAffiliatePage() {
         }
     };
 
-    // Step 2: Generate article with selected products
+    // Step 2: Generate article with selected products (2-step API: outline → article)
     const handleGenerate = async () => {
         if (products.length === 0) {
             setError("No products selected");
@@ -187,40 +187,73 @@ export default function AmazonAffiliatePage() {
                 tierColor: p.tierColor,
             }));
 
-            const res = await fetch("/api/amazon/generate", {
+            const commonBody = {
+                niche: niche.trim(),
+                storeId: storeId.trim(),
+                storeRegion,
+                productUrl: productUrl.trim() || undefined,
+                productCount: sanitizedProducts.length,
+                articleType: productUrl.trim() ? "single-review" : articleType,
+                language,
+                tone,
+                includeComparisonTable: includeTable,
+                includeInternalLinks,
+                includeExternalLinks,
+                customInstructions: customInstructions.trim() || undefined,
+                preResearchedProducts: sanitizedProducts,
+            };
+
+            // ── Step 1: Generate outline (~5-10s) ──
+            console.log("Amazon: Step 1 - Generating outline...");
+            const outlineRes = await fetch("/api/amazon/generate", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    niche: niche.trim(),
-                    storeId: storeId.trim(),
-                    storeRegion,
-                    productUrl: productUrl.trim() || undefined,
-                    productCount: sanitizedProducts.length,
-                    articleType: productUrl.trim() ? "single-review" : articleType,
-                    language,
-                    tone,
-                    includeComparisonTable: includeTable,
-                    includeInternalLinks,
-                    includeExternalLinks,
-                    customInstructions: customInstructions.trim() || undefined,
-                    // Pass pre-researched products to skip research phase
-                    preResearchedProducts: sanitizedProducts,
-                }),
+                body: JSON.stringify({ ...commonBody, step: "outline" }),
             });
 
-            if (!res.ok) {
-                const text = await res.text();
-                console.error("Generate API error:", res.status, text);
+            if (!outlineRes.ok) {
+                const text = await outlineRes.text();
                 try {
                     const errorData = JSON.parse(text);
-                    setError(errorData.error || `Server error: ${res.status}`);
+                    setError(errorData.error || `Outline failed: ${outlineRes.status}`);
                 } catch {
-                    setError(`Server error: ${res.status}`);
+                    setError(`Outline failed: ${outlineRes.status}`);
                 }
                 return;
             }
 
-            const data = await res.json();
+            const outlineData = await outlineRes.json();
+            if (!outlineData.success) {
+                setError(outlineData.error || "Failed to generate outline");
+                return;
+            }
+
+            // ── Step 2: Generate article (~30-50s) ──
+            console.log("Amazon: Step 2 - Generating article...");
+            const articleRes = await fetch("/api/amazon/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...commonBody,
+                    step: "article",
+                    selectedTitle: outlineData.title,
+                    outline: outlineData.outline,
+                    products: outlineData.products,
+                }),
+            });
+
+            if (!articleRes.ok) {
+                const text = await articleRes.text();
+                try {
+                    const errorData = JSON.parse(text);
+                    setError(errorData.error || `Article generation failed: ${articleRes.status}`);
+                } catch {
+                    setError(`Article generation failed: ${articleRes.status}`);
+                }
+                return;
+            }
+
+            const data = await articleRes.json();
             if (data.success && data.article) {
                 setGeneratedArticle(data.article);
                 setStep('result');
@@ -235,7 +268,7 @@ export default function AmazonAffiliatePage() {
         }
     };
 
-    // Quick generate (skip preview)
+    // Quick generate (skip preview — research + outline + article in sequence)
     const handleQuickGenerate = async () => {
         if (!niche.trim()) {
             setError("Please enter a niche or product category");
@@ -252,7 +285,8 @@ export default function AmazonAffiliatePage() {
         setPublishSuccess(false);
 
         try {
-            const res = await fetch("/api/amazon/generate", {
+            // Step 1: Research products first
+            const researchRes = await fetch("/api/amazon/research", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -262,19 +296,59 @@ export default function AmazonAffiliatePage() {
                     productUrl: productUrl.trim() || undefined,
                     productCount: parseInt(productCount),
                     articleType: productUrl.trim() ? "single-review" : articleType,
-                    language,
-                    tone,
-                    includeComparisonTable: includeTable,
-                    includeInternalLinks,
-                    includeExternalLinks,
-                    customInstructions: customInstructions.trim() || undefined,
                 }),
             });
+            const researchData = await researchRes.json();
+            if (!researchData.success || !researchData.products?.length) {
+                setError(researchData.error || "Failed to research products");
+                return;
+            }
+            const researchedProducts = researchData.products;
+            setProducts(researchedProducts);
 
-            const data = await res.json();
+            const commonBody = {
+                niche: niche.trim(),
+                storeId: storeId.trim(),
+                storeRegion,
+                productUrl: productUrl.trim() || undefined,
+                productCount: researchedProducts.length,
+                articleType: productUrl.trim() ? "single-review" : articleType,
+                language,
+                tone,
+                includeComparisonTable: includeTable,
+                includeInternalLinks,
+                includeExternalLinks,
+                customInstructions: customInstructions.trim() || undefined,
+                preResearchedProducts: researchedProducts,
+            };
+
+            // Step 2: Generate outline
+            const outlineRes = await fetch("/api/amazon/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ ...commonBody, step: "outline" }),
+            });
+            const outlineData = await outlineRes.json();
+            if (!outlineData.success) {
+                setError(outlineData.error || "Failed to generate outline");
+                return;
+            }
+
+            // Step 3: Generate article
+            const articleRes = await fetch("/api/amazon/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    ...commonBody,
+                    step: "article",
+                    selectedTitle: outlineData.title,
+                    outline: outlineData.outline,
+                    products: outlineData.products,
+                }),
+            });
+            const data = await articleRes.json();
             if (data.success && data.article) {
                 setGeneratedArticle(data.article);
-                setProducts(data.article.products || []);
                 setStep('result');
             } else {
                 setError(data.error || "Failed to generate article");
