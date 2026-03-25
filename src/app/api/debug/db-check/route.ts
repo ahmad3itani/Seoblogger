@@ -3,7 +3,15 @@ import { prisma, testDatabaseConnection } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Block in production unless debug token is provided
+  if (process.env.NODE_ENV === "production") {
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
+    if (token !== process.env.DEBUG_TOKEN) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+  }
   const results: Record<string, any> = {
     timestamp: new Date().toISOString(),
     status: "checking",

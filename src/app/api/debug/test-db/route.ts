@@ -2,7 +2,15 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createClient } from "@/lib/supabase/server";
 
-export async function GET() {
+export async function GET(req: Request) {
+  // Block in production unless debug token is provided
+  if (process.env.NODE_ENV === "production") {
+    const url = new URL(req.url);
+    const token = url.searchParams.get("token");
+    if (token !== process.env.DEBUG_TOKEN) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+  }
   const results: any = {
     timestamp: new Date().toISOString(),
     tests: {},

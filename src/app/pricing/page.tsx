@@ -337,9 +337,9 @@ export default function PricingPage() {
           <div className="space-y-4">
             {[
               { q: "Can I switch plans anytime?", a: "Yes! You can upgrade or downgrade at any time. Changes take effect at your next billing cycle." },
-              { q: "Is there a free trial for paid plans?", a: "Yes, all paid plans come with a 7-day free trial. No credit card required to start." },
-              { q: "What happens when I hit my limit?", a: "You'll receive a notification when you're near your limit. You can upgrade your plan or wait for the next billing cycle." },
-              { q: "Do you offer refunds?", a: "Yes, we offer a 30-day money-back guarantee on all paid plans." },
+              { q: "Is there a free trial?", a: "Yes! Our Free plan lets you generate 5 articles per month with no credit card required. Try it before upgrading." },
+              { q: "What happens when I hit my limit?", a: "You'll see a notification when you're near your limit. You can upgrade your plan anytime or wait for the next billing cycle to reset." },
+              { q: "Do you offer refunds?", a: "Yes, we offer a 7-day money-back guarantee on all paid plans. Contact support within 7 days of your first payment for a full refund." },
             ].map((faq, i) => (
               <div key={i} className="glass-card rounded-xl p-4">
                 <h4 className="font-medium text-sm mb-1">{faq.q}</h4>

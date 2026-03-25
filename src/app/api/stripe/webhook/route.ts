@@ -152,28 +152,33 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
-  const userId = subscription.metadata?.userId;
-  
-  if (!userId) {
+  let resolvedUserId = subscription.metadata?.userId;
+
+  if (!resolvedUserId) {
     // Try to find user by customer ID
     const user = await prisma.user.findFirst({
       where: { stripeCustomerId: subscription.customer as string },
     });
     if (!user) {
-      console.error("No user found for subscription update");
+      console.error("No user found for subscription update, customer:", subscription.customer);
       return;
     }
+    resolvedUserId = user.id;
   }
 
   const priceId = subscription.items.data[0]?.price.id;
+  if (!priceId) {
+    console.error("No price ID found in subscription items");
+    return;
+  }
   const planName = getPlanFromPriceId(priceId);
-  
+
   const plan = await prisma.plan.findUnique({
     where: { name: planName },
   });
 
   await prisma.user.update({
-    where: userId ? { id: userId } : { stripeCustomerId: subscription.customer as string },
+    where: { id: resolvedUserId },
     data: {
       stripeSubscriptionId: subscription.id,
       stripeSubscriptionStatus: subscription.status,

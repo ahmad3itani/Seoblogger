@@ -115,7 +115,7 @@ export async function POST(req: Request) {
             customInstructions,
             userPlan,
             includeImages,
-            numInlineImages: Math.min(productCount, 5),
+            numInlineImages: includeImages ? Math.min(productCount, 2) : 0, // Max 2 inline images to stay under timeout
             blogId,
             existingPostsList,
             includeExternalLinks,

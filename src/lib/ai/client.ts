@@ -20,7 +20,7 @@ export function getOpenAIClient(): OpenAI {
     if (!_openai) {
         _openai = new OpenAI({
             baseURL: "https://openrouter.ai/api/v1",
-            apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || "missing-key",
+            apiKey: process.env.OPENROUTER_API_KEY || process.env.OPENAI_API_KEY || (() => { throw new Error("OPENROUTER_API_KEY is not set. Add it to your environment variables."); })(),
             defaultHeaders: {
                 "HTTP-Referer": process.env.NEXTAUTH_URL || "http://localhost:3000",
                 "X-Title": "BloggerSEO",

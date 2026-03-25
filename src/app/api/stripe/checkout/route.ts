@@ -27,11 +27,12 @@ export async function POST(req: Request) {
       );
     }
 
-    // Use provided priceId or look it up from config
-    const priceId = rawPriceId || planConfig.priceId;
+    // Use provided priceId or look it up from config (monthly vs yearly)
+    const isYearly = billing === "yearly";
+    const priceId = rawPriceId || (isYearly ? planConfig.yearlyPriceId : planConfig.priceId) || planConfig.priceId;
     if (!priceId) {
       return NextResponse.json(
-        { error: `Stripe price ID not configured for ${planName} plan. Please contact support.` },
+        { error: `Payment is not configured for this plan yet. Please try a different billing cycle or contact support.` },
         { status: 400 }
       );
     }

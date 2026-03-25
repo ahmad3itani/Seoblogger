@@ -28,28 +28,36 @@ export const STRIPE_PLANS = {
   free: {
     name: "Free",
     priceId: null,
+    yearlyPriceId: null,
     price: 0,
+    yearlyPrice: 0,
     articles: 5,
     images: 0,
   },
   starter: {
     name: "Starter",
     priceId: process.env.STRIPE_PRICE_ID_STARTER || null,
+    yearlyPriceId: process.env.STRIPE_PRICE_ID_STARTER_YEARLY || null,
     price: 12,
+    yearlyPrice: 120,
     articles: 30,
     images: 10,
   },
   pro: {
     name: "Pro",
     priceId: process.env.STRIPE_PRICE_ID_PRO || null,
+    yearlyPriceId: process.env.STRIPE_PRICE_ID_PRO_YEARLY || null,
     price: 39,
+    yearlyPrice: 390,
     articles: 100,
     images: 50,
   },
   enterprise: {
     name: "Enterprise",
     priceId: process.env.STRIPE_PRICE_ID_ENTERPRISE || null,
+    yearlyPriceId: process.env.STRIPE_PRICE_ID_ENTERPRISE_YEARLY || null,
     price: 99,
+    yearlyPrice: 990,
     articles: 300,
     images: 200,
   },
@@ -60,7 +68,7 @@ export const STRIPE_PLANS = {
  */
 export function getPlanFromPriceId(priceId: string): string {
   for (const [planName, config] of Object.entries(STRIPE_PLANS)) {
-    if (config.priceId === priceId) {
+    if (config.priceId === priceId || config.yearlyPriceId === priceId) {
       return planName;
     }
   }
