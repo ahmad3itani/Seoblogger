@@ -28,6 +28,7 @@ import {
     ArrowRight,
     ArrowLeft,
     Package,
+    ImageIcon,
 } from "lucide-react";
 import { ProductList } from "@/components/amazon/product-list";
 import { IntentBadge } from "@/components/amazon/intent-badge";
@@ -80,6 +81,8 @@ export default function AmazonAffiliatePage() {
     const [includeInternalLinks, setIncludeInternalLinks] = useState(true);
     const [includeExternalLinks, setIncludeExternalLinks] = useState(true);
     const [customInstructions, setCustomInstructions] = useState("");
+    const [includeImages, setIncludeImages] = useState(true);
+    const [numImages, setNumImages] = useState(3);
 
     // Flow state
     const [step, setStep] = useState<Step>('input');
@@ -99,6 +102,8 @@ export default function AmazonAffiliatePage() {
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishSuccess, setPublishSuccess] = useState(false);
     const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
+    const [isGeneratingImages, setIsGeneratingImages] = useState(false);
+    const [imagesGenerated, setImagesGenerated] = useState(0);
 
     // Load saved store ID and region from localStorage
     useEffect(() => {
@@ -257,6 +262,11 @@ export default function AmazonAffiliatePage() {
             if (data.success && data.article) {
                 setGeneratedArticle(data.article);
                 setStep('result');
+
+                // ── Step 3: Generate images (non-blocking, runs after article is shown) ──
+                if (includeImages && numImages > 0) {
+                    generateImagesForArticle(data.article);
+                }
             } else {
                 setError(data.error || "Failed to generate article");
             }
@@ -350,6 +360,11 @@ export default function AmazonAffiliatePage() {
             if (data.success && data.article) {
                 setGeneratedArticle(data.article);
                 setStep('result');
+
+                // Generate images after article is shown
+                if (includeImages && numImages > 0) {
+                    generateImagesForArticle(data.article);
+                }
             } else {
                 setError(data.error || "Failed to generate article");
             }
@@ -357,6 +372,40 @@ export default function AmazonAffiliatePage() {
             setError("Network error. Please try again.");
         } finally {
             setIsGenerating(false);
+        }
+    };
+
+    // Separate image generation — runs after article is displayed
+    const generateImagesForArticle = async (article: GeneratedArticle) => {
+        setIsGeneratingImages(true);
+        setImagesGenerated(0);
+        try {
+            const res = await fetch("/api/images/generate", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    articleHtml: article.content,
+                    title: article.title,
+                    keyword: article.niche || niche.trim(),
+                    numImages,
+                    articleId: article.savedArticle?.id,
+                }),
+            });
+
+            const data = await res.json();
+            if (data.success && data.content) {
+                setGeneratedArticle(prev => prev ? {
+                    ...prev,
+                    content: data.content,
+                } : prev);
+                setImagesGenerated(data.imagesEmbedded || 0);
+            } else {
+                console.warn("Image generation failed:", data.error);
+            }
+        } catch (err) {
+            console.warn("Image generation network error:", err);
+        } finally {
+            setIsGeneratingImages(false);
         }
     };
 
@@ -415,12 +464,15 @@ export default function AmazonAffiliatePage() {
         setTierDiversity(null);
         setGeneratedArticle(null);
         setPublishSuccess(false);
+        setImagesGenerated(0);
+        setIsGeneratingImages(false);
     };
 
     const toggleOptions = [
         { label: "Comparison Table", value: includeTable, setter: setIncludeTable },
         { label: "Internal Links", value: includeInternalLinks, setter: setIncludeInternalLinks },
         { label: "External Links", value: includeExternalLinks, setter: setIncludeExternalLinks },
+        { label: "Generate Images", value: includeImages, setter: setIncludeImages },
     ];
 
     const AMAZON_STEPS = [
@@ -1105,6 +1157,52 @@ export default function AmazonAffiliatePage() {
                                     </div>
                                 </div>
                             </div>
+
+                            {/* Image generation status */}
+                            {isGeneratingImages && (
+                                <div
+                                    className="rounded-xl p-4 flex items-center gap-3"
+                                    style={{
+                                        background: "linear-gradient(135deg, rgba(79, 142, 255, 0.1) 0%, rgba(79, 142, 255, 0.05) 100%)",
+                                        border: "1px solid rgba(79, 142, 255, 0.25)"
+                                    }}
+                                >
+                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
+                                        background: "rgba(79, 142, 255, 0.15)",
+                                        border: "1px solid rgba(79, 142, 255, 0.2)"
+                                    }}>
+                                        <ImageIcon className="w-4 h-4 animate-pulse" style={{ color: "#4F8EFF" }} />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-semibold" style={{ color: "#4F8EFF" }}>
+                                            Generating images...
+                                        </p>
+                                        <p className="text-xs" style={{ color: "var(--text-muted)" }}>
+                                            AI images are being created and embedded into your article
+                                        </p>
+                                    </div>
+                                    <Loader2 className="w-4 h-4 animate-spin ml-auto" style={{ color: "#4F8EFF" }} />
+                                </div>
+                            )}
+                            {!isGeneratingImages && imagesGenerated > 0 && (
+                                <div
+                                    className="rounded-xl p-4 flex items-center gap-3"
+                                    style={{
+                                        background: "linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(34, 197, 94, 0.05) 100%)",
+                                        border: "1px solid rgba(34, 197, 94, 0.25)"
+                                    }}
+                                >
+                                    <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{
+                                        background: "rgba(34, 197, 94, 0.15)",
+                                        border: "1px solid rgba(34, 197, 94, 0.2)"
+                                    }}>
+                                        <ImageIcon className="w-4 h-4" style={{ color: "#22C55E" }} />
+                                    </div>
+                                    <p className="text-sm font-semibold" style={{ color: "#22C55E" }}>
+                                        {imagesGenerated} image{imagesGenerated !== 1 ? 's' : ''} embedded
+                                    </p>
+                                </div>
+                            )}
 
                             {/* Products summary */}
                             {generatedArticle.products && generatedArticle.products.length > 0 && (
