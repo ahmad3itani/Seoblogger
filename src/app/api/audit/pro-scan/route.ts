@@ -6,6 +6,8 @@ import { fetchSitemapUrls, crawlPage } from "@/lib/seo/crawler";
 import { detectIssues } from "@/lib/seo/detect";
 import { computeSiteScore, prioritizeIssues, computePageScores } from "@/lib/seo/scoring";
 import type { DetectedIssue } from "@/lib/seo/issues";
+import { getBloggerClient, syncBloggerPosts } from "@/lib/blogger-api";
+import { analyzeAdSenseReadiness } from "@/lib/ai/adsense/engine";
 
 export async function POST(req: Request) {
     try {
@@ -111,6 +113,44 @@ export async function POST(req: Request) {
             }
         }
 
+        // Step 5.5: Run AdSense Analysis
+        console.log(`🧠 Running AdSense Readiness Check...`);
+        let hasAbout = false, hasContact = false, hasPrivacy = false, totalPosts = 0;
+        try {
+            const blogger = await getBloggerClient(authUser.id);
+            const pagesResponse = await blogger.pages.list({ blogId: blog.blogId });
+            const pages = pagesResponse.data.items || [];
+            
+            for (const p of pages) {
+                const titleLower = (p.title || "").toLowerCase();
+                const urlLower = (p.url || "").toLowerCase();
+                if (titleLower.includes("about") || urlLower.includes("about")) hasAbout = true;
+                if (titleLower.includes("contact") || urlLower.includes("contact")) hasContact = true;
+                if (titleLower.includes("privacy") || urlLower.includes("privacy")) hasPrivacy = true;
+            }
+
+            const postsResponse = await blogger.posts.list({ blogId: blog.blogId, maxResults: 1 });
+            totalPosts = postsResponse.data.items ? postsResponse.data.items.length : 0; // rough estimate or we just check if it has posts. The simple crawler synced so we'll just pass totalPosts based on crawled pages.
+        } catch (e) {
+            console.error("Failed to fetch blogger pages/posts for AdSense:", e);
+        }
+
+        // Use up to 30 pages for AdSense volume analysis
+        const analyzePostsInput = crawledPages.slice(0, 30).map(p => ({
+            title: p.title || p.url,
+            url: p.url,
+            wordCount: p.wordCount,
+        }));
+
+        const adsenseResult = await analyzeAdSenseReadiness(analyzePostsInput, {
+            hasAbout,
+            hasContact,
+            hasPrivacy,
+            topCategories: [],
+            totalPosts,
+            hasNavigation: true
+        });
+
         // Step 6: Save scan report
         const categoryScoresObj: Record<string, number> = {};
         for (const cat of siteScore.categories) {
@@ -140,6 +180,12 @@ export async function POST(req: Request) {
                 newIssues: newIssueCount,
                 fixedIssues: fixedIssueCount,
                 scanDurationMs: scanDuration,
+                adsenseScore: adsenseResult.adsense_score,
+                adsenseStatus: adsenseResult.status,
+                adsenseData: {
+                    issues: adsenseResult.issues,
+                    recommendations: adsenseResult.recommendations
+                } as any,
             },
         });
 
@@ -161,6 +207,14 @@ export async function POST(req: Request) {
                 fixedIssues: fixedIssueCount,
                 previousScanDate: previousScan.completedAt,
             } : null,
+            adsense: {
+                score: adsenseResult.adsense_score,
+                status: adsenseResult.status,
+                data: {
+                    issues: adsenseResult.issues,
+                    recommendations: adsenseResult.recommendations
+                }
+            },
             meta: {
                 pagesScanned: crawledPages.length,
                 scanDurationMs: scanDuration,

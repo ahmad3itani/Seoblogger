@@ -922,9 +922,16 @@ model ScanReport {
   newIssues        Int       @default(0)   // Issues found that weren't in previous scan
   fixedIssues      Int       @default(0)   // Issues resolved since previous scan
   scanDurationMs   Int       @default(0)
+
+  // AdSense Audit Data
+  adsenseScore   Int?
+  adsenseStatus  String?  // Ready, Almost Ready, Not Ready
+  adsenseData    Json?    // { issues: [], recommendations: [] }
+
   completedAt      DateTime  @default(now())
   createdAt        DateTime  @default(now())
 }
+
 
 // ─── SEO AUTOPILOT ENGINE ────────────────────────────────────
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,6 +18,8 @@ import {
     Play,
     Wand2,
     Shield,
+    ShieldCheck,
+    PenTool,
     TrendingUp,
     TrendingDown,
     Zap,
@@ -35,7 +38,7 @@ import {
     ChevronDown,
 } from "lucide-react";
 
-type TabId = "overview" | "issues" | "pages" | "quick_wins" | "history";
+type TabId = "overview" | "issues" | "pages" | "quick_wins" | "history" | "adsense";
 
 const CATEGORY_CONFIG: Record<string, { label: string; icon: any; color: string }> = {
     technical: { label: "Technical SEO", icon: Code2, color: "text-blue-500" },
@@ -477,6 +480,7 @@ export default function AdvancedAuditPage() {
                     <div className="flex gap-1 bg-muted/50 p-1 rounded-xl border border-border/50">
                         {([
                             { id: "overview" as TabId, label: "Prioritized Issues", icon: Target },
+                            { id: "adsense" as TabId, label: "AdSense Readiness", icon: ShieldCheck },
                             { id: "quick_wins" as TabId, label: "Quick Wins", icon: Zap },
                             { id: "pages" as TabId, label: "Page Scores", icon: FileText },
                         ]).map((tab) => (

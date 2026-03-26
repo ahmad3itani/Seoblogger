@@ -37,7 +37,7 @@ const QUICK_ACTIONS = [
 const TOOL_SHORTCUTS = [
     { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "#6C4CF1" },
     { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "#00C2FF" },
-    { icon: Activity,   title: "AdSense & SEO Audit", desc: "SEO & AdSense checks",     href: "/dashboard/audit",     color: "#22C55E" },
+    { icon: Activity,   title: "AdSense & Site Audit", desc: "SEO & AdSense checks",     href: "/dashboard/audit/full",     color: "#22C55E" },
     { icon: Lightbulb,  title: "Trend Ideas",      desc: "Topic discovery",         href: "/dashboard/ideas",     color: "#F59E0B" },
     { icon: ShoppingCart,title:"Amazon Writer",    desc: "Affiliate reviews",       href: "/dashboard/amazon",    color: "#10B981" },
     { icon: LinkIcon,   title: "Internal Linker",  desc: "Smart link suggestions",  href: "/dashboard/linker",    color: "#8B5CF6" },

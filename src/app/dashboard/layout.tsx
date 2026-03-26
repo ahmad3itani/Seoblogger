@@ -66,7 +66,7 @@ const NAV_SECTIONS: NavSection[] = [
             { href: "/dashboard/keywords",    label: "Keyword Research", icon: TrendingUp, feature: null },
             { href: "/dashboard/ideas",       label: "Trend Ideas",      icon: Lightbulb,  feature: "hasTrendIdeas",     minPlan: "starter" },
             { href: "/dashboard/clustering",  label: "Keyword Clustering",icon: Network,   feature: "hasAutoClustering", minPlan: "pro" },
-            { href: "/dashboard/audit",       label: "AdSense & SEO Audit", icon: Activity, feature: null },
+            { href: "/dashboard/audit/full",  label: "AdSense & Site Audit", icon: Activity, feature: null },
             { href: "/dashboard/refresh",     label: "Content Refresh",  icon: RefreshCw,  feature: "hasContentRefresh", minPlan: "pro" },
             { href: "/dashboard/linker",      label: "Internal Linker",  icon: LinkIcon,   feature: null },
         ],
