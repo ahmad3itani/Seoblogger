@@ -32,6 +32,7 @@ import {
   ArrowRight,
   Zap,
 } from "lucide-react";
+import SocialSharePanel from "@/components/social/SocialSharePanel";
 
 interface BrandProfile {
   id: string;
@@ -827,6 +828,17 @@ export default function NewArticlePageV3() {
                   <div className="rounded-xl p-4" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid var(--border-subtle)" }}>
                     <p className="text-[10px] font-semibold uppercase tracking-wider mb-2" style={{ color: "var(--text-muted)" }}>Meta Description</p>
                     <p className="text-xs" style={{ color: "var(--text-secondary)" }}>{result.meta.metaDescription}</p>
+                  </div>
+                )}
+
+                {/* Social Share Panel */}
+                {result?.article?.id && (
+                  <div className="mt-2">
+                    <SocialSharePanel
+                      articleId={result.article.id}
+                      articleTitle={result.article.title || ""}
+                      liveUrl={result.article.liveUrl || undefined}
+                    />
                   </div>
                 )}
 

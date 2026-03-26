@@ -25,6 +25,11 @@ import {
     AlertCircle,
     Loader2,
     RefreshCw,
+    Share2,
+    Trash2,
+    Facebook,
+    Linkedin,
+    Twitter,
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -40,6 +45,8 @@ export default function SettingsPage() {
     const [credentialsSaved, setCredentialsSaved] = useState(false);
     const [saveError, setSaveError] = useState("");
     const [saveSuccess, setSaveSuccess] = useState("");
+    const [socialAccounts, setSocialAccounts] = useState<any[]>([]);
+    const [socialLoading, setSocialLoading] = useState(false);
 
     useEffect(() => {
         setIsMounted(true);
@@ -49,6 +56,7 @@ export default function SettingsPage() {
         if (user) {
             fetchBlogs();
             fetchGoogleCredentials();
+            fetchSocialAccounts();
         }
     }, [user]);
 
@@ -56,11 +64,22 @@ export default function SettingsPage() {
         // Check for success/error parameters from OAuth callback or API
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('success') === 'blogger_connected') {
-            // Refresh blogs from Blogger API after successful connection
             fetchBlogs(true);
             setSaveSuccess("Blogger connected successfully!");
             setTimeout(() => setSaveSuccess(""), 5000);
-            // Clean up URL
+            window.history.replaceState({}, '', '/dashboard/settings');
+        } else if (urlParams.get('social_success')) {
+            const pages = urlParams.get('pages') || '1';
+            setSaveSuccess(`Facebook connected! ${pages} page(s) ready.`);
+            setTimeout(() => setSaveSuccess(""), 6000);
+            fetchSocialAccounts();
+            window.history.replaceState({}, '', '/dashboard/settings');
+        } else if (urlParams.get('social_error')) {
+            const errType = urlParams.get('social_error');
+            setSaveError(errType === 'no_pages'
+                ? 'No Facebook Pages found. Please create a Page first.'
+                : `Facebook connection failed: ${decodeURIComponent(errType || 'unknown error')}`);
+            setTimeout(() => setSaveError(""), 10000);
             window.history.replaceState({}, '', '/dashboard/settings');
         } else if (urlParams.get('error')) {
             const errorType = urlParams.get('error');
@@ -81,6 +100,16 @@ export default function SettingsPage() {
             window.history.replaceState({}, '', '/dashboard/settings');
         }
     }, []);
+
+    const fetchSocialAccounts = async () => {
+        setSocialLoading(true);
+        try {
+            const res = await fetch('/api/social/accounts');
+            const data = await res.json();
+            setSocialAccounts(data.accounts || []);
+        } catch {}
+        finally { setSocialLoading(false); }
+    };
 
     const fetchBlogs = async (refresh = false) => {
         try {
@@ -472,6 +501,119 @@ export default function SettingsPage() {
                         />
                     </div>
                 </div>
+            </section>
+
+            <Separator className="bg-border/30" />
+
+            {/* Social Accounts */}
+            <section className="glass-card rounded-xl p-6">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center">
+                        <Share2 className="w-5 h-5 text-white" />
+                    </div>
+                    <div>
+                        <h2 className="font-semibold">Social Media Accounts</h2>
+                        <p className="text-xs text-muted-foreground">
+                            Connect accounts to auto-share articles after publishing
+                        </p>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-muted/20">
+                        <div className="w-9 h-9 rounded-lg bg-[#1877F2] flex items-center justify-center shrink-0">
+                            <Facebook className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold">Facebook Pages</p>
+                            <p className="text-xs text-muted-foreground">Post to your Facebook Pages after publish</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => window.location.href = "/api/social/connect/facebook"}
+                            className="h-8 text-xs bg-[#1877F2] hover:bg-[#1877F2]/90 text-white border-0"
+                        >
+                            {socialLoading ? <Loader2 className="w-3 h-3 animate-spin mr-1" /> : null}
+                            Connect
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-muted/20">
+                        <div className="w-9 h-9 rounded-lg bg-[#0A66C2] flex items-center justify-center shrink-0">
+                            <Linkedin className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold">LinkedIn</p>
+                            <p className="text-xs text-muted-foreground">Post to your LinkedIn profile or company page</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => window.location.href = "/api/social/connect/linkedin"}
+                            className="h-8 text-xs bg-[#0A66C2] hover:bg-[#0A66C2]/90 text-white border-0"
+                        >
+                            Connect
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-3 p-4 rounded-xl border border-border/40 bg-muted/20">
+                        <div className="w-9 h-9 rounded-lg bg-black flex items-center justify-center shrink-0">
+                            <Twitter className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold">X (Twitter)</p>
+                            <p className="text-xs text-muted-foreground">Post tweets to your X account after publish</p>
+                        </div>
+                        <Button
+                            size="sm"
+                            onClick={() => window.location.href = "/api/social/connect/x"}
+                            className="h-8 text-xs bg-black hover:bg-black/80 text-white border-0"
+                        >
+                            Connect
+                        </Button>
+                    </div>
+                </div>
+
+                {socialAccounts.length > 0 && (
+                    <div className="mt-5 space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">Connected accounts:</p>
+                        {socialAccounts.map((acc) => (
+                            <div key={acc.id} className="flex items-center gap-3 p-3 rounded-xl border border-border/30 bg-muted/10">
+                                <div className={`w-8 h-8 rounded-md flex items-center justify-center ${
+                                    acc.platform === 'facebook' ? 'bg-[#1877F2]' :
+                                    acc.platform === 'linkedin' ? 'bg-[#0A66C2]' : 'bg-black'
+                                }`}>
+                                    {acc.platform === 'facebook' ? <Facebook className="w-3.5 h-3.5 text-white" /> :
+                                     acc.platform === 'linkedin' ? <Linkedin className="w-3.5 h-3.5 text-white" /> :
+                                     <Twitter className="w-3.5 h-3.5 text-white" />}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-xs font-medium truncate">{acc.accountName}</p>
+                                    <p className="text-[10px] text-muted-foreground capitalize">{acc.platform} Page</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={async () => {
+                                            await fetch('/api/social/accounts', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accountId: acc.id, autoShare: !acc.autoShare }) });
+                                            fetchSocialAccounts();
+                                        }}
+                                        className={`text-[10px] px-2 py-1 rounded-full border transition-colors ${acc.autoShare ? 'bg-green-500/10 border-green-500/30 text-green-400' : 'bg-muted/30 border-border/40 text-muted-foreground'}`}
+                                    >
+                                        {acc.autoShare ? 'Auto-share ON' : 'Auto-share OFF'}
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            await fetch('/api/social/accounts', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ accountId: acc.id }) });
+                                            fetchSocialAccounts();
+                                        }}
+                                        className="text-muted-foreground hover:text-red-400 transition-colors"
+                                    >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
             </section>
 
         </div>

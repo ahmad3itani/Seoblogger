@@ -55,6 +55,7 @@ model User {
   articleDrafts ArticleDraft[]
   styleGuides   WritingStyleGuide[]
   autopilotSessions AutopilotSession[]
+  socialAccounts SocialAccount[]
 
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -295,6 +296,8 @@ model Article {
   status          String   @default("draft")
   scheduledFor    DateTime?
   bloggerPostId   String?
+  liveUrl         String?  // canonical URL of the published Blogger post
+  socialPackage   Json?    // { captions: { facebook, linkedin, x }, imageUrl }
   keywordId       String?
   keyword         Keyword? @relation(fields: [keywordId], references: [id])
   blogId          String?
@@ -304,8 +307,47 @@ model Article {
   images          GeneratedImage[]
   publishLogs     PublishLog[]
   qualityPasses   QualityPassRun[]
+  socialPosts     SocialPost[]
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// ─── SOCIAL PUBLISHING ──────────────────────────────────────────
+
+model SocialAccount {
+  id               String   @id @default(cuid())
+  userId           String   @db.Uuid
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform         String   // facebook | linkedin | x
+  accountId        String   // page/profile ID from the platform
+  accountName      String
+  encryptedToken   String   @db.Text // AES-256 encrypted access token
+  encryptedRefresh String?  @db.Text
+  tokenExpiry      DateTime?
+  autoShare        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@unique([userId, platform, accountId])
+  @@index([userId])
+}
+
+model SocialPost {
+  id               String   @id @default(cuid())
+  articleId        String
+  article          Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId           String   @db.Uuid
+  platform         String   // facebook | linkedin | x
+  platformPostId   String?  // ID returned by the platform after posting
+  caption          String   @db.Text
+  imageUrl         String?
+  status           String   @default("pending") // pending | posted | failed
+  errorMessage     String?  @db.Text
+  postedAt         DateTime?
+  createdAt        DateTime @default(now())
+
+  @@index([articleId])
+  @@index([userId])
 }
 
 model GeneratedImage {
