@@ -40,6 +40,8 @@ function RegisterContent() {
       return;
     }
 
+    const redirectAfterAuth = planParam ? `/pricing?plan=${planParam}` : "/dashboard";
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -48,7 +50,7 @@ function RegisterContent() {
           full_name: name,
           avatar_url: null,
         },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(redirectAfterAuth)}`,
       },
     });
 

@@ -104,6 +104,7 @@ export async function POST(req: Request) {
         planName,
       },
       subscription_data: {
+        trial_period_days: 7,
         metadata: {
           userId: user.id,
           planName,

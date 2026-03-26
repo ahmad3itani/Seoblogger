@@ -318,12 +318,12 @@ export default function LandingPage() {
                 </Link>
               ) : (
                 <>
-                  <Link href="/auth/signin">
+                  <Link href="/auth/login">
                     <button className="text-sm font-medium px-4 py-2 rounded-lg btn-ghost">
                       Sign In
                     </button>
                   </Link>
-                  <Link href="/auth/signup">
+                  <Link href="/auth/register">
                     <Button size="sm" className="btn-primary px-5">
                       Get Started Free
                     </Button>
@@ -364,7 +364,7 @@ export default function LandingPage() {
                 </a>
               ))}
               <div className="flex flex-col gap-2 pt-2 border-t" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                <Link href="/auth/signup">
+                <Link href="/auth/register">
                   <Button size="sm" className="btn-primary w-full">Get Started Free</Button>
                 </Link>
               </div>
@@ -438,7 +438,7 @@ export default function LandingPage() {
               transition={{ duration: 0.6, delay: 0.3 }}
               className="flex flex-col sm:flex-row gap-3 mb-14"
             >
-              <Link href="/auth/signup">
+              <Link href="/auth/register">
                 <Button size="lg" className="btn-primary px-8 py-6 text-base gap-2">
                   <Zap className="w-4 h-4" />
                   Start for Free — No Card Needed
@@ -957,7 +957,7 @@ export default function LandingPage() {
                     ))}
                   </ul>
 
-                  <Link href={plan.price === 0 ? "/auth/signup" : "/auth/signup?plan=" + plan.name.toLowerCase()}>
+                  <Link href={plan.price === 0 ? "/auth/register" : "/auth/register?plan=" + plan.name.toLowerCase()}>
                     <Button
                       className={`w-full ${plan.featured ? "btn-primary" : "btn-ghost"}`}
                     >
@@ -1055,13 +1055,13 @@ export default function LandingPage() {
               Join thousands of Blogger creators who save 10+ hours/week and grow organic traffic with BloggerSEO.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/auth/signup">
+              <Link href="/auth/register">
                 <Button size="lg" className="btn-primary px-10 py-6 text-base animate-glow-pulse">
                   <Rocket className="w-4 h-4 mr-2" />
                   Get Started for Free
                 </Button>
               </Link>
-              <Link href="/auth/signin">
+              <Link href="/auth/login">
                 <Button size="lg" className="btn-ghost px-10 py-6 text-base">
                   Sign In
                 </Button>
