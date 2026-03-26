@@ -9,7 +9,7 @@ import {
   Menu, X, Search, TrendingUp, RefreshCw, Network, Lightbulb,
   Calendar, Activity, Link as LinkIcon, ShoppingCart, Shield,
   Layers, Crown, Brain, Target, Timer, Users, Gauge, Award,
-  Play, ChevronDown, Check,
+  Play, ChevronDown, Check, Megaphone,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -118,30 +118,30 @@ const FEATURES: Array<{
 }> = [
   {
     icon: Brain, title: "AI Article Writer", span: 2,
-    desc: "Generate complete, 3000+ word SEO articles from a single keyword. Real SERP data. E-E-A-T signals. Blogger-ready HTML in one click.",
+    desc: "Generate 3000+ word SEO articles from a single keyword. SERP-aware research, E-E-A-T signals, and Blogger-ready HTML — all in one click. Supports How-To, Listicle, Review, Affiliate, and more.",
     badge: "Most Popular", color: "orange",
     preview: [
       { label: "Keyword", val: "best running shoes 2026" },
-      { label: "Words",   val: "3,200" },
+      { label: "Words",   val: "3,240" },
       { label: "SEO Score", val: "94 / 100" },
     ],
   },
   {
-    icon: Gauge, title: "Full Site Audit", span: 1,
-    desc: "Scan 50+ SEO signals — technical issues, broken links, thin content, missing meta. Smart fix suggestions included.",
+    icon: Gauge, title: "AdSense & SEO Audit", span: 1,
+    desc: "Crawl your entire site. Get 50+ SEO signal checks AND an AdSense readiness score — so you fix issues before Google rejects your application.",
     badge: "Free", color: "blue",
-    stat: { val: 50, suffix: "+", label: "SEO checks" },
+    stat: { val: 50, suffix: "+", label: "checks per scan" },
   },
   {
     icon: Target, title: "Keyword Research", span: 1,
-    desc: "Find high-opportunity keywords with real search volume, difficulty scores, and topic cluster suggestions.",
+    desc: "Real search volume, difficulty scores, CPC data, and topic cluster suggestions — without leaving the platform.",
     badge: "Free", color: "purple",
-    stat: { val: 10, suffix: "k+", label: "Keywords scanned" },
+    stat: { val: 10, suffix: "k+", label: "keywords analyzed" },
   },
   {
     icon: Layers, title: "Bulk Generator", span: 2,
-    desc: "Generate 10, 50, or 100 articles in a single batch. Schedule them across weeks. Your content pipeline runs itself.",
-    badge: "Pro", color: "orange",
+    desc: "Generate 10, 50, or 100 articles in a single batch. Queue and schedule across weeks. Your entire content pipeline runs on autopilot.",
+    badge: "Starter", color: "orange",
     preview: [
       { label: "Articles queued", val: "47" },
       { label: "Published",       val: "23" },
@@ -149,21 +149,18 @@ const FEATURES: Array<{
     ],
   },
   {
+    icon: Brain, title: "Marketing Agents", span: 1,
+    desc: "13 specialized AI agents: SEO audits, competitor analysis, email campaigns, social captions, content calendars, and more — on demand.",
+    badge: "Pro", color: "purple",
+    stat: { val: 13, suffix: "", label: "AI agents available" },
+  },
+  {
     icon: Sparkles, title: "Quality Pass", span: 1,
-    desc: "3-stage editorial engine — improves clarity, originality, and trustworthiness. Makes AI content read like a human wrote it.",
+    desc: "3-stage editorial engine — improves clarity, originality, and trustworthiness so AI content reads like a human expert wrote it.",
     badge: "Pro", color: "blue",
   },
-  {
-    icon: Send, title: "1-Click Publish", span: 1,
-    desc: "Publish to Blogger as draft or live. Set labels, schedule future dates, and update existing posts.",
-    badge: "Free", color: "green",
-  },
-  {
-    icon: Image, title: "AI Image Studio", span: 1,
-    desc: "FLUX.1 Schnell photorealistic images. Auto-embed with SEO alt text. Hosted on Cloudflare.",
-    badge: "Free", color: "purple",
-  },
 ];
+
 
 const STEPS = [
   { n: "01", icon: Globe,    title: "Connect Blogger",      desc: "Sign in with Google. Link your Blogger blog in under 30 seconds." },
@@ -184,47 +181,52 @@ const REVIEWS = [
 const PLANS = [
   {
     name: "Free", price: 0, period: "forever",
-    features: ["5 articles / month", "Article Writer", "Site Audit", "Keyword Research", "1-Click Publish", "AI Images (5/mo)"],
+    features: ["5 articles / month", "Article Writer", "AdSense & Site Audit", "Keyword Research", "1-Click Publish", "AI Images (5/mo)", "Internal Linker"],
     cta: "Get Started Free", featured: false,
   },
   {
-    name: "Starter", price: 19, period: "/month",
-    features: ["30 articles / month", "Everything in Free", "Quality Pass", "Content Refresh", "Analytics Dashboard", "AI Images (50/mo)", "Priority support"],
+    name: "Starter", price: 12, period: "/month",
+    features: ["30 articles / month", "Everything in Free", "Bulk Generator", "Trend Ideas", "Affiliate Writer", "Brand Voices", "Campaigns & Calendar", "AI Images (50/mo)"],
     cta: "Start 7-Day Trial", featured: true,
   },
   {
-    name: "Pro", price: 49, period: "/month",
-    features: ["Unlimited articles", "Everything in Starter", "Bulk Generator", "Campaign Scheduler", "Keyword Clustering", "Trend Discovery", "AI Images (∞)", "White-label reports"],
+    name: "Pro", price: 39, period: "/month",
+    features: ["100 articles / month", "Everything in Starter", "Quality Pass", "Content Refresh", "Keyword Clustering", "Marketing Agents", "Analytics Dashboard", "Priority support"],
     cta: "Go Pro", featured: false,
   },
 ];
 
+
 const STATS = [
-  { value: 15,   suffix: "+",  prefix: "",  label: "Built-in Tools"  },
+  { value: 17,   suffix: "+",  prefix: "",  label: "Built-in Tools"  },
   { value: 3200, suffix: "",   prefix: "",  label: "Articles Written" },
   { value: 40,   suffix: "%",  prefix: "+", label: "Avg Traffic Lift" },
   { value: 10,   suffix: "x",  prefix: "",  label: "Faster Content"  },
 ];
 
+
 const TEMPLATES = ["How-To Guide", "Listicle", "Product Review", "Comparison Post", "Q&A Article", "Informational", "Affiliate Post"];
 
 const TOOLS_SHOWCASE = [
-  { icon: PenTool,    name: "Article Writer",         desc: "SERP-aware, section-by-section generation for 3000+ word articles.", free: true  },
-  { icon: Layers,     name: "Bulk Generator",         desc: "Batch generate 100 articles. Queue and schedule automatically.",       free: false },
-  { icon: Image,      name: "AI Image Studio",        desc: "FLUX.1 photorealistic images with SEO alt text. Auto-embedded.",       free: true  },
-  { icon: ShoppingCart, name: "Affiliate Writer",     desc: "Amazon product reviews, comparison tables, and buying guides.",        free: true  },
-  { icon: Search,     name: "Keyword Research",       desc: "Volume, difficulty, CPC, and topic cluster suggestions.",              free: true  },
-  { icon: Network,    name: "Keyword Clustering",     desc: "Group keywords into topic silos. Build topical authority.",            free: false },
-  { icon: Activity,   name: "Full Site Audit",        desc: "50+ technical, content, and performance checks.",                      free: true  },
-  { icon: LinkIcon,   name: "Internal Linker",        desc: "Smart link suggestions to boost equity and eliminate orphan pages.",   free: true  },
-  { icon: Sparkles,   name: "Quality Pass",           desc: "3-stage humanizer — clarity, originality, E-E-A-T trust signals.",    free: false },
-  { icon: RefreshCw,  name: "Content Refresh",        desc: "Rewrite underperforming posts with updated structure and keywords.",   free: false },
-  { icon: Send,       name: "1-Click Publish",        desc: "Publish draft or live. Labels, scheduling, post updates.",             free: true  },
-  { icon: Calendar,   name: "Campaign Scheduler",     desc: "Set keywords, frequency, and publish on autopilot.",                   free: false },
-  { icon: BarChart3,  name: "Analytics Dashboard",    desc: "Track publishing trends, word counts, and content ROI.",              free: false },
-  { icon: Lightbulb,  name: "Trend Discovery",        desc: "Find trending topics in your niche before competitors do.",           free: false },
-  { icon: Brain,      name: "Brand Voice Profiles",   desc: "Save your tone, audience, and style. Every article matches.",         free: true  },
+  { icon: PenTool,    name: "Article Writer",          desc: "SERP-aware, 3000+ word article generation. Multiple formats supported.",          free: true  },
+  { icon: Layers,     name: "Bulk Generator",          desc: "Queue 10–100 articles. Schedule publishing across weeks automatically.",           free: false },
+  { icon: ShoppingCart, name: "Affiliate Writer",      desc: "Amazon product reviews, comparison tables, and buying guides with affiliate links.",free: true  },
+  { icon: Image,      name: "AI Image Studio",         desc: "FLUX.1 photorealistic images auto-embedded with SEO alt text.",                    free: true  },
+  { icon: Sparkles,   name: "Quality Pass",            desc: "3-stage humanizer — clarity, originality, and E-E-A-T trust signals.",             free: false },
+  { icon: RefreshCw,  name: "Content Refresh",         desc: "Rewrite underperforming posts with updated keywords and structure.",               free: false },
+  { icon: Megaphone,  name: "Brand Voices",            desc: "Save your tone, audience, and style. Every article matches your brand.",           free: true  },
+  { icon: Search,     name: "Keyword Research",        desc: "Volume, difficulty, CPC, and topic cluster suggestions.",                          free: true  },
+  { icon: Network,    name: "Keyword Clustering",      desc: "Group keywords into topic silos to build topical authority.",                      free: false },
+  { icon: Lightbulb,  name: "Trend Ideas",             desc: "Discover trending topics in your niche before competitors.",                       free: false },
+  { icon: Activity,   name: "AdSense & Site Audit",   desc: "50+ SEO signal checks + AdSense readiness score. Smart fix suggestions.",          free: true  },
+  { icon: LinkIcon,   name: "Internal Linker",         desc: "Smart link suggestions to boost equity and eliminate orphan pages.",               free: true  },
+  { icon: Brain,      name: "Marketing Agents",        desc: "13 AI agents: competitor analysis, email sequences, social captions, and more.",   free: false },
+  { icon: Send,       name: "1-Click Publish",         desc: "Publish draft or live to Blogger. Labels, scheduling, post updates.",              free: true  },
+  { icon: Calendar,   name: "Campaign Scheduler",      desc: "Set topics, frequency, and publish on autopilot across any time horizon.",         free: false },
+  { icon: BarChart3,  name: "Analytics Dashboard",     desc: "Track publishing trends, word counts, and content performance.",                   free: false },
+  { icon: FileText,   name: "My Articles",             desc: "Full article history. Filter, search, re-publish, or refresh any past article.",   free: true  },
 ];
+
 
 // ─── Component ───────────────────────────────────────────────────
 

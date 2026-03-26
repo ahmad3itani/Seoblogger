@@ -52,47 +52,57 @@ const NAV_SECTIONS: NavSection[] = [
     {
         title: "Content",
         items: [
-            { href: "/dashboard/new",          label: "New Article",     icon: PenTool,      feature: null },
-            { href: "/dashboard/articles",     label: "My Articles",     icon: FileText,     feature: null },
-            { href: "/dashboard/bulk",         label: "Bulk Generator",  icon: Layers,       feature: "hasBulkGeneration",  minPlan: "starter" },
-            { href: "/dashboard/amazon",       label: "Amazon Affiliate",icon: ShoppingCart, feature: null },
-            { href: "/dashboard/brand-voice",  label: "Brand Voices",    icon: Megaphone,    feature: null },
-            { href: "/dashboard/quality-pass", label: "Quality Pass",    icon: Sparkles,     feature: "hasQualityPass",     minPlan: "pro" },
+            { href: "/dashboard/new",          label: "Article Writer",   icon: PenTool,      feature: null },
+            { href: "/dashboard/bulk",         label: "Bulk Generator",   icon: Layers,       feature: "hasBulkGeneration", minPlan: "starter" },
+            { href: "/dashboard/amazon",       label: "Affiliate Writer", icon: ShoppingCart, feature: null },
+            { href: "/dashboard/articles",     label: "My Articles",      icon: FileText,     feature: null },
         ],
     },
     {
-        title: "SEO Tools",
+        title: "Optimize",
         items: [
-            { href: "/dashboard/keywords",    label: "Keyword Research", icon: TrendingUp, feature: null },
-            { href: "/dashboard/ideas",       label: "Trend Ideas",      icon: Lightbulb,  feature: "hasTrendIdeas",     minPlan: "starter" },
-            { href: "/dashboard/clustering",  label: "Keyword Clustering",icon: Network,   feature: "hasAutoClustering", minPlan: "pro" },
+            { href: "/dashboard/quality-pass", label: "Quality Pass",     icon: Sparkles,     feature: "hasQualityPass",    minPlan: "pro" },
+            { href: "/dashboard/refresh",      label: "Content Refresh",  icon: RefreshCw,    feature: "hasContentRefresh", minPlan: "pro" },
+            { href: "/dashboard/brand-voice",  label: "Brand Voices",     icon: Megaphone,    feature: null },
+        ],
+    },
+    {
+        title: "SEO & Research",
+        items: [
+            { href: "/dashboard/keywords",    label: "Keyword Research",   icon: TrendingUp,  feature: null },
+            { href: "/dashboard/ideas",       label: "Trend Ideas",        icon: Lightbulb,   feature: "hasTrendIdeas",     minPlan: "starter" },
+            { href: "/dashboard/clustering",  label: "Keyword Clustering", icon: Network,     feature: "hasAutoClustering", minPlan: "pro" },
+        ],
+    },
+    {
+        title: "Audit & Analysis",
+        items: [
             { href: "/dashboard/audit/full",  label: "AdSense & Site Audit", icon: Activity, feature: null },
-            { href: "/dashboard/refresh",     label: "Content Refresh",  icon: RefreshCw,  feature: "hasContentRefresh", minPlan: "pro" },
-            { href: "/dashboard/linker",      label: "Internal Linker",  icon: LinkIcon,   feature: null },
+            { href: "/dashboard/linker",      label: "Internal Linker",       icon: LinkIcon, feature: null },
+            { href: "/dashboard/analytics",   label: "Analytics",             icon: BarChart3, feature: "hasAnalytics", minPlan: "pro" },
         ],
     },
     {
-        title: "Marketing",
+        title: "Marketing & AI",
         items: [
-            { href: "/dashboard/marketing",             label: "Marketing Hub", icon: Bot, feature: null },
-            { href: "/dashboard/marketing/quick-audit", label: "Quick Audit",   icon: Zap, feature: null },
+            { href: "/dashboard/marketing",   label: "Marketing Agents",   icon: Bot,          feature: null },
         ],
     },
     {
         title: "Scheduling",
         items: [
-            { href: "/dashboard/campaigns", label: "Campaigns", icon: CalendarClock, feature: "hasScheduling", minPlan: "starter" },
-            { href: "/dashboard/calendar",  label: "Calendar",  icon: Calendar,      feature: "hasScheduling", minPlan: "starter" },
+            { href: "/dashboard/campaigns",   label: "Campaigns",          icon: CalendarClock, feature: "hasScheduling", minPlan: "starter" },
+            { href: "/dashboard/calendar",    label: "Calendar",           icon: Calendar,      feature: "hasScheduling", minPlan: "starter" },
         ],
     },
     {
         title: null,
         items: [
-            { href: "/dashboard/analytics", label: "Analytics", icon: BarChart3, feature: "hasAnalytics", minPlan: "pro" },
-            { href: "/dashboard/settings",  label: "Settings",  icon: Settings,  feature: null },
+            { href: "/dashboard/settings",    label: "Settings",           icon: Settings,      feature: null },
         ],
     },
 ];
+
 
 const NAV_ITEMS = NAV_SECTIONS.flatMap(s => s.items);
 
