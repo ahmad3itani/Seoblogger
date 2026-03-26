@@ -47,7 +47,27 @@ export async function POST(req: Request) {
     }
 
     // Resolve price ID at runtime
-    const priceId = rawPriceId || getStripePriceId(planName, billing);
+    let priceId = rawPriceId || getStripePriceId(planName, billing);
+
+    // Auto-fix if user provided a Stripe Product ID (prod_*) instead of a Price ID (price_*)
+    if (priceId && priceId.startsWith('prod_')) {
+      try {
+        const product = await stripe.products.retrieve(priceId);
+        if (product.default_price) {
+          priceId = typeof product.default_price === 'string' 
+            ? product.default_price 
+            : product.default_price.id;
+        } else {
+          const prices = await stripe.prices.list({ product: priceId, active: true, limit: 1 });
+          if (prices.data.length > 0) {
+            priceId = prices.data[0].id;
+          }
+        }
+      } catch (err) {
+        console.error("Failed to resolve Product ID to Price ID:", err);
+      }
+    }
+
     if (!priceId) {
       console.error(`Missing Stripe price ID for plan: ${planName}, billing: ${billing}. Check STRIPE_PRICE_ID_${planName.toUpperCase()} env var.`);
       return NextResponse.json(
