@@ -15,6 +15,7 @@ function getStripePriceId(planName: string, billing: string): string | null {
       return isYearly
         ? (process.env.STRIPE_PRICE_ID_PRO_YEARLY || process.env.STRIPE_PRICE_ID_PRO || null)
         : (process.env.STRIPE_PRICE_ID_PRO || null);
+    case "agency":
     case "enterprise":
       return isYearly
         ? (process.env.STRIPE_PRICE_ID_ENTERPRISE_YEARLY || process.env.STRIPE_PRICE_ID_ENTERPRISE || null)

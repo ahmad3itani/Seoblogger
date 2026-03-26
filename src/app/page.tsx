@@ -9,7 +9,7 @@ import {
   Menu, X, Search, TrendingUp, RefreshCw, Network, Lightbulb,
   Calendar, Activity, Link as LinkIcon, ShoppingCart, Shield,
   Layers, Crown, Brain, Target, Timer, Users, Gauge, Award,
-  Play, ChevronDown, Check, Megaphone, Plus, Minus, ThumbsUp, XCircle
+  Play, ChevronDown, Check, Megaphone, Plus, Minus, ThumbsUp, XCircle, Loader2
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
@@ -226,6 +226,11 @@ const PLANS = [
     features: ["100 articles / month", "Everything in Starter", "Quality Pass", "Content Refresh", "Keyword Clustering", "Marketing Agents", "Analytics Dashboard", "Priority support"],
     cta: "Go Pro", featured: false,
   },
+  {
+    name: "Agency", price: 99, period: "/month",
+    features: ["500 articles / month", "Everything in Pro", "Programmatic SEO API", "White-label reports", "Dedicated Manager", "Priority Slack support"],
+    cta: "Start Agency Trial", featured: false,
+  },
 ];
 
 
@@ -292,7 +297,30 @@ export default function LandingPage() {
   const [heroWord, setHeroWord] = useState(0);
   const [prevWord, setPrevWord] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const heroWords = ["Articles", "Reviews", "Guides", "Campaigns", "Traffic"];
+
+  const handleCheckout = async (planName: string) => {
+    if (!isAuthenticated) return;
+    setLoadingPlan(planName);
+    try {
+      const res = await fetch("/api/stripe/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ planName: planName.toLowerCase(), billing: "monthly" })
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        console.error("No checkout URL returned", data);
+      }
+    } catch (err) {
+      console.error("Checkout failed:", err);
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -975,7 +1003,7 @@ export default function LandingPage() {
             </p>
           </Reveal>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
             {PLANS.map((plan, i) => (
               <Reveal key={plan.name} delay={i * 100} direction="scale">
                 <div className={`pricing-card h-full flex flex-col ${plan.featured ? "featured" : ""}`}>
@@ -1020,13 +1048,22 @@ export default function LandingPage() {
                     ))}
                   </ul>
 
-                  <Link href={plan.price === 0 ? "/auth/register" : "/auth/register?plan=" + plan.name.toLowerCase()}>
+                  {isAuthenticated && plan.price > 0 ? (
                     <Button
+                      onClick={() => handleCheckout(plan.name)}
+                      disabled={loadingPlan === plan.name}
                       className={`w-full ${plan.featured ? "btn-primary" : "btn-ghost"}`}
                     >
+                      {loadingPlan === plan.name ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
                       {plan.cta}
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link href={plan.price === 0 ? "/auth/register" : "/auth/register?plan=" + plan.name.toLowerCase()}>
+                      <Button className={`w-full ${plan.featured ? "btn-primary" : "btn-ghost"}`}>
+                        {plan.cta}
+                      </Button>
+                    </Link>
+                  )}
                 </div>
               </Reveal>
             ))}
