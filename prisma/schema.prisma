@@ -388,12 +388,18 @@ model CachedPost {
 }
 
 model SiteAudit {
-  id          String   @id @default(cuid())
-  blogId      String
-  blog        Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
-  score       Int      @default(0)
-  issues      Json     @default("[]") // Array of issue objects
-  runAt       DateTime @default(now())
+  id             String   @id @default(cuid())
+  blogId         String
+  blog           Blog     @relation(fields: [blogId], references: [id], onDelete: Cascade)
+  score          Int      @default(0)
+  issues         Json     @default("[]") // Array of SEO issue objects
+
+  // AdSense Audit Data
+  adsenseScore   Int?
+  adsenseStatus  String?  // Ready, Almost Ready, Not Ready
+  adsenseData    Json?    // { issues: [], recommendations: [] }
+
+  runAt          DateTime @default(now())
 }
 
 // ─── CAMPAIGNS & BRAND ────────────────────────────────────
