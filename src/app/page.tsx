@@ -9,10 +9,12 @@ import {
   Menu, X, Search, TrendingUp, RefreshCw, Network, Lightbulb,
   Calendar, Activity, Link as LinkIcon, ShoppingCart, Shield,
   Layers, Crown, Brain, Target, Timer, Users, Gauge, Award,
-  Play, ChevronDown, Check, Megaphone,
+  Play, ChevronDown, Check, Megaphone, Plus, Minus, ThumbsUp, XCircle
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
+import { ProblemSolutionMatrix } from "@/components/landing/ProblemSolution";
+import { FeatureDeepDives } from "@/components/landing/FeatureDeepDives";
 
 // ─── Reveal on scroll ───────────────────────────────────────────
 function Reveal({
@@ -98,6 +100,36 @@ function TiltCard({ children, className = "" }: { children: React.ReactNode; cla
   );
 }
 
+// ─── FAQ Accordion ──────────────────────────────────────────────
+function FaqItem({ q, a }: { q: string; a: string | React.ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="border border-white/10 rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.02)" }}>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between p-5 text-left transition-colors hover:bg-white/[0.02]"
+      >
+        <span className="text-base font-semibold" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>{q}</span>
+        {open ? <Minus className="w-5 h-5 text-muted hover:text-white transition-colors" /> : <Plus className="w-5 h-5 text-muted hover:text-white transition-colors" />}
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="px-5 pb-5 text-sm leading-relaxed"
+            style={{ color: "var(--text-secondary)" }}
+          >
+            {a}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 // ─── Data ────────────────────────────────────────────────────────
 
 // icon accent color values (static — no dynamic class names)
@@ -170,12 +202,12 @@ const STEPS = [
 ];
 
 const REVIEWS = [
-  { name: "Sarah K.",  role: "Travel Blogger",   avatar: "SK", text: "Cut my content time from 8 hours to 30 minutes. The Quality Pass makes every article read like a pro wrote it.", stars: 5 },
-  { name: "Ahmed R.",  role: "Tech Reviewer",    avatar: "AR", text: "Amazon Affiliate writer is a game-changer. Product reviews with comparison tables in minutes. Revenue doubled.", stars: 5 },
-  { name: "Maria L.",  role: "Food Blogger",     avatar: "ML", text: "The Site Audit found 23 issues I had no idea about. Smart fix suggestions. Organic traffic up 40%.", stars: 5 },
-  { name: "David C.",  role: "Agency Owner",     avatar: "DC", text: "We manage 12 Blogger sites. Bulk Generator runs 100+ articles/month on autopilot. Incredible ROI.", stars: 5 },
-  { name: "Priya N.",  role: "Lifestyle Blogger",avatar: "PN", text: "The keyword clustering tool helped me build topical authority fast. Rankings shot up in 6 weeks.", stars: 5 },
-  { name: "James W.",  role: "Finance Blogger",  avatar: "JW", text: "Finally a Blogger-specific tool. The native publish integration saves hours every week.", stars: 5 },
+  { name: "Sarah K.",  role: "Travel Blogger",   avatar: "SK", text: "Cut my content time from 8 hours to 30 minutes. The Quality Pass makes every article read like a pro wrote it.", stars: 5, result: "Saved 30hrs/mo" },
+  { name: "Ahmed R.",  role: "Tech Reviewer",    avatar: "AR", text: "Amazon Affiliate writer is a game-changer. Product reviews with comparison tables in minutes. Revenue doubled.", stars: 5, result: "+105% Rev" },
+  { name: "Maria L.",  role: "Food Blogger",     avatar: "ML", text: "The Site Audit found 23 issues I had no idea about. Smart fix suggestions. Organic traffic up 40%.", stars: 5, result: "+40% Traffic" },
+  { name: "David C.",  role: "Agency Owner",     avatar: "DC", text: "We manage 12 Blogger sites. Bulk Generator runs 100+ articles/month on autopilot. Incredible ROI.", stars: 5, result: "12 Sites Managed" },
+  { name: "Priya N.",  role: "Lifestyle Blogger",avatar: "PN", text: "The keyword clustering tool helped me build topical authority fast. Rankings shot up in 6 weeks.", stars: 5, result: "Ranked #1 for 15+ KW" },
+  { name: "James W.",  role: "Finance Blogger",  avatar: "JW", text: "Finally a Blogger-specific tool. The native publish integration saves hours every week. AdSense approved incredibly fast.", stars: 5, result: "AdSense Approved" },
 ];
 
 const PLANS = [
@@ -225,6 +257,29 @@ const TOOLS_SHOWCASE = [
   { icon: Calendar,   name: "Campaign Scheduler",      desc: "Set topics, frequency, and publish on autopilot across any time horizon.",         free: false },
   { icon: BarChart3,  name: "Analytics Dashboard",     desc: "Track publishing trends, word counts, and content performance.",                   free: false },
   { icon: FileText,   name: "My Articles",             desc: "Full article history. Filter, search, re-publish, or refresh any past article.",   free: true  },
+];
+
+const FAQS = [
+  {
+    q: "Is generating AI content safe for Google and AdSense?",
+    a: "Yes. Google's official guidelines state they do not penalize content strictly because it was generated by AI, provided it is high-quality and helpful to readers. Our 'Quality Pass' humanizer significantly optimizes your articles to ensure they pass spam detections and are genuinely valuable to users, matching human writing criteria."
+  },
+  {
+    q: "How does the AdSense Readiness Audit work?",
+    a: "We scan your entire Blogger site and analyze it strictly against Google's real AdSense approval criteria. We check for 'Thin Content', ensure you have required pages like 'About' and 'Privacy Policy', verify site navigation structures, and score it from 0-100. If something's wrong, we give you a button to fix it immediately."
+  },
+  {
+    q: "Can I publish directly to my Blogger site?",
+    a: "Yes! Simply sign in with Google to securely link your Blogger account. Once linked, you can generate 3000-word articles with SEO-embedded AI images and publish them instantly as Draft or Live posts right from the platform."
+  },
+  {
+    q: "What types of articles can I create?",
+    a: "Everything. Standard informational guides, massive Listicles, How-To guides, and deep Amazon Affiliate Product Reviews complete with auto-generated comparison HTML tables."
+  },
+  {
+    q: "Can you generate articles in languages other than English?",
+    a: "Yes, our AI generation engines fully support over 40+ languages, including Spanish, French, German, Arabic, Hindi, and many others, complete with region-specific semantic SEO optimization."
+  },
 ];
 
 
@@ -655,6 +710,12 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ══ PROBLEM / SOLUTION ════════════════════════════════════ */}
+      <ProblemSolutionMatrix />
+
+      {/* ══ DEEP DIVES ════════════════════════════════════════════ */}
+      <FeatureDeepDives />
+
       {/* ══ FEATURES BENTO ════════════════════════════════════════ */}
       <section id="features" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -996,9 +1057,13 @@ export default function LandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {REVIEWS.map((r, i) => (
               <Reveal key={r.name} delay={i * 70}>
-                <TiltCard className="bento-card h-full">
+                <TiltCard className="bento-card h-full flex flex-col relative">
+                  {/* Result Badge */}
+                  <div className="absolute -top-3 right-4 bg-gradient-to-r from-[#6C4CF1] to-[#8B5CF6] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-lg border border-white/20">
+                    {r.result}
+                  </div>
                   {/* Stars */}
-                  <div className="flex gap-0.5 mb-4">
+                  <div className="flex gap-0.5 mb-4 mt-2">
                     {Array.from({ length: r.stars }).map((_, s) => (
                       <Star key={s} className="w-3.5 h-3.5 fill-current" style={{ color: "var(--brand-primary)" }} />
                     ))}
@@ -1019,6 +1084,28 @@ export default function LandingPage() {
                     </div>
                   </div>
                 </TiltCard>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FAQS ══════════════════════════════════════════════════ */}
+      <section className="py-24 border-y relative" style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.01)" }} id="faq">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Reveal className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4 font-display text-white">
+              Still have <span className="gradient-text">questions?</span>
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              We've got answers. If you don't see yours here, reach out to our team.
+            </p>
+          </Reveal>
+          
+          <div className="space-y-3">
+            {FAQS.map((faq, i) => (
+              <Reveal key={i} delay={i * 50}>
+                <FaqItem q={faq.q} a={faq.a} />
               </Reveal>
             ))}
           </div>
