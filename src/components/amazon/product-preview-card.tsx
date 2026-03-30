@@ -37,9 +37,10 @@ export function ProductPreviewCard({
     ) : null;
 
     return (
-        <div className="group relative rounded-xl p-5 transition-all duration-300 hover:scale-[1.01] hover:shadow-xl" style={{
-            background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+        <div className="group relative rounded-lg p-5 transition-all" style={{
+            background: "var(--bg-card)",
             border: "1px solid var(--border-subtle)",
+            boxShadow: "0 1px 3px rgba(28, 25, 23, 0.04)",
         }}>
             {/* Drag handle */}
             {draggable && (
@@ -50,22 +51,20 @@ export function ProductPreviewCard({
 
             <div className={`${draggable ? 'ml-6' : ''}`}>
                 {/* Header row */}
-                <div className="flex items-start justify-between gap-2 mb-3">
+                <div className="flex items-start justify-between gap-2 mb-4">
                     <div className="flex items-center gap-2 flex-wrap">
-                        <div className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold" style={{
-                            background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
-                            color: "#FF9900",
-                            border: "1px solid rgba(255, 153, 0, 0.2)"
+                        <div className="w-7 h-7 rounded-md flex items-center justify-center text-xs font-semibold" style={{
+                            background: "var(--brand-primary)",
+                            color: "white",
                         }}>
                             {index + 1}
                         </div>
                         {isFirst && (
-                            <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{
-                                background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)",
-                                color: "#22C55E",
-                                border: "1px solid rgba(34, 197, 94, 0.25)"
+                            <span className="px-2.5 py-1 rounded-md text-xs font-medium" style={{
+                                background: "var(--brand-accent)",
+                                color: "white",
                             }}>
-                                ⭐ Top Pick
+                                Top Pick
                             </span>
                         )}
                         {tierBadge}
@@ -108,39 +107,39 @@ export function ProductPreviewCard({
                 </div>
 
                 {/* Product name */}
-                <h4 className="font-semibold text-base mb-3 leading-snug group-hover:text-orange-400 transition-colors" style={{ color: "var(--text-primary)" }}>
+                <h4 className="font-semibold text-base mb-4 leading-snug" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
                     {product.name}
                 </h4>
 
                 {/* Details grid */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(255, 153, 0, 0.08)", border: "1px solid rgba(255, 153, 0, 0.15)" }}>
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>Price:</span>
-                        <span className="text-sm font-bold" style={{ color: "#FF9900" }}>{product.priceRange}</span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}>
+                        <span className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>Price</span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>{product.priceRange}</span>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: "rgba(234, 179, 8, 0.08)", border: "1px solid rgba(234, 179, 8, 0.15)" }}>
-                        <span className="text-xs" style={{ color: "var(--text-muted)" }}>Rating:</span>
-                        <span className="text-sm font-bold" style={{ color: "#EAB308" }}>⭐ {product.rating}</span>
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-md" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-subtle)" }}>
+                        <span className="text-xs font-medium" style={{ color: "var(--text-tertiary)" }}>Rating</span>
+                        <span className="text-sm font-semibold" style={{ color: "var(--text-primary)" }}>★ {product.rating}</span>
                     </div>
                 </div>
 
                 {/* Best for */}
-                <div className="mb-4 p-3 rounded-lg" style={{ background: "rgba(108, 76, 241, 0.05)", border: "1px solid rgba(108, 76, 241, 0.1)" }}>
-                    <div className="text-[10px] uppercase tracking-wider mb-1 font-semibold" style={{ color: "var(--text-muted)" }}>Best For</div>
-                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>{product.bestFor}</p>
+                <div className="mb-4 p-3 rounded-md" style={{ background: "var(--bg-surface)", borderLeft: "3px solid var(--brand-primary)" }}>
+                    <div className="text-xs font-medium mb-1.5" style={{ color: "var(--text-secondary)" }}>Best For</div>
+                    <p className="text-sm leading-relaxed" style={{ color: "var(--text-primary)" }}>{product.bestFor}</p>
                 </div>
 
                 {/* Key features */}
                 {product.keyFeatures && product.keyFeatures.length > 0 && (
                     <div className="mb-4">
-                        <div className="text-[10px] uppercase tracking-wider mb-2 font-semibold" style={{ color: "var(--text-muted)" }}>Key Features</div>
+                        <div className="text-xs font-medium mb-2" style={{ color: "var(--text-secondary)" }}>Key Features</div>
                         <div className="flex flex-wrap gap-2">
                             {product.keyFeatures.slice(0, 4).map((feature, i) => (
                                 <span
                                     key={i}
-                                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all hover:scale-105"
+                                    className="px-2.5 py-1 rounded-md text-xs"
                                     style={{
-                                        background: "rgba(255, 255, 255, 0.04)",
+                                        background: "var(--bg-surface)",
                                         color: "var(--text-secondary)",
                                         border: "1px solid var(--border-subtle)"
                                     }}
@@ -158,14 +157,13 @@ export function ProductPreviewCard({
                         href={product.affiliateUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:scale-105"
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-all"
                         style={{
-                            background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
-                            color: "#FF9900",
-                            border: "1px solid rgba(255, 153, 0, 0.25)"
+                            background: "var(--brand-primary)",
+                            color: "white",
                         }}
                     >
-                        <ExternalLink className="w-3.5 h-3.5" />
+                        <ExternalLink className="w-4 h-4" />
                         View on Amazon
                     </a>
                 )}

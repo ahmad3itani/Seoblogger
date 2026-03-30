@@ -46,17 +46,17 @@ export function ProductList({
     return (
         <div className="space-y-4">
             {/* Header with stats */}
-            <div className="flex items-center justify-between p-4 rounded-xl" style={{
-                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%)",
+            <div className="flex items-center justify-between p-4 rounded-md" style={{
+                background: "var(--bg-surface)",
                 border: "1px solid var(--border-subtle)"
             }}>
                 <div className="flex items-center gap-3">
-                    <span className="text-base font-bold" style={{ color: "var(--text-primary)" }}>
+                    <span className="text-base font-semibold" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
                         {products.length} Product{products.length !== 1 ? 's' : ''}
                     </span>
-                    <span className="text-xs px-2 py-1 rounded-lg" style={{
-                        background: "rgba(255, 255, 255, 0.04)",
-                        color: "var(--text-muted)",
+                    <span className="text-xs px-2 py-1 rounded-md" style={{
+                        background: "var(--bg-card)",
+                        color: "var(--text-tertiary)",
                         border: "1px solid var(--border-subtle)"
                     }}>
                         {minProducts}-{maxProducts} range
@@ -65,25 +65,23 @@ export function ProductList({
 
                 {/* Tier distribution */}
                 <div className="flex items-center gap-2 text-xs">
-                    <span className="font-medium" style={{ color: "var(--text-muted)" }}>Tiers:</span>
-                    <span className="px-2.5 py-1 rounded-lg font-semibold" style={{
-                        background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.08) 100%)",
-                        color: "#22C55E",
-                        border: "1px solid rgba(34, 197, 94, 0.2)"
+                    <span className="font-medium" style={{ color: "var(--text-secondary)" }}>Tiers:</span>
+                    <span className="px-2.5 py-1 rounded-md font-medium" style={{
+                        background: "var(--brand-accent)",
+                        color: "white",
                     }}>
                         {tierCounts.budget} Budget
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg font-semibold" style={{
-                        background: "linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(59, 130, 246, 0.08) 100%)",
-                        color: "#3B82F6",
-                        border: "1px solid rgba(59, 130, 246, 0.2)"
+                    <span className="px-2.5 py-1 rounded-md font-medium" style={{
+                        background: "var(--bg-card)",
+                        color: "var(--text-primary)",
+                        border: "1px solid var(--border-subtle)"
                     }}>
                         {tierCounts.midRange} Mid
                     </span>
-                    <span className="px-2.5 py-1 rounded-lg font-semibold" style={{
-                        background: "linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(168, 85, 247, 0.08) 100%)",
-                        color: "#A855F7",
-                        border: "1px solid rgba(168, 85, 247, 0.2)"
+                    <span className="px-2.5 py-1 rounded-md font-medium" style={{
+                        background: "var(--brand-primary)",
+                        color: "white",
                     }}>
                         {tierCounts.premium} Premium
                     </span>
@@ -109,18 +107,19 @@ export function ProductList({
 
             {/* Warning if no tier diversity */}
             {(tierCounts.budget === 0 || tierCounts.premium === 0) && products.length >= 3 && (
-                <div className="p-4 rounded-xl flex items-start gap-3" style={{
-                    background: "linear-gradient(135deg, rgba(234, 179, 8, 0.12) 0%, rgba(234, 179, 8, 0.06) 100%)",
-                    border: "1px solid rgba(234, 179, 8, 0.25)"
+                <div className="p-4 rounded-md flex items-start gap-3" style={{
+                    background: "var(--bg-surface)",
+                    borderLeft: "3px solid var(--brand-warning)"
                 }}>
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{
-                        background: "rgba(234, 179, 8, 0.15)"
+                    <div className="w-8 h-8 rounded-md flex items-center justify-center shrink-0" style={{
+                        background: "var(--brand-warning)",
+                        color: "white"
                     }}>
                         <span className="text-lg">💡</span>
                     </div>
                     <div>
-                        <p className="text-sm font-semibold mb-1" style={{ color: "#EAB308" }}>Tier Diversity Tip</p>
-                        <p className="text-sm leading-relaxed" style={{ color: "#FDE047" }}>
+                        <p className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Tier Diversity Tip</p>
+                        <p className="text-sm leading-relaxed" style={{ color: "var(--text-secondary)" }}>
                             Including budget and premium options helps capture more search traffic.
                             {tierCounts.budget === 0 && " Consider adding a budget-friendly option."}
                             {tierCounts.premium === 0 && " Consider adding a premium option."}

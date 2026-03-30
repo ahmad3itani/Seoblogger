@@ -489,82 +489,70 @@ export default function AmazonAffiliatePage() {
 
     return (
         <div className="space-y-6 max-w-7xl">
-            {/* Header */}
-            <div
-                className="rounded-2xl p-6 relative overflow-hidden"
-                style={{
-                    background: "linear-gradient(135deg, rgba(255, 153, 0, 0.12) 0%, rgba(255, 153, 0, 0.06) 100%)",
-                    border: "1px solid rgba(255, 153, 0, 0.25)",
-                }}
-            >
-                {/* Decorative gradient orb */}
-                <div
-                    className="absolute -top-10 -right-10 w-40 h-40 rounded-full opacity-20 blur-3xl"
-                    style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
-                />
-
-                <div className="flex items-center justify-between relative z-10">
-                    <div className="flex items-center gap-4">
+            {/* Header - Editorial Precision */}
+            <div className="border-b pb-8 mb-8" style={{ borderColor: "var(--border-subtle)" }}>
+                <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-5">
                         <div
-                            className="w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg"
+                            className="w-12 h-12 rounded-lg flex items-center justify-center"
                             style={{
-                                background: "linear-gradient(135deg, rgba(255, 153, 0, 0.2) 0%, rgba(255, 153, 0, 0.1) 100%)",
-                                border: "1px solid rgba(255, 153, 0, 0.3)",
+                                background: "var(--brand-primary)",
+                                color: "white",
                             }}
                         >
-                            <ShoppingCart className="w-7 h-7" style={{ color: "#FF9900" }} />
+                            <ShoppingCart className="w-6 h-6" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                                Amazon Affiliate Engine
+                            <h1 
+                                className="text-3xl font-semibold mb-2" 
+                                style={{ 
+                                    fontFamily: "var(--font-display)", 
+                                    color: "var(--text-primary)",
+                                    letterSpacing: "-0.02em"
+                                }}
+                            >
+                                Amazon Affiliate Articles
                             </h1>
-                            <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
-                                High-converting product reviews with smart tier selection
+                            <p className="text-base" style={{ color: "var(--text-secondary)" }}>
+                                Generate product reviews with intelligent tier selection and affiliate optimization
                             </p>
                         </div>
                     </div>
 
-                    {/* Enhanced step indicator */}
-                    <div className="hidden lg:block">
-                        <div className="flex items-center gap-3">
-                            {[
-                                { num: 1, label: 'Configure', key: 'input' },
-                                { num: 2, label: 'Preview', key: 'preview' },
-                                { num: 3, label: 'Generate', key: 'result' },
-                            ].map((s, idx) => (
-                                <div key={s.key} className="flex items-center gap-3">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <div
-                                            className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all duration-300 ${
-                                                step === s.key ? 'scale-110' : ''
-                                            }`}
-                                            style={{
-                                                background: step === s.key
-                                                    ? "linear-gradient(135deg, #FF9900 0%, #FF7700 100%)"
-                                                    : "rgba(255, 255, 255, 0.05)",
-                                                color: step === s.key ? "white" : "var(--text-muted)",
-                                                border: step === s.key ? "1px solid rgba(255, 153, 0, 0.5)" : "1px solid var(--border-subtle)",
-                                                boxShadow: step === s.key ? "0 4px 15px rgba(255, 153, 0, 0.3)" : "none",
-                                            }}
-                                        >
-                                            {s.num}
-                                        </div>
-                                        <span
-                                            className="text-[10px] font-medium"
-                                            style={{ color: step === s.key ? "#FF9900" : "var(--text-muted)" }}
-                                        >
-                                            {s.label}
-                                        </span>
+                    {/* Clean step indicator */}
+                    <div className="hidden lg:flex items-center gap-2">
+                        {[
+                            { num: 1, label: 'Configure', key: 'input' },
+                            { num: 2, label: 'Preview', key: 'preview' },
+                            { num: 3, label: 'Generate', key: 'result' },
+                        ].map((s, idx) => (
+                            <div key={s.key} className="flex items-center gap-2">
+                                <div className="flex items-center gap-2">
+                                    <div
+                                        className="w-8 h-8 rounded-md flex items-center justify-center text-sm font-medium transition-all"
+                                        style={{
+                                            background: step === s.key ? "var(--brand-primary)" : "var(--bg-surface)",
+                                            color: step === s.key ? "white" : "var(--text-tertiary)",
+                                            border: `1px solid ${step === s.key ? "var(--brand-primary)" : "var(--border-subtle)"}`,
+                                        }}
+                                    >
+                                        {s.num}
                                     </div>
-                                    {idx < 2 && (
-                                        <ArrowRight
-                                            className="w-4 h-4 mb-4"
-                                            style={{ color: "var(--text-muted)" }}
-                                        />
-                                    )}
+                                    <span
+                                        className="text-sm font-medium"
+                                        style={{ color: step === s.key ? "var(--text-primary)" : "var(--text-tertiary)" }}
+                                    >
+                                        {s.label}
+                                    </span>
                                 </div>
-                            ))}
-                        </div>
+                                {idx < 2 && (
+                                    <ArrowRight
+                                        className="w-4 h-4"
+                                        style={{ color: "var(--border-default)" }}
+                                    />
+                                )}
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
@@ -577,17 +565,17 @@ export default function AmazonAffiliatePage() {
                     {/* Left: Configuration */}
                     <div className="lg:col-span-1 space-y-5">
                         <div
-                            className="rounded-2xl p-5 space-y-4"
+                            className="rounded-lg p-6 space-y-5"
                             style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
                         >
-                            <h2 className="text-xs font-semibold uppercase tracking-wider" style={{ color: "var(--text-muted)" }}>
+                            <h2 className="text-sm font-semibold" style={{ color: "var(--text-primary)", fontFamily: "var(--font-display)" }}>
                                 Amazon Configuration
                             </h2>
 
                             <div>
-                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Store Region *</Label>
+                                <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Store Region *</Label>
                                 <Select value={storeRegion} onValueChange={(v) => v && setStoreRegion(v)}>
-                                    <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                    <SelectTrigger className="h-10 text-sm" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -614,50 +602,50 @@ export default function AmazonAffiliatePage() {
                             </div>
 
                             <div>
-                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Store ID / Affiliate Tag *</Label>
+                                <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Store ID / Affiliate Tag *</Label>
                                 <Input
                                     placeholder="e.g., mystore-20"
                                     value={storeId}
                                     onChange={(e) => setStoreId(e.target.value)}
-                                    className="h-9 text-xs"
-                                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                                    className="h-10 text-sm"
+                                    style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                                 />
-                                <p className="text-[10px] mt-1" style={{ color: "var(--text-muted)" }}>Found in your Amazon Associates account</p>
+                                <p className="text-xs mt-2" style={{ color: "var(--text-tertiary)" }}>Found in your Amazon Associates account</p>
                             </div>
 
                             <div>
-                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Niche / Product Category *</Label>
+                                <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Niche / Product Category *</Label>
                                 <Input
                                     placeholder="e.g., Wireless Earbuds, Standing Desks"
                                     value={niche}
                                     onChange={(e) => setNiche(e.target.value)}
-                                    className="h-9 text-xs"
-                                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                                    className="h-10 text-sm"
+                                    style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                                 />
                             </div>
 
                             <div>
-                                <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Product URL (optional)</Label>
+                                <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Product URL (optional)</Label>
                                 <Input
                                     placeholder="https://www.amazon.com/dp/..."
                                     value={productUrl}
                                     onChange={(e) => setProductUrl(e.target.value)}
-                                    className="h-9 text-xs font-mono"
-                                    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}
+                                    className="h-10 text-sm font-mono"
+                                    style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}
                                 />
                                 {productUrl.trim() && (
-                                    <div className="mt-2 flex items-center gap-2 text-[10px] px-3 py-1.5 rounded-lg" style={{ background: "rgba(255,153,0,0.08)", color: "#FF9900", border: "1px solid rgba(255,153,0,0.20)" }}>
-                                        <Link2 className="w-3 h-3 shrink-0" />
-                                        <span>Deep single-product review mode</span>
+                                    <div className="mt-3 flex items-center gap-2 text-xs px-3 py-2 rounded-md" style={{ background: "var(--bg-selected)", color: "var(--brand-primary)", border: "1px solid var(--border-primary)" }}>
+                                        <Link2 className="w-4 h-4 shrink-0" />
+                                        <span className="font-medium">Deep single-product review mode</span>
                                     </div>
                                 )}
                             </div>
 
                             {!productUrl.trim() && (
                                 <div>
-                                    <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Article Type</Label>
+                                    <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Article Type</Label>
                                     <Select value={articleType} onValueChange={(v) => v && setArticleType(v)}>
-                                        <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
+                                        <SelectTrigger className="h-10 text-sm" style={{ background: "var(--bg-surface)", border: "1px solid var(--border-default)" }}>
                                             <SelectValue />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -672,7 +660,7 @@ export default function AmazonAffiliatePage() {
 
                             {!productUrl.trim() && articleType !== "single-review" && (
                                 <div>
-                                    <Label className="text-xs mb-1.5 block" style={{ color: "var(--text-secondary)" }}>Number of Products</Label>
+                                    <Label className="text-sm mb-2 block font-medium" style={{ color: "var(--text-secondary)" }}>Number of Products</Label>
                                     <Select value={productCount} onValueChange={(v) => v && setProductCount(v)}>
                                         <SelectTrigger className="h-9 text-xs" style={{ background: "rgba(255,255,255,0.04)", border: "1px solid var(--border-glass)" }}>
                                             <SelectValue />
@@ -727,66 +715,50 @@ export default function AmazonAffiliatePage() {
                     {/* Right: Empty state */}
                     <div className="lg:col-span-2 min-h-[500px]">
                         <div
-                            className="rounded-2xl h-full flex flex-col items-center justify-center p-12 text-center relative overflow-hidden"
+                            className="rounded-lg h-full flex flex-col items-center justify-center p-12 text-center"
                             style={{
-                                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
-                                border: "1px dashed var(--border-glass)",
+                                background: "var(--bg-surface)",
+                                border: "1px dashed var(--border-default)",
                             }}
                         >
-                            {/* Decorative elements */}
-                            <div
-                                className="absolute top-10 right-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
-                                style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
-                            />
-                            <div
-                                className="absolute bottom-10 left-10 w-32 h-32 rounded-full opacity-10 blur-3xl"
-                                style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)" }}
-                            />
-
-                            <div className="relative z-10">
+                            <div>
                                 <div
-                                    className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6 mx-auto shadow-xl"
+                                    className="w-20 h-20 rounded-lg flex items-center justify-center mb-6 mx-auto"
                                     style={{
-                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.15) 0%, rgba(255, 153, 0, 0.08) 100%)",
-                                        border: "1px solid rgba(255, 153, 0, 0.25)",
+                                        background: "var(--brand-primary)",
+                                        color: "white",
                                     }}
                                 >
-                                    <Package className="w-12 h-12" style={{ color: "#FF9900" }} />
+                                    <Package className="w-10 h-10" />
                                 </div>
-                                <h2 className="text-2xl font-bold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                <h2 className="text-2xl font-semibold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                                     Smart Two-Step Generation
                                 </h2>
-                                <p className="text-sm max-w-lg mb-6 leading-relaxed" style={{ color: "var(--text-secondary)" }}>
-                                    First, we&apos;ll research and analyze products for your niche using AI. Then you can review, reorder, or customize the selection before generating your SEO-optimized article.
+                                <p className="text-base max-w-lg mb-8 leading-relaxed mx-auto" style={{ color: "var(--text-secondary)" }}>
+                                    First, we'll research and analyze products for your niche using AI. Then you can review, reorder, or customize the selection before generating your SEO-optimized article.
                                 </p>
 
                                 {/* Feature highlights */}
-                                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-6">
-                                    <div className="p-4 rounded-xl" style={{ background: "rgba(34, 197, 94, 0.08)", border: "1px solid rgba(34, 197, 94, 0.2)" }}>
-                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(34, 197, 94, 0.15)" }}>
-                                            <span className="text-lg">💰</span>
-                                        </div>
-                                        <div className="text-xs font-semibold mb-1" style={{ color: "#22C55E" }}>Budget Picks</div>
-                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Value options</div>
+                                <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto mb-8">
+                                    <div className="p-4 rounded-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                        <div className="text-2xl mb-2">💰</div>
+                                        <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Budget</div>
+                                        <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>Value options</div>
                                     </div>
-                                    <div className="p-4 rounded-xl" style={{ background: "rgba(59, 130, 246, 0.08)", border: "1px solid rgba(59, 130, 246, 0.2)" }}>
-                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(59, 130, 246, 0.15)" }}>
-                                            <span className="text-lg">⚖️</span>
-                                        </div>
-                                        <div className="text-xs font-semibold mb-1" style={{ color: "#3B82F6" }}>Mid-Range</div>
-                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Balanced choice</div>
+                                    <div className="p-4 rounded-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                        <div className="text-2xl mb-2">⚖️</div>
+                                        <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Mid-Range</div>
+                                        <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>Balanced choice</div>
                                     </div>
-                                    <div className="p-4 rounded-xl" style={{ background: "rgba(168, 85, 247, 0.08)", border: "1px solid rgba(168, 85, 247, 0.2)" }}>
-                                        <div className="w-8 h-8 rounded-lg mx-auto mb-2 flex items-center justify-center" style={{ background: "rgba(168, 85, 247, 0.15)" }}>
-                                            <span className="text-lg">👑</span>
-                                        </div>
-                                        <div className="text-xs font-semibold mb-1" style={{ color: "#A855F7" }}>Premium</div>
-                                        <div className="text-[10px]" style={{ color: "var(--text-muted)" }}>Top quality</div>
+                                    <div className="p-4 rounded-md" style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}>
+                                        <div className="text-2xl mb-2">👑</div>
+                                        <div className="text-sm font-medium mb-1" style={{ color: "var(--text-primary)" }}>Premium</div>
+                                        <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>Top quality</div>
                                     </div>
                                 </div>
 
-                                <div className="text-xs" style={{ color: "var(--text-muted)" }}>
-                                    ✨ AI-powered product research • 🎯 Smart tier selection • 📊 SEO optimization
+                                <div className="text-sm" style={{ color: "var(--text-tertiary)" }}>
+                                    AI-powered research · Smart tier selection · SEO optimization
                                 </div>
                             </div>
                         </div>
@@ -986,45 +958,35 @@ export default function AmazonAffiliatePage() {
                     {/* Loading state */}
                     {isGenerating && (
                         <div
-                            className="rounded-2xl h-[500px] flex flex-col items-center justify-center p-8 relative overflow-hidden"
+                            className="rounded-lg h-[500px] flex flex-col items-center justify-center p-8"
                             style={{
-                                background: "linear-gradient(135deg, rgba(255, 255, 255, 0.02) 0%, rgba(255, 255, 255, 0.01) 100%)",
+                                background: "var(--bg-surface)",
                                 border: "1px solid var(--border-subtle)"
                             }}
                         >
-                            {/* Animated gradient orbs */}
-                            <div
-                                className="absolute top-0 right-0 w-64 h-64 rounded-full opacity-10 blur-3xl animate-pulse"
-                                style={{ background: "radial-gradient(circle, rgba(255, 153, 0, 0.4) 0%, transparent 70%)" }}
-                            />
-                            <div
-                                className="absolute bottom-0 left-0 w-64 h-64 rounded-full opacity-10 blur-3xl animate-pulse"
-                                style={{ background: "radial-gradient(circle, rgba(108, 76, 241, 0.4) 0%, transparent 70%)", animationDelay: "1s" }}
-                            />
-
-                            <div className="relative z-10">
+                            <div>
                                 <div
-                                    className="w-24 h-24 rounded-3xl animate-glow-pulse flex items-center justify-center mb-6 mx-auto shadow-2xl"
+                                    className="w-20 h-20 rounded-lg flex items-center justify-center mb-6 mx-auto"
                                     style={{
-                                        background: "linear-gradient(135deg, rgba(255, 153, 0, 0.2) 0%, rgba(255, 153, 0, 0.1) 100%)",
-                                        border: "1px solid rgba(255, 153, 0, 0.3)"
+                                        background: "var(--brand-primary)",
+                                        color: "white",
                                     }}
                                 >
-                                    <Sparkles className="w-12 h-12 animate-pulse" style={{ color: "#FF9900" }} />
+                                    <Sparkles className="w-10 h-10 animate-pulse" />
                                 </div>
-                                <h2 className="text-2xl font-bold mb-2 text-center" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
-                                    Generating Article...
+                                <h2 className="text-2xl font-semibold mb-2 text-center" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                                    Generating Article
                                 </h2>
-                                <p className="text-sm mb-8 text-center" style={{ color: "var(--text-muted)" }}>
-                                    Full SEO pipeline running • 45-60 seconds
+                                <p className="text-sm mb-8 text-center" style={{ color: "var(--text-secondary)" }}>
+                                    Full SEO pipeline running · 45-60 seconds
                                 </p>
                                 <div className="w-full max-w-md space-y-2">
                                     {AMAZON_STEPS.map((s, i) => (
                                         <div
                                             key={i}
-                                            className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs animate-in fade-in transition-all hover:scale-105"
+                                            className="flex items-center gap-3 px-4 py-2.5 rounded-md text-sm"
                                             style={{
-                                                background: "rgba(255, 255, 255, 0.02)",
+                                                background: "var(--bg-card)",
                                                 border: "1px solid var(--border-subtle)",
                                                 color: "var(--text-secondary)",
                                                 animationDelay: `${i * 3}s`,
