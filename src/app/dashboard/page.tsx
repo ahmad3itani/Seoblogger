@@ -35,14 +35,14 @@ const QUICK_ACTIONS = [
 ];
 
 const TOOL_SHORTCUTS = [
-    { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "#6C4CF1" },
-    { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "#00C2FF" },
-    { icon: Activity,   title: "AdSense & Site Audit", desc: "SEO & AdSense checks",     href: "/dashboard/audit/full",     color: "#22C55E" },
-    { icon: Lightbulb,  title: "Trend Ideas",      desc: "Topic discovery",         href: "/dashboard/ideas",     color: "#F59E0B" },
-    { icon: ShoppingCart,title:"Amazon Writer",    desc: "Affiliate reviews",       href: "/dashboard/amazon",    color: "#10B981" },
-    { icon: LinkIcon,   title: "Internal Linker",  desc: "Smart link suggestions",  href: "/dashboard/linker",    color: "#8B5CF6" },
-    { icon: Network,    title: "Clustering",       desc: "Topic clusters",          href: "/dashboard/clustering",color: "#06B6D4" },
-    { icon: RefreshCw,  title: "Content Refresh",  desc: "Update old posts",        href: "/dashboard/refresh",   color: "#6366F1" },
+    { icon: PenTool,    title: "Write Article",   desc: "Article from keyword",    href: "/dashboard/new",       color: "var(--brand-primary)" },
+    { icon: Search,     title: "Keywords",         desc: "Research & analyze",      href: "/dashboard/keywords",  color: "var(--brand-accent)" },
+    { icon: Activity,   title: "AdSense & Site Audit", desc: "SEO & AdSense checks",     href: "/dashboard/audit/full",     color: "var(--brand-success)" },
+    { icon: Lightbulb,  title: "Trend Ideas",      desc: "Topic discovery",         href: "/dashboard/ideas",     color: "var(--brand-warning)" },
+    { icon: ShoppingCart,title:"Amazon Writer",    desc: "Affiliate reviews",       href: "/dashboard/amazon",    color: "var(--brand-primary)" },
+    { icon: LinkIcon,   title: "Internal Linker",  desc: "Smart link suggestions",  href: "/dashboard/linker",    color: "var(--brand-accent)" },
+    { icon: Network,    title: "Clustering",       desc: "Topic clusters",          href: "/dashboard/clustering",color: "var(--brand-primary)" },
+    { icon: RefreshCw,  title: "Content Refresh",  desc: "Update old posts",        href: "/dashboard/refresh",   color: "var(--brand-accent)" },
 ];
 
 function StatCard({ icon: Icon, label, value, sub, trend, iconColor }: {
@@ -50,23 +50,23 @@ function StatCard({ icon: Icon, label, value, sub, trend, iconColor }: {
 }) {
     return (
         <div
-            className="rounded-2xl p-5 transition-all hover:translate-y-[-2px]"
+            className="rounded-lg p-5"
             style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
         >
             <div className="flex items-start justify-between mb-4">
                 <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ background: `${iconColor}18`, border: `1px solid ${iconColor}30` }}
+                    className="w-10 h-10 rounded-md flex items-center justify-center"
+                    style={{ background: iconColor, color: "white" }}
                 >
-                    <Icon className="w-5 h-5" style={{ color: iconColor }} />
+                    <Icon className="w-5 h-5" />
                 </div>
                 {trend !== undefined && trend !== 0 && (
                     <div
-                        className="flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full"
+                        className="flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-md"
                         style={
                             trend > 0
-                                ? { background: "rgba(34,197,94,0.10)", color: "#22C55E" }
-                                : { background: "rgba(239,68,68,0.10)", color: "#ef4444" }
+                                ? { background: "var(--brand-success)", color: "white" }
+                                : { background: "var(--brand-error)", color: "white" }
                         }
                     >
                         {trend > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
@@ -74,11 +74,11 @@ function StatCard({ icon: Icon, label, value, sub, trend, iconColor }: {
                     </div>
                 )}
             </div>
-            <div className="text-2xl font-bold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+            <div className="text-2xl font-semibold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                 {value}
             </div>
-            <div className="text-xs font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>{label}</div>
-            <div className="text-[11px]" style={{ color: "var(--text-muted)" }}>{sub}</div>
+            <div className="text-sm font-medium mb-0.5" style={{ color: "var(--text-secondary)" }}>{label}</div>
+            <div className="text-xs" style={{ color: "var(--text-tertiary)" }}>{sub}</div>
         </div>
     );
 }
@@ -99,7 +99,7 @@ export default function DashboardPage() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-7 h-7 animate-spin" style={{ color: "var(--brand-orange)" }} />
+                <Loader2 className="w-7 h-7 animate-spin" style={{ color: "var(--brand-primary)" }} />
             </div>
         );
     }
@@ -110,17 +110,17 @@ export default function DashboardPage() {
         <div className="space-y-7 max-w-6xl">
 
             {/* ── Welcome ── */}
-            <div>
+            <div className="border-b pb-6 mb-6" style={{ borderColor: "var(--border-subtle)" }}>
                 <h1
-                    className="text-2xl font-bold mb-1"
-                    style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}
+                    className="text-3xl font-semibold mb-2"
+                    style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)", letterSpacing: "-0.02em" }}
                 >
                     {profile?.name
-                        ? <>Welcome back, <span className="gradient-text">{profile.name.split(" ")[0]}</span></>
-                        : <>Welcome to <span className="gradient-text">BloggerSEO</span></>
+                        ? <>Welcome back, <span style={{ color: "var(--brand-primary)" }}>{profile.name.split(" ")[0]}</span></>
+                        : <>Welcome to <span style={{ color: "var(--brand-primary)" }}>BloggerSEO</span></>
                     }
                 </h1>
-                <p className="text-sm" style={{ color: "var(--text-secondary)" }}>
+                <p className="text-base" style={{ color: "var(--text-secondary)" }}>
                     Generate, optimize, and publish SEO articles to Blogger — all in one place.
                 </p>
             </div>
@@ -131,25 +131,25 @@ export default function DashboardPage() {
                     icon={FileText} label="Total Articles"
                     value={stats?.totalArticles.toString() || "0"}
                     sub={stats?.totalArticles ? `${stats.articlesThisMonth} this month` : "Start creating!"}
-                    trend={stats?.growthPercentage} iconColor="#6C4CF1"
+                    trend={stats?.growthPercentage} iconColor="var(--brand-primary)"
                 />
                 <StatCard
                     icon={CheckCircle2} label="Published"
                     value={stats?.publishedArticles.toString() || "0"}
                     sub={stats?.publishedArticles ? `${stats.totalPublishLogs} total publishes` : "Connect Blogger"}
-                    iconColor="#22C55E"
+                    iconColor="var(--brand-success)"
                 />
                 <StatCard
                     icon={Clock} label="Drafts"
                     value={stats?.draftArticles.toString() || "0"}
                     sub={stats?.draftArticles ? "Ready to publish" : "Write your first post"}
-                    iconColor="#F59E0B"
+                    iconColor="var(--brand-warning)"
                 />
                 <StatCard
                     icon={Globe} label="Connected Blogs"
                     value={stats?.connectedBlogs.toString() || "0"}
                     sub={stats?.connectedBlogs ? `${stats.activeCampaigns} active campaigns` : "Set up your blog"}
-                    iconColor="#00C2FF"
+                    iconColor="var(--brand-accent)"
                 />
             </div>
 
@@ -162,12 +162,12 @@ export default function DashboardPage() {
                         style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
                     >
                         <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-sm font-semibold" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                            <h3 className="text-sm font-medium" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                                 Article Usage
                             </h3>
                             <span
-                                className="text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize"
-                                style={{ background: "rgba(108,76,241,0.12)", color: "var(--brand-orange)", border: "1px solid rgba(108,76,241,0.22)" }}
+                                className="text-xs font-medium px-2.5 py-1 rounded-md capitalize"
+                                style={{ background: "var(--brand-primary)", color: "white" }}
                             >
                                 {stats.plan} Plan
                             </span>
@@ -177,11 +177,11 @@ export default function DashboardPage() {
                                 className="progress-bar-fill transition-all duration-700"
                                 style={{
                                     width: `${usagePct}%`,
-                                    background: usagePct > 80 ? "#ef4444" : usagePct > 60 ? "#f59e0b" : "linear-gradient(90deg,#6C4CF1,#8B6CF2)",
+                                    background: usagePct > 80 ? "var(--brand-error)" : usagePct > 60 ? "var(--brand-warning)" : "var(--brand-primary)",
                                 }}
                             />
                         </div>
-                        <div className="flex justify-between text-xs" style={{ color: "var(--text-muted)" }}>
+                        <div className="flex justify-between text-sm" style={{ color: "var(--text-secondary)" }}>
                             <span>{stats.articlesThisMonth} used this month</span>
                             <span>{stats.articleLimit} limit</span>
                         </div>
@@ -191,24 +191,24 @@ export default function DashboardPage() {
                 {/* Connect blog banner */}
                 {stats && stats.connectedBlogs === 0 ? (
                     <div
-                        className="rounded-2xl p-5 flex items-start gap-4"
-                        style={{ background: "rgba(108,76,241,0.06)", border: "1px solid rgba(108,76,241,0.22)" }}
+                        className="rounded-lg p-5 flex items-start gap-4"
+                        style={{ background: "var(--bg-surface)", borderLeft: "3px solid var(--brand-primary)" }}
                     >
                         <div
-                            className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-                            style={{ background: "rgba(108,76,241,0.12)", border: "1px solid rgba(108,76,241,0.25)" }}
+                            className="w-10 h-10 rounded-md flex items-center justify-center flex-shrink-0"
+                            style={{ background: "var(--brand-primary)", color: "white" }}
                         >
-                            <Globe className="w-5 h-5" style={{ color: "var(--brand-orange)" }} />
+                            <Globe className="w-5 h-5" />
                         </div>
                         <div>
-                            <h3 className="text-sm font-semibold mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
+                            <h3 className="text-sm font-medium mb-1" style={{ fontFamily: "var(--font-display)", color: "var(--text-primary)" }}>
                                 Connect Your Blog
                             </h3>
-                            <p className="text-xs mb-3" style={{ color: "var(--text-secondary)" }}>
+                            <p className="text-sm mb-3" style={{ color: "var(--text-secondary)" }}>
                                 Link your Blogger account to start publishing articles automatically.
                             </p>
                             <Link href="/dashboard/settings">
-                                <Button size="sm" className="btn-primary text-xs h-8 px-4">
+                                <Button size="sm" className="text-sm h-9 px-4" style={{ background: "var(--brand-primary)", color: "white" }}>
                                     Connect Blogger
                                 </Button>
                             </Link>
@@ -217,20 +217,20 @@ export default function DashboardPage() {
                 ) : stats && (
                     /* Content stats filler when blog is connected */
                     <div
-                        className="rounded-2xl p-5 grid grid-cols-2 gap-4"
+                        className="rounded-lg p-5 grid grid-cols-2 gap-4"
                         style={{ background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }}
                     >
                         {[
-                            { label: "Total Words", value: stats.totalWordCount.toLocaleString(), color: "#6C4CF1" },
-                            { label: "Avg. Words",  value: stats.avgWordCount.toLocaleString(),   color: "#00C2FF" },
-                            { label: "This Month",  value: stats.articlesThisMonth.toString(),    color: "#22C55E" },
-                            { label: "Campaigns",   value: stats.activeCampaigns.toString(),      color: "#8B5CF6" },
+                            { label: "Total Words", value: stats.totalWordCount.toLocaleString(), color: "var(--brand-primary)" },
+                            { label: "Avg. Words",  value: stats.avgWordCount.toLocaleString(),   color: "var(--brand-accent)" },
+                            { label: "This Month",  value: stats.articlesThisMonth.toString(),    color: "var(--brand-success)" },
+                            { label: "Campaigns",   value: stats.activeCampaigns.toString(),      color: "var(--brand-primary)" },
                         ].map(s => (
                             <div key={s.label}>
-                                <div className="text-xl font-bold" style={{ fontFamily: "var(--font-display)", color: s.color }}>
+                                <div className="text-xl font-semibold" style={{ fontFamily: "var(--font-display)", color: s.color }}>
                                     {s.value}
                                 </div>
-                                <div className="text-[11px] mt-0.5" style={{ color: "var(--text-muted)" }}>{s.label}</div>
+                                <div className="text-xs mt-0.5" style={{ color: "var(--text-tertiary)" }}>{s.label}</div>
                             </div>
                         ))}
                     </div>
@@ -239,36 +239,36 @@ export default function DashboardPage() {
 
             {/* ── Quick Actions ── */}
             <div>
-                <h2 className="text-sm font-semibold mb-3" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                <h2 className="text-sm font-medium mb-4" style={{ fontFamily: "var(--font-display)", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em" }}>
                     Quick Actions
                 </h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {QUICK_ACTIONS.map((a) => (
                         <Link key={a.title} href={a.href}>
                             <div
-                                className="rounded-2xl p-5 cursor-pointer group transition-all hover:translate-y-[-2px]"
+                                className="rounded-lg p-6 cursor-pointer group"
                                 style={
                                     a.primary
-                                        ? { background: "linear-gradient(135deg,#6C4CF1,#8B6CF2)", boxShadow: "0 8px 30px rgba(108,76,241,0.25)" }
+                                        ? { background: "var(--brand-primary)", color: "white" }
                                         : { background: "var(--bg-card)", border: "1px solid var(--border-subtle)" }
                                 }
                             >
                                 <a.icon
-                                    className="w-7 h-7 mb-3"
-                                    style={{ color: a.primary ? "rgba(255,255,255,0.9)" : "var(--brand-orange)" }}
+                                    className="w-8 h-8 mb-4"
+                                    style={{ color: a.primary ? "white" : "var(--brand-primary)" }}
                                 />
                                 <h3
-                                    className="text-sm font-semibold mb-1"
-                                    style={{ fontFamily: "var(--font-display)", color: a.primary ? "#fff" : "var(--text-primary)" }}
+                                    className="text-base font-medium mb-2"
+                                    style={{ fontFamily: "var(--font-display)", color: a.primary ? "white" : "var(--text-primary)" }}
                                 >
                                     {a.title}
                                 </h3>
-                                <p className="text-xs mb-3" style={{ color: a.primary ? "rgba(255,255,255,0.7)" : "var(--text-secondary)" }}>
+                                <p className="text-sm mb-4" style={{ color: a.primary ? "rgba(255,255,255,0.9)" : "var(--text-secondary)" }}>
                                     {a.desc}
                                 </p>
-                                <div className="flex items-center gap-1 text-xs font-medium" style={{ color: a.primary ? "rgba(255,255,255,0.9)" : "var(--brand-orange)" }}>
+                                <div className="flex items-center gap-1 text-sm font-medium" style={{ color: a.primary ? "white" : "var(--brand-primary)" }}>
                                     Get Started
-                                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                                 </div>
                             </div>
                         </Link>
